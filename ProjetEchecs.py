@@ -4,23 +4,36 @@ Created on Mon Nov  7 15:55:31 2016
 
 @author: anatole parre
 """
-import random
-import functools
-import copy
+
 import sys
 from PyQt4 import QtGui, QtCore
 
-chess = "Chess_rdt60.png"
+from Chess_Grid import Grid
 
+dicWhitePict = {
+    "Rook" : "white_rook.png",
+    "Knight" : "white_knight.png",
+    "Bishop" : "white_bishop.png",
+    "Queen" : "white_queen.png" ,
+    "King" : "white_king.png",
+    "Pawn" : "white_pawn.png"
+}
 
+dicBlackPict = {
+    "Rook" : "black_rook.png",
+    "Knight" : "black_knight.png",
+    "Bishop" : "black_bishop.png",
+    "Queen" : "black_queen.png" ,
+    "King" : "black_king.png",
+    "Pawn" : "black_pawn.png"
+}                
 
 class Frame(QtGui.QPushButton):
     #position, pièce ?
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         super(Frame,self).__init__()       
         self.__x = x
         self.__y = y
-        self.__pieceIn = False
         #si la somme est paire, la bouton est blanc
         if (x+y)%2 == 0:
             self.setStyleSheet("background-color: white")
@@ -30,44 +43,117 @@ class Frame(QtGui.QPushButton):
         
     
     def deleteChessMan(self):
-        if self.__pieceIn:        
-            self.setIcon(QtGui.Icon())
-            self.__pieceIn = False
-            
-    def addChessMan(self, image):      
-        self.__pieceIn = True
-        self.setIcon(QtGui.QIcon(image))
-        self.setIconSize(QtCore.QSize(10,10))
-            
-        """
-            if (self.__x+self.__y)%2 == 0:
-                self.setIcon(icon2)
-            else:
-                self.setStyleSheet("background-image:url( "+ image + ")")
-        """
+      self.setIcon(QtGui.Icon())
 
-class Grid(QtGui.QWidget):
+            
+    def addChessMan(self, name, isWhite):      
+        icon = QtGui.QIcon()
+        if isWhite:
+            image = dicWhitePict[name]
+        else :
+            image = dicBlackPict[name]
+        icon.addPixmap(QtGui.QPixmap(image),
+                                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setIcon(icon)
+        self.setIconSize(QtCore.QSize(80, 40))
+        
+
+class Disp(QtGui.QWidget):
     def __init__(self):
-        super(Grid,self).__init__()        
-        self.__grid = [[Frame(i,j) for j in range(8)] for i in range(8)]
-        mainLayout=QtGui.QGridLayout()
+        super(Disp,self).__init__()
+        
+        # tableau de boutons
+        self.__chessboard= [[Frame(i,j) for j in range(8)] for i in range(8)]
+        mainLayout = QtGui.QGridLayout()
         self.setLayout(mainLayout)
         
-        
-        #grille
+        #affichage en grille de ce tableau
         gridLayout=QtGui.QGridLayout()
         for i in range(8):
             for j in range(8):
-                gridLayout.addWidget(self.__grid[i][j],i,j)
+                gridLayout.addWidget(self.__chessboard[i][j],i,j)
         mainLayout.addLayout(gridLayout,1,0)
-        self.__grid[1][0].addChessMan(chess)
+        
+        # creation de la grille theorique utilisee pour les deplacements 
+        self.__grid = Grid()
+        
+        # remplissage des frames de l'echiquier
+        self.evolve_chessboard() 
+        
+        # affichage des pieces
+        self.choose_chessman(True)
+        
+        
         self.setWindowTitle('XXXX Chess Master Game XXXX')
         self.showMaximized()
-    #tableau de frames, quelle pièce est dessus, menacée?
+    
+    # mise a jour de l'affichage des cases de l'echiquier en fonction du
+    # contenu de self.__grid
+    def evolve_chessboard(self):
+        if self.__grid.__getattr__((1,1)) == None:
+            return True
+        for i in range(8):
+            for j in range(8):
+                if (self.__grid.__getattr__((i,j)) != None):
+                    self.__chessboard[i][j].addChessMan( \
+                                            self.__grid.__getattr__((i,j)).name,\
+                                            self.__grid.__getattr__((i,j)).isWhite)
+                    
+                        
+    
+    # fonction qui desalloue toutes les frames, on ne peut donc pas
+    # cliquer dessus
+    def unallow_all_frame(self):
+        for i in range(8):
+            for b in self.__chessboard[i] :
+                b.setEnabled(False)
 
+    def choose_chessman(self, whiteIsPlaying):
+        self.unallow_all_frame()
+        for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
+            self.__chessboard[i][j].setEnabled(True)
+            self.clicked.connect(self.allow_moves(whiteIsPlaying))
+    
+    def allow_moves(self, whiteIsPlaying):
+        self.unallow_all_frame()
+        
+        fr = self.sender()
+        # si on reclique sur la case où on est,
+        # on revient a l'étape de selection d'une piece a jouer
+        self.__chessboard[fr.x][fr.y].setEnabled(True)
+        self.__chessboard[fr.x][fr.y].clicked.connect(\
+                                             self.allow_chess(whiteIsPlaying))
+        
+        # si on clique sur une case on effectue donc un coup
+        moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
+        for (i, j) in moves:
+            self.__chessboard[i][j].setEnabled(True)
+            self.__chessboard[i][j].clicked.connect(self.play(whiteIsPlaying, \
+                                                                         fr))
+        
+    def play(self, whiteIsPlaying, chessmanFrame):
+        # le joueur vient de cliquer sur la case où il veut aller        
+        aim = self.sender()
+        
+        # on recupere la piece qui va bouger
+        chessman = self.__grid[(chessmanFrame.x,chessmanFrame.y)]
+        
+        # on effectue le "vrai" deplacement dans self.__grid
+        self.__grid.move((aim.x, aim.y), chessman)
+        
+        # on met a jour l'affichage
+        self.evolve_chessboard()
+        # c'est au joueur suivant de jouer
+        self.choose_chessman(not whiteIsPlaying)
+        
+        
+    def disp_taken_chessmen():
+        pass
+    
+    
 def disp():
     app = QtGui.QApplication(sys.argv)
-    ex = Grid()
+    ex = Disp()
     sys.exit(app.exec_())
 ##class Display():
 ##    def __init__(self):
