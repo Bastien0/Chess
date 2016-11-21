@@ -88,7 +88,7 @@ class Disp(QtGui.QWidget):
         self.evolve_chessboard() 
         
         # affichage des pieces
-        #self.choose_chessman(True)
+        self.choose_chessman(True)
         
         
         self.setWindowTitle('XXXX Chess Master Game XXXX')
@@ -97,14 +97,14 @@ class Disp(QtGui.QWidget):
     # mise a jour de l'affichage des cases de l'echiquier en fonction du
     # contenu de self.__grid
     def evolve_chessboard(self):
-        if self.__grid.__getattr__((1,1)) == None:
+        if self.__grid[(1,1)] == None:
             return True
         for i in range(8):
             for j in range(8):
-                if (self.__grid.__getattr__((i,j)) != None):
+                if (self.__grid[(i,j)] != None):
                     self.__chessboard[i][j].addChessMan( \
-                                  self.__grid.__getattr__((i,j)).name,\
-                                  self.__grid.__getattr__((i,j)).isWhite)
+                                  self.__grid[(i,j)].name,\
+                                  self.__grid[(i,j)].isWhite)
                     
                         
     

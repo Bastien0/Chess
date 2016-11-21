@@ -12,62 +12,62 @@ class Grid:
         self.__whiteLostChessmen = []
         self.__blackLostChessmen = []
         self.__grid = [[None for j in range(8)] for i in range(8)]
-        # pieces blanches
-        self.__whiteRooks = [Rook(True, 0, 0), Rook(True, 0, 7)]        
-        self.__whiteKnights = [Knight(True, 0, 1), Knight(True, 0, 6)]
-        self.__whiteBishops = [Bishop(True, 0, 2), Bishop(True, 0, 5)]
-        self.__whiteQueen = Queen(True, 0, 3)
-        self.__whiteKing = King(True, 0, 4)
-        # pions blancs
-        self.__whitePawns = []
-        for i in range(8):
-            self.__whitePawns.append(Pawn(True, 1, i))
+#        # pieces blanches
+#        self.__whiteRooks = [Rook(True, 0, 0), Rook(True, 0, 7)]        
+#        self.__whiteKnights = [Knight(True, 0, 1), Knight(True, 0, 6)]
+#        self.__whiteBishops = [Bishop(True, 0, 2), Bishop(True, 0, 5)]
+#        self.__whiteQueen = Queen(True, 0, 3)
+#        self.__whiteKing = King(True, 0, 4)
+#        # pions blancs
+#        self.__whitePawns = []
+#        for i in range(8):
+#            self.__whitePawns.append(Pawn(True, 1, i))
         
         
-        self.__grid[0][0] = self.__whiteRooks[0]
-        self.__grid[0][1] = self.__whiteKnights[0]
-        self.__grid[0][2] = self.__whiteBishops[0]
-        self.__grid[0][3] = self.__whiteQueen
-        self.__grid[0][4] = self.__whiteKing
-        self.__grid[0][5] = self.__whiteBishops[1]
-        self.__grid[0][6] = self.__whiteKnights[1]
-        self.__grid[0][7] = self.__whiteRooks[1]
+        self.__grid[0][0] = Rook(True, 0, 0)
+        self.__grid[0][1] = Knight(True, 0, 1)
+        self.__grid[0][2] = Bishop(True, 0, 2)
+        self.__grid[0][3] = Queen(True, 0, 3)
+        self.__grid[0][4] = King(True, 0, 4)
+        self.__grid[0][5] = Bishop(True, 0, 5)
+        self.__grid[0][6] = Knight(True, 0, 6)
+        self.__grid[0][7] = Rook(True, 0, 7)
         # pions blancs
         for i in range(8):
-            self.__grid[1][i] = self.__whitePawns[i]
+            self.__grid[1][i] = Pawn(True, 1, i)
         
               
         # pieces noires
-        self.__blackRooks = [Rook(False, 7, 0), Rook(False, 7, 7)]        
-        self.__blackKnights = [Knight(False, 7, 1), Knight(False, 7, 6)]
-        self.__blackBishops = [Bishop(False, 7, 2), Bishop(False, 7, 5)]
-        self.__blackQueen = Queen(False, 7, 3)
-        self.__blackKing = King(False, 7, 4)
-        # pions blancs
-        self.__blackPawns = []
-        for i in range(8):
-            self.__blackPawns.append(Pawn(False, 6, i))
+#        self.__blackRooks = [Rook(False, 7, 0), Rook(False, 7, 7)]        
+#        self.__blackKnights = [Knight(False, 7, 1), Knight(False, 7, 6)]
+#        self.__blackBishops = [Bishop(False, 7, 2), Bishop(False, 7, 5)]
+#        self.__blackQueen = Queen(False, 7, 3)
+#        self.__blackKing = King(False, 7, 4)
+#        # pions blancs
+#        self.__blackPawns = []
+#        for i in range(8):
+#            self.__blackPawns.append(Pawn(False, 6, i))
         
-        self.__grid[7][0] = self.__blackRooks[0]
-        self.__grid[7][1] = self.__blackKnights[0]
-        self.__grid[7][2] = self.__blackBishops[0]
-        self.__grid[7][3] = self.__blackQueen
-        self.__grid[7][4] = self.__blackKing
-        self.__grid[7][5] = self.__blackBishops[1]
-        self.__grid[7][6] = self.__blackKnights[1]
-        self.__grid[7][7] = self.__blackRooks[1]
+        self.__grid[7][0] = Rook(False, 7, 0)
+        self.__grid[7][1] = Knight(False, 7, 1)
+        self.__grid[7][2] = Bishop(False, 7, 2)
+        self.__grid[7][3] = Queen(False, 7, 3)
+        self.__grid[7][4] = King(False, 7, 4)
+        self.__grid[7][5] = Bishop(False, 7, 5)
+        self.__grid[7][6] = Knight(False, 7, 6)
+        self.__grid[7][7] = Rook(False, 7, 7)
         # pions blancs
         for i in range(8):
-            self.__grid[6][i] = self.__blackPawns[i]
+            self.__grid[6][i] = Pawn(False, 6, i)
 
     
     # accesseur d'une piece de coordonnees (i,j)
-    def __getattr__(self, coord):
+    def __getitem__(self, coord):
         return self.__grid[coord[0]][coord[1]]
     
     # set d'une piece aux coordonnes (i,j)
     # n'effectue pas la suppression d'une piece prise, 
-    def __set__(self, coord, Chessman):
+    def __setitem__(self, coord, Chessman):
         Chessman.x = coord[0]
         Chessman.y = coord[1]
         self.__grid[coord[0]][coord[1]] = Chessman
@@ -92,8 +92,14 @@ class Grid:
         self[coord] = Chessman
         self[oldCoordChessman] = None
         
-        
+    def setNone(self,x,y):
+        self.__grid[x][y]=None
       
+      
+    #vérifier que les cooronées u roi sont moifiées lors du déplacement  
+    def king_position(self,isWhite):
+        if isWhite: 
+            self.__whiteKing.x
     
     # La case est-elle vide ?
     def isVoid(self, x, y):
@@ -137,7 +143,7 @@ class Grid:
         #memoristaion de l'ancienne position
         coordIniChess =(Chessman.x, Chessman.y) 
         self[(x,y)] = Chessman
-        self[(Chessman.x, Chessman.y)] = None
+        self.setNone(Chessman.x, Chessman.y)
         for i in range(8):
             for j in range(8):
                 # si on tombe sur une piece de couleur differente,
@@ -145,9 +151,9 @@ class Grid:
                 # ie si la position du roi n'est pas dans la liste des
                 # positions accessibles,
                 # on repare ce qu'on a bouge dans la grille et on renvoie true
-                if not self[(i,j)].isVoid(i, j)\
+                if not self.isVoid(i, j)\
                     and Chessman.isWhite != self[(i,j)].isWhite\
-                    and self.king_position(Chessman. isWhite) \
+                    and self.king_position(Chessman.isWhite) \
                                         in self[(i,j)].moves(self):
                         # On remet l'echiquier en place
                         if someoneTaken:

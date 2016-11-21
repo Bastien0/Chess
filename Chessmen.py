@@ -180,7 +180,7 @@ class Pawn(Chessman):
     def __init__(self, isWhite, x, y):
         super(Pawn, self).__init__(isWhite, x, y, "Pawn")
 
-    def move(self, grid):
+    def moves(self, grid):
         tabAccess = []
         # direction du deplacement : 1 pour les blanc, -1 pour les noirs
         direction = 2*self.isWhite -1 
@@ -210,9 +210,9 @@ class Pawn(Chessman):
         # si la case qu'on veut prendre est occupée
         # si le deplacement ne met pas le roi en echec
         if self.x > 0 and 0 <= self.y + direction < 8 \
-        and not grid.isVoid(self.x - 1, self.y + direction) \
-        and not grid.isChessed(self, self.x - 1, self.y + direction):
-            tabAccess.append((self.x - 1, self.y + direction))
+        and not grid.isVoid(self.x - 1, self.y + direction) :
+            if grid.isChessed(self, self.x - 1, self.y + direction):
+                tabAccess.append((self.x - 1, self.y + direction))
         # à droite
         if self.x < 7 and 0 <= self.y + direction < 8:
             if not grid.isChessed(self, self.x + 1, self.y + direction) \
