@@ -41,6 +41,13 @@ class Frame(QtGui.QPushButton):
             self.setStyleSheet("background-color: grey")
         self.setFixedSize(100,100)
         
+    @property
+    def x(self):
+        return self.__x
+        
+    @property
+    def y(self):
+        return self.__y    
     
     def deleteChessMan(self):
       self.setIcon(QtGui.Icon())
@@ -112,7 +119,8 @@ class Disp(QtGui.QWidget):
         self.unallow_all_frame()
         for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
             self.__chessboard[i][j].setEnabled(True)
-            self.clicked.connect(self.allow_moves(whiteIsPlaying))
+            self.__chessboard[i][j].clicked.connect(lambda : self.allow_moves(\
+                                                        whiteIsPlaying))
     
     def allow_moves(self, whiteIsPlaying):
         self.unallow_all_frame()
@@ -122,10 +130,10 @@ class Disp(QtGui.QWidget):
         # on revient a l'étape de selection d'une piece a jouer
         self.__chessboard[fr.x][fr.y].setEnabled(True)
         self.__chessboard[fr.x][fr.y].clicked.connect(\
-                                             self.allow_chess(whiteIsPlaying))
+                         lambda : self.choose_chessman(whiteIsPlaying))
         
         # si on clique sur une case on effectue donc un coup
-        moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
+        moves = self.__grid[fr.x][fr.y].allowed_moves(self.__grid)
         for (i, j) in moves:
             self.__chessboard[i][j].setEnabled(True)
             self.__chessboard[i][j].clicked.connect(self.play(whiteIsPlaying, \

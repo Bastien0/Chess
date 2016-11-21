@@ -111,7 +111,7 @@ class Grid:
         l = []
         for i in range(8):
             for j in range(8):
-                if type(self.__grid[i][j]):
+                if self.__grid[i][j] != None:
                     if self.__grid[i][j].isWhite == colorIsWhite:
                         l.append((i, j))
         return l
