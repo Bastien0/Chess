@@ -88,7 +88,7 @@ class Disp(QtGui.QWidget):
         self.evolve_chessboard() 
         
         # affichage des pieces
-        self.choose_chessman(True)
+        #self.choose_chessman(True)
         
         
         self.setWindowTitle('XXXX Chess Master Game XXXX')
@@ -103,8 +103,8 @@ class Disp(QtGui.QWidget):
             for j in range(8):
                 if (self.__grid.__getattr__((i,j)) != None):
                     self.__chessboard[i][j].addChessMan( \
-                                            self.__grid.__getattr__((i,j)).name,\
-                                            self.__grid.__getattr__((i,j)).isWhite)
+                                  self.__grid.__getattr__((i,j)).name,\
+                                  self.__grid.__getattr__((i,j)).isWhite)
                     
                         
     
@@ -133,7 +133,7 @@ class Disp(QtGui.QWidget):
                          lambda : self.choose_chessman(whiteIsPlaying))
         
         # si on clique sur une case on effectue donc un coup
-        moves = self.__grid[fr.x][fr.y].allowed_moves(self.__grid)
+        moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
         for (i, j) in moves:
             self.__chessboard[i][j].setEnabled(True)
             self.__chessboard[i][j].clicked.connect(self.play(whiteIsPlaying, \
