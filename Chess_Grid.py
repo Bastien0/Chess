@@ -74,7 +74,9 @@ class Grid:
     
     # vrai deplacement
     def move(self, coord, Chessman):
+        print(Chessman)
         oldCoordChessman = (Chessman.x, Chessman.y)
+        print (oldCoordChessman)
         # si une piece est prise, on l'ajoute a la liste des pieces prises de
         # sa couleur
         if not self.isVoid(coord[0], coord[1]):
@@ -90,7 +92,8 @@ class Grid:
         # a faire
                 
         self[coord] = Chessman
-        self[oldCoordChessman] = None
+        print(oldCoordChessman)
+        self.setNone(oldCoordChessman[0],oldCoordChessman[1])
         
     def setNone(self,x,y):
         self.__grid[x][y]=None
@@ -98,8 +101,12 @@ class Grid:
       
     #vérifier que les cooronées u roi sont moifiées lors du déplacement  
     def king_position(self,isWhite):
-        if isWhite: 
-            self.__whiteKing.x
+        for i in range(8):
+            for j in range(8):
+                if self.__grid[i][j] != None:
+                    if self.__grid[i][j].isWhite==isWhite:
+                        if self.__grid[i][j].name == "King":
+                            return (i,j)
     
     # La case est-elle vide ?
     def isVoid(self, x, y):
@@ -108,7 +115,14 @@ class Grid:
     # Recherche tous les cavaliers blancs si colorIsWhite==True, noir sinon
     # utile pour le roque
     def listRooks(self, colorIsWhite):
+        for i in range(8):
+            for j in range(8):
+                if self.__grid[i][j] != None:
+                    if self.__grid[i][j].isWhite==colorisWhite:
+                        if self.__grid[i][j].name == "King":
+                            return (i,j)        
         if colorIsWhite :
+            
             return self.__whiteRooks
         else :
             return self.__blackRooks
@@ -159,13 +173,13 @@ class Grid:
                         if someoneTaken:
                             self[(x,y)] = takenChessman
                         else:
-                            self[(x,y)] = None
+                            self.setNone(x,y)
                         self[coordIniChess] = Chessman
                         return True
         if someoneTaken:
             self[(x,y)] = takenChessman
         else:
-            self[(x,y)] = None
+            self.setNone(x,y)
         self[coordIniChess] = Chessman       
         return False
         

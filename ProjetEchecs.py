@@ -90,7 +90,7 @@ class Disp(QtGui.QWidget):
         # affichage des pieces
         self.choose_chessman(True)
         
-        
+        print("Swhow Title")
         self.setWindowTitle('XXXX Chess Master Game XXXX')
         self.showMaximized()
     
@@ -116,6 +116,7 @@ class Disp(QtGui.QWidget):
                 b.setEnabled(False)
 
     def choose_chessman(self, whiteIsPlaying):
+        print("ChooseChessman")
         self.unallow_all_frame()
         for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
             self.__chessboard[i][j].setEnabled(True)
@@ -123,23 +124,30 @@ class Disp(QtGui.QWidget):
                                                         whiteIsPlaying))
     
     def allow_moves(self, whiteIsPlaying):
+        print("Allowmoves")
         self.unallow_all_frame()
-        
+        print("unallowD")
         fr = self.sender()
+        print("senderD")
         # si on reclique sur la case où on est,
         # on revient a l'étape de selection d'une piece a jouer
         self.__chessboard[fr.x][fr.y].setEnabled(True)
+        print("setEnabledD")
         self.__chessboard[fr.x][fr.y].clicked.connect(\
                          lambda : self.choose_chessman(whiteIsPlaying))
-        
+        print("reclique")
+
         # si on clique sur une case on effectue donc un coup
         moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
+        print(moves)
         for (i, j) in moves:
             self.__chessboard[i][j].setEnabled(True)
-            self.__chessboard[i][j].clicked.connect(self.play(whiteIsPlaying, \
-                                                                         fr))
+            self.__chessboard[i][j].clicked.connect(lambda : \
+                                        self.play(whiteIsPlaying,fr))
+        print("Connect")                                                              
         
     def play(self, whiteIsPlaying, chessmanFrame):
+        print("Play")
         # le joueur vient de cliquer sur la case où il veut aller        
         aim = self.sender()
         
@@ -167,3 +175,4 @@ def disp():
 ##    def __init__(self):
         
     #affichage + interactions
+disp()

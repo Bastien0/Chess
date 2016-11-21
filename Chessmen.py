@@ -53,12 +53,15 @@ class Chessman():
                 tabAccess.append((x, y))
         return tabAccess
     
-    def allowed_moves(self, grid):
-        tabAccess = []        
-        for coord in self.moves(grid):
-            if grid.isChessed(coord):
-                tabAccess.append(coord)
-        return tabAccess
+#    def allowed_moves(self, grid):
+#        tabAccess = []
+#        print("allowedMoves1")        
+#        for coord in self.moves(grid):
+#            print("AllowedMoves2")
+#            if grid.isChessed(coord):
+#                print("AM3")
+#                tabAccess.append(coord)
+#        return tabAccess
         
     
     # cette fonction renvoie une liste de positions accessibles parmi celles
@@ -68,8 +71,10 @@ class Chessman():
         for move in tab:
             x = move[0]
             y = move[1]
-            if (0 <= x < 8) and (0 <= y < 8) and \
-                not grid.sameColor(self, x, y) :
+            if (0 <= x < 8) and (0 <= y < 8) :
+                if grid.isVoid(x,y):
+                    tabAccess.append((x,y))
+                elif not grid.sameColor(self, x, y) :
                     tabAccess.append((x,y))
         return tabAccess
 
@@ -92,6 +97,16 @@ class Rook(Chessman):
     @property
     def hasMoved(self):
         return self.__hasMoved
+        
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess    
 
 
 class Bishop(Chessman):
@@ -104,7 +119,15 @@ class Bishop(Chessman):
                self.move_straight(grid, -1, 1)  + \
                self.move_straight(grid, 1, -1)  + \
                self.move_straight(grid, 1, 1)
-
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess           
 
 class Queen(Chessman):
     def __init__(self, isWhite, x, y):
@@ -120,7 +143,17 @@ class Queen(Chessman):
                self.move_straight(grid, -1, 1) + \
                self.move_straight(grid, 1, -1) + \
                self.move_straight(grid, 1, 1)
-
+               
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        print(len(self.moves(grid)))
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess          
 
 class Knight(Chessman):
     def __init__(self, isWhite, x, y):
@@ -130,7 +163,17 @@ class Knight(Chessman):
     def moves(self, grid):
         tab = [(i,j) for i in [-1,1,-2,2] for j in [-1,1,-2,2] \
                     if abs(i)!=abs(j) ]
-        return self.testedTuples(self, grid, tab)
+        return self.testedTuples(grid, tab)
+        
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess   
         
 
 class King(Chessman):
@@ -143,38 +186,51 @@ class King(Chessman):
         return self.__hasMoved
     
     @hasMoved.setter
-    def hasMoved(self, move = True):
+    def hasMoved(self):
         self.__hasMoved = True
     
     def moves(self, grid):
         tab = [(i,j) for i in [-1, 0, 1] for j in [-1, 0, 1] if (i,j) != 0 ]
-        tabAccess = self.testedTuples(self, grid, tab) # position accessibles
+        tabAccess = self.testedTuples(grid, tab) # position accessibles
         # hors roque
         
         # roque
         if not self.__hasMoved:
-            for k in grid.listRooks(self.__isWhite):
+            for (i,j) in [(0,0),(0,7),(7,7)]:
                 #tour de gauche (quelque soit la couleur)
-                if k.x == 0:
+                if j == 0:
                     # la tour ne doit pas avoir bouge
                     # les cases intermediaires doivent etre vides
                     # et il ne doit pas y avoir d'echecs le long de la 
                     # trajectoire
-                    if not k.hasMoved \
-                    and grid.isVoid(1, self.y) and grid.isVoid(2, self.y) \
-                    and not grid.isChessed(self, 2, self.y) \
-                    and not grid.isChessed(self, 3, self.y) \
-                    and not grid.isChessed(self, 4, self.y):
-                        tabAccess.append((1,self.y))
+                    if grid[(i,j)] != None\
+                    and not grid[(i,j)].hasMoved \
+                    and grid.isVoid(1, j) and grid.isVoid(2, j) \
+                    and not grid.isChessed(self, 2, j) \
+                    and not grid.isChessed(self, 3, j) \
+                    and not grid.isChessed(self, 4, j):
+                        tabAccess.append((1, j))
                 # tour de droite
                 else :
-                    if not k.hasMoved \
-                    and grid.isVoid(5, self.y) and grid.isVoid(6, self.y) \
-                    and not grid.isChessed(self, 4, self.y) \
-                    and not grid.isChessed(self, 5, self.y) \
-                    and not grid.isChessed(self, 6, self.y):
-                        tabAccess.append((6,self.y))
+                    if grid[(i,j)] != None\
+                    and not grid[(i,j)].hasMoved \
+                    and grid.isVoid(5, j) and grid.isVoid(6, j) \
+                    and not grid.isChessed(self, 4, j) \
+                    and not grid.isChessed(self, 5, j) \
+                    and not grid.isChessed(self, 6, j):
+                        tabAccess.append((6, j))
         return tabAccess
+     
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess
+        
 
 class Pawn(Chessman):
     def __init__(self, isWhite, x, y):
@@ -182,7 +238,11 @@ class Pawn(Chessman):
 
     def moves(self, grid):
         tabAccess = []
+        direction = 2*self.isWhite -1
+        tabAccess.append((self.x+direction,self.y))
+
         # direction du deplacement : 1 pour les blanc, -1 pour les noirs
+        """
         direction = 2*self.isWhite -1 
         
         # deplacement d'une case vers l'avant
@@ -217,8 +277,17 @@ class Pawn(Chessman):
         if self.x < 7 and 0 <= self.y + direction < 8:
             if not grid.isChessed(self, self.x + 1, self.y + direction) \
             and not grid.isVoid(self.x + 1, self.y + direction):
-                tabAccess.append((self.x + 1,self.y + direction))
+                tabAccess.append((self.x + 1,self.y + direction))"""
         return tabAccess
+
         # prise en passant (coup rare)
 
-        
+    def allowed_moves(self, grid):
+        tabAccess = []
+        print("allowedMoves1")        
+        for coord in self.moves(grid):
+            print("AllowedMoves2")
+            if not grid.isChessed(self,coord[0],coord[1]):
+                print("AM3")
+                tabAccess.append(coord)
+        return tabAccess    
