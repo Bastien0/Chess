@@ -96,7 +96,7 @@ class Grid:
         self.setNone(oldCoordChessman[0],oldCoordChessman[1])
         
     def setNone(self,x,y):
-        self.__grid[x][y]=None
+        self.__grid[x][y] = None
       
       
     #vérifier que les cooronées u roi sont moifiées lors du déplacement  

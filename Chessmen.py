@@ -44,8 +44,7 @@ class Chessman():
         x = self.__x + a
         y = self.__y + b 
         while (0 <= x < 8) and (0 <= y < 8) and grid.isVoid(x, y):
-            if not grid.isChessed(self, x, y):
-                tabAccess.append((x, y))
+            tabAccess.append((x, y))
             x += a
             y += b
         if (0 <= x < 8) and (0 <= y < 8) and \
