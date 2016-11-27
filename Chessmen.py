@@ -238,10 +238,11 @@ class Pawn(Chessman):
     def moves(self, grid):
         tabAccess = []
         direction = 2*self.isWhite -1
-        tabAccess.append((self.x+direction,self.y))
-
+        #tabAccess.append((self.x+direction,self.y))
+        print("lub")
+        print(tabAccess) 
         # direction du deplacement : 1 pour les blanc, -1 pour les noirs
-        """
+ 
         direction = 2*self.isWhite -1 
         
         # deplacement d'une case vers l'avant
@@ -249,34 +250,39 @@ class Pawn(Chessman):
         # si la case est vide
         # si la nouvelle position ne nous met pas le roi en echec
         if  0 <= self.y + direction < 8 \
-            and grid.isVoid(self.x, self.y + direction) \
-            and not grid.isChessed(self, self.x, self.y + direction):
-                tabAccess.append((self.x, self.y + direction))
+            and grid.isVoid(self.x + direction, self.y):
+            #and not grid.isChessed(self, self.x+ direction, self.y ):
+                tabAccess.append((self.x + direction, self.y))
         
         # premier déplacement de deux cases possible
         # si on est en position initiale pour les blancs ou les noirs
         # si les deux cases devant sont vides
         # si la nouvelle position ne met pas le roi en echec
-        if ((self.isWhite and self.y == 1) \
-            or (not self.isWhite and self.y == 7)) \
-            and grid.isVoid(self.x, self.y + direction) \
-            and grid.isVoid(self.x, self.y + 2*direction) \
-            and not grid.isChessed(self, self.x, self.y + 2*direction):
-                tabAccess.append((self.x, self.y + 2*direction))
+        if ((self.isWhite and self.x == 1) or (not self.isWhite \
+                                                    and self.x == 6)):
+            if grid.isVoid(self.x + direction, self.y) \
+            and grid.isVoid(self.x + 2*direction, self.y):
+            #and not grid.isChessed(self, self.x, self.y + 2*direction):
+                tabAccess.append((self.x + 2*direction, self.y))
+                 
         # prise d'une piece    
         # a gauche
         # si on ne sort pas de l'echiquier
         # si la case qu'on veut prendre est occupée
         # si le deplacement ne met pas le roi en echec
-        if self.x > 0 and 0 <= self.y + direction < 8 \
-        and not grid.isVoid(self.x - 1, self.y + direction) :
-            if grid.isChessed(self, self.x - 1, self.y + direction):
-                tabAccess.append((self.x - 1, self.y + direction))
+                 #plus compliqu" : tu as le roit 'être en 0 si tu es blanc
+                 #mais pas si tu es noir (et pareil en 7)
+        if self.y > 0 and 0 <= self.x + direction < 7 \
+        and not grid.isVoid(self.x + direction, self.y - 1) :
+            #if not grid.isChessed(self, self.x + direction, self.y - 1):
+            tabAccess.append((self.x + direction, self.y - 1))
         # à droite
-        if self.x < 7 and 0 <= self.y + direction < 8:
-            if not grid.isChessed(self, self.x + 1, self.y + direction) \
-            and not grid.isVoid(self.x + 1, self.y + direction):
-                tabAccess.append((self.x + 1,self.y + direction))"""
+        if self.y < 7 and 0 <= self.x + direction < 7:
+            #if not grid.isChessed(self, self.x + direction, self.y + 1) \
+            if not grid.isVoid(self.x + direction, self.y + 1):
+                tabAccess.append((self.x + direction, self.y + 1))
+        print("grr")
+        print(tabAccess)        
         return tabAccess
 
         # prise en passant (coup rare)
