@@ -162,8 +162,8 @@ class King(Chessman):
         return self.__hasMoved
     
     @hasMoved.setter
-    def hasMoved(self):
-        self.__hasMoved = True
+    def hasMoved(self, value):
+        self.__hasMoved = value
     
     def moves(self, grid, test = False):
         tab = [(self.x+i,self.y+j) for i in [-1, 0, 1] \
@@ -173,29 +173,32 @@ class King(Chessman):
         
         # roque
         if not self.__hasMoved and not test:
-            for (i,j) in [(0,0),(0,7),(7,7)]:
+            for (i,j) in [(0,0),(0,7),(7,7),(7,0)]:
                 #tour de gauche (quelque soit la couleur)
                 if j == 0:
                     # la tour ne doit pas avoir bouge
                     # les cases intermediaires doivent etre vides
                     # et il ne doit pas y avoir d'echecs le long de la 
                     # trajectoire
-                    if grid[(i,j)] != None\
-                    and not grid[(i,j)].hasMoved \
-                    and grid.isVoid(1, j) and grid.isVoid(2, j) \
-                    and not grid.isChessed(self, 2, j) \
-                    and not grid.isChessed(self, 3, j) \
-                    and not grid.isChessed(self, 4, j):
-                        tabAccess.append((1, j))
+                    if not grid.isVoid(i,j) \
+                    and grid[(i,0)].name == "Rook" \
+                    and not grid[(i,0)].hasMoved \
+                    and grid.isVoid(i, 1) and grid.isVoid(i, 2) \
+                    and grid.isVoid(i, 3) \
+                    and not grid.isChessed(self, i, 2) \
+                    and not grid.isChessed(self, i, 3) \
+                    and not grid.isChessed(self, i, 4):
+                        tabAccess.append((i, 2))
                 # tour de droite
                 else :
-                    if grid[(i,j)] != None\
+                    if not grid.isVoid(i,j)\
+                    and grid[(i,0)].name == "Rook" \
                     and not grid[(i,j)].hasMoved \
-                    and grid.isVoid(5, j) and grid.isVoid(6, j) \
-                    and not grid.isChessed(self, 4, j) \
-                    and not grid.isChessed(self, 5, j) \
-                    and not grid.isChessed(self, 6, j):
-                        tabAccess.append((6, j))
+                    and grid.isVoid(i, 5) and grid.isVoid(i, 6) \
+                    and not grid.isChessed(self, i, 4) \
+                    and not grid.isChessed(self, i, 5) \
+                    and not grid.isChessed(self, i, 6):
+                        tabAccess.append((i, 6))
         return tabAccess
      
     def allowed_moves(self, grid):

@@ -73,9 +73,24 @@ class Grid:
         self.__grid[coord[0]][coord[1]] = Chessman
     
     # vrai deplacement
-    def move(self, coord, Chessman):
+    def move(self, coord, Chessman, promotion = ""):
         
         oldCoordChessman = (Chessman.x, Chessman.y)
+        # on regarde si la piece a un argument de mouvement
+        if Chessman.name in ["King", "Rook"]:
+            Chessman.hasMoved = True
+
+        # promotion
+        if promotion != "":
+            if promotion == "Queen":
+                Chessman = Queen(Chessman.isWhite, Chessman.x, Chessman.y)
+            if promotion == "Bishop":
+                Chessman = Bishop(Chessman.isWhite, Chessman.x, Chessman.y)
+            if promotion == "Knight":
+                Chessman = Knight(Chessman.isWhite, Chessman.x, Chessman.y)
+            if promotion == "Rook":
+                Chessman = Rook(Chessman.isWhite, Chessman.x, Chessman.y)
+        
         #cas de la prise en passant
         if Chessman.name == "Pawn" and Chessman.y != coord[1] and\
            self.isVoid(coord[0], coord[1]):
@@ -91,6 +106,17 @@ class Grid:
             Chessman.double_done = True
             
 
+        # s'il y a roque
+        elif Chessman.name == "King" and (Chessman.y-coord[1]) not in [-1,0,1]:
+            # si on va vers la gauche
+            if Chessman.y > coord[1]:
+                self[(Chessman.x, 3)] = self[(Chessman.x, 0)]
+                self.setNone(Chessman.x, 0)
+            # vers la gauche
+            else:
+                self[(Chessman.x, 5)] = self[(Chessman.x, 7)]
+                self.setNone(Chessman.x, 7)
+
         #cas general
         else:
             # si une piece est prise, on l'ajoute a la liste des pieces
@@ -101,7 +127,8 @@ class Grid:
                 else:
                     self.__blackLostChessmen.append(self[coord])
 
-        # s'il y a roque
+        
+        
         # a faire
         for frame in self.list_chessman_col(not Chessman.isWhite):
             if self[frame].name == "Pawn":
