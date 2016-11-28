@@ -81,7 +81,7 @@ class Grid:
             Chessman.hasMoved = True
 
         # promotion
-        if promotion != "":
+        if Chessman.name == "Pawn" and promotion != "":
             if promotion == "Queen":
                 Chessman = Queen(Chessman.isWhite, Chessman.x, Chessman.y)
             if promotion == "Bishop":
