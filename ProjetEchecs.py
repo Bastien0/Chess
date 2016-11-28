@@ -70,8 +70,8 @@ class Disp(QtGui.QWidget):
         super(Disp,self).__init__()
         # tableau de boutons
         self.__chessboard= [[Frame(i,j) for j in range(8)] for i in range(8)]
-        mainLayout = QtGui.QGridLayout()
-        self.setLayout(mainLayout)
+        self.mainLayout = QtGui.QGridLayout()
+        self.setLayout(self.mainLayout)
         
         #affichage en grille de ce tableau
         gridLayout=QtGui.QGridLayout()
@@ -80,7 +80,7 @@ class Disp(QtGui.QWidget):
         for i in range(8):
             for j in range(8):
                 gridLayout.addWidget(self.__chessboard[i][j],i,j)
-        mainLayout.addLayout(gridLayout,1,0)
+        self.mainLayout.addLayout(gridLayout,1,0)
         
         # creation de la grille theorique utilisee pour les deplacements 
         self.__grid = Grid()
@@ -161,11 +161,52 @@ class Disp(QtGui.QWidget):
         # si on clique sur une case on effectue donc un coup
         moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
         for (i, j) in moves:
-            self.__chessboard[i][j].setEnabled(True)
-            self.__chessboard[i][j].clicked.connect(lambda : \
+            # s'il y a une promotion
+            if i == 0 and chessman.name == "Pawn":
+                self.__chessboard[i][j].setEnabled(True)
+                self.__chessboard[i][j].clicked.connect(lambda : \
+                                    self.promo(whiteIsPlaying,fr,tabAccess))
+            elif i == 7 and chessman.name == "Pawn":
+                self.__chessboard[i][j].setEnabled(True)
+                self.__chessboard[i][j].clicked.connect(lambda : \
+                                    self.promo(whiteIsPlaying,fr,tabAccess))
+            else :
+                self.__chessboard[i][j].setEnabled(True)
+                self.__chessboard[i][j].clicked.connect(lambda : \
                                         self.play(whiteIsPlaying,fr,tabAccess))                                                             
+    
+    def promo(self, whiteIsPlaying, chessmanFrame, tabAccess):
+        choices = QtGui.QVBoxLayout()
         
-    def play(self, whiteIsPlaying, chessmanFrame,tabAccess):
+        aim = self.sender()
+        
+        Knight = Frame(aim.x, aim.y)
+        Knight.addChessMan("Knight", whiteIsPlaying)
+        Knight.clicked.connect(lambda : \
+                self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Knight"))
+        Queen = Frame(aim.x, aim.y)
+        Queen.addChessMan("Queen", whiteIsPlaying)
+        Queen.clicked.connect(lambda : \
+                self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Queen"))
+        Rook = Frame(aim.x, aim.y)
+        Rook.addChessMan("Rook", whiteIsPlaying)
+        Rook.clicked.connect(lambda : \
+                self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Rook"))
+        Bishop = Frame(aim.x, aim.y)
+        Bishop.addChessMan("Bishop", whiteIsPlaying)
+        Bishop.clicked.connect(lambda : \
+                self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Bishop"))
+        
+        choices.addWidget(Knight)
+        choices.addWidget(Queen)
+        choices.addWidget(Rook)
+        choices.addWidget(Bishop)
+        
+        
+        self.mainLayout.addLayout(choices,1,2)
+        # on doit supprimmer choices après le choix de la promotion.
+        
+    def play(self, whiteIsPlaying, chessmanFrame,tabAccess, promotion = None):
         # le joueur vient de cliquer sur la case où il veut aller        
         aim = self.sender()
         
@@ -182,7 +223,10 @@ class Disp(QtGui.QWidget):
 
         # on effectue le "vrai" deplacement dans self.__grid
         self.__chessboard[chessmanFrame.x][chessmanFrame.y].deleteChessMan()
-        self.__grid.move((aim.x, aim.y), chessman)
+        if promotion == None :
+            self.__grid.move((aim.x, aim.y), chessman)
+        else :
+            self.__grid.move((aim.x, aim.y), chessman, promotion)
         
         # on met a jour l'affichage
         self.evolve_chessboard()
