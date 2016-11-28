@@ -74,26 +74,41 @@ class Grid:
     
     # vrai deplacement
     def move(self, coord, Chessman):
-        print(Chessman)
-        oldCoordChessman = (Chessman.x, Chessman.y)
-        print (oldCoordChessman)
-        # si une piece est prise, on l'ajoute a la liste des pieces prises de
-        # sa couleur
-        if not self.isVoid(coord[0], coord[1]):
-            if self[coord].isWhite:
-                self.__whiteLostChessmen.append(self[coord])
-            else:
-                self.__blackLostChessmen.append(self[coord])
         
+        oldCoordChessman = (Chessman.x, Chessman.y)
+        #cas de la prise en passant
+        if Chessman.name == "Pawn" and Chessman.y != coord[1] and\
+           self.isVoid(coord[0], coord[1]):
+            if not Chessman.isWhite:
+                self.__whiteLostChessmen.append(self[(coord[0]+1, coord[1])])
+                self.setNone(coord[0]+1, coord[1])
+            else:
+                self.__blackLostChessmen.append(self[(coord[0]-1, coord[1])])
+                self.setNone(coord[0]-1, coord[1])
+
+        #cas du coup double du pion
+        elif Chessman.name == "Pawn" and (Chessman.x-coord[0]) not in [-1,1]:
+            Chessman.double_done = True
+            
+
+        #cas general
+        else:
+            # si une piece est prise, on l'ajoute a la liste des pieces
+            #prises de sa couleur
+            if not self.isVoid(coord[0], coord[1]):
+                if self[coord].isWhite:
+                    self.__whiteLostChessmen.append(self[coord])
+                else:
+                    self.__blackLostChessmen.append(self[coord])
+
         # s'il y a roque
         # a faire
+        for frame in self.list_chessman_col(not Chessman.isWhite):
+            if self[frame].name == "Pawn":
+                self[frame].double_done = False
         
-        # s'il y a prise d'un pion en passant
-        # a faire
-                
+        self.setNone(oldCoordChessman[0],oldCoordChessman[1]) 
         self[coord] = Chessman
-        print(oldCoordChessman)
-        self.setNone(oldCoordChessman[0],oldCoordChessman[1])
         
     def setNone(self,x,y):
         self.__grid[x][y] = None
@@ -103,10 +118,10 @@ class Grid:
     def king_position(self,isWhite):
         for i in range(8):
             for j in range(8):
-                if self.__grid[i][j] != None:
-                    if self.__grid[i][j].isWhite==isWhite:
-                        if self.__grid[i][j].name == "King":
-                            return (i,j)
+                if not self.isVoid(i,j) and \
+                   self.__grid[i][j].isWhite==isWhite and \
+                   self.__grid[i][j].name == "King":
+                        return (i,j)
     
     # La case est-elle vide ?
     def isVoid(self, x, y):
@@ -148,16 +163,18 @@ class Grid:
     # il faut reparer les degats en remettant a leur place les elements qui ont
     # ete deplaces.
     def isChessed(self, Chessman, x, y):
-        # memorisation de la piece prise, si le deplacement en prend une       
+        # memorisation de la piece prise, si le deplacement en prend une
+        someoneTaken = False
+        takenChessman = None
         if not self.isVoid(x, y):
             someoneTaken = True
             takenChessman = self[(x, y)]
-        else:
-            someoneTaken = False
-        #memoristaion de l'ancienne position
+        #memoristaion de l'ancienne position 
         coordIniChess =(Chessman.x, Chessman.y) 
         self[(x,y)] = Chessman
-        self.setNone(Chessman.x, Chessman.y)
+        Chessman.x = x
+        Chessman.y = y
+        self.setNone(coordIniChess[0], coordIniChess[1])
         for i in range(8):
             for j in range(8):
                 # si on tombe sur une piece de couleur differente,
@@ -168,18 +185,22 @@ class Grid:
                 if not self.isVoid(i, j)\
                     and Chessman.isWhite != self[(i,j)].isWhite\
                     and self.king_position(Chessman.isWhite) \
-                                        in self[(i,j)].moves(self):
+                                        in self[(i,j)].moves(self, True):
                         # On remet l'echiquier en place
                         if someoneTaken:
                             self[(x,y)] = takenChessman
                         else:
                             self.setNone(x,y)
+                        Chessman.x = coordIniChess[0]
+                        Chessman.y = coordIniChess[1]
                         self[coordIniChess] = Chessman
                         return True
         if someoneTaken:
             self[(x,y)] = takenChessman
         else:
             self.setNone(x,y)
-        self[coordIniChess] = Chessman       
+        Chessman.x = coordIniChess[0]
+        Chessman.y = coordIniChess[1]
+        self[coordIniChess] = Chessman
         return False
         

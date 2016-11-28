@@ -51,7 +51,7 @@ class Frame(QtGui.QPushButton):
         return self.__y    
     
     def deleteChessMan(self):
-      self.setIcon(QtGui.Icon())
+        self.setIcon(QtGui.QIcon())
 
             
     def addChessMan(self, name, isWhite):      
@@ -60,8 +60,7 @@ class Frame(QtGui.QPushButton):
             image = dicWhitePict[name]
         else :
             image = dicBlackPict[name]
-        icon.addPixmap(QtGui.QPixmap(image),
-                                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(image),QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setIcon(icon)
         self.setIconSize(QtCore.QSize(80, 40))
         
@@ -91,15 +90,14 @@ class Disp(QtGui.QWidget):
         # affichage des pieces
         self.choose_chessman(True)
         
-        print("Swhow Title")
         self.setWindowTitle('XXXX Chess Master Game XXXX')
         self.showMaximized()
     
     # mise a jour de l'affichage des cases de l'echiquier en fonction du
     # contenu de self.__grid
     def evolve_chessboard(self):
-        if self.__grid[(1,1)] == None:
-            return True
+        #if self.__grid[(1,1)] == None:
+        #    return True
         for i in range(8):
             for j in range(8):
                 if (self.__grid[(i,j)] != None):
@@ -114,10 +112,13 @@ class Disp(QtGui.QWidget):
     def unallow_all_frame(self):
         for i in range(8):
             for b in self.__chessboard[i] :
+                try:
+                    b.clicked.disconnect()
+                except:
+                    pass
                 b.setEnabled(False)
 
     def choose_chessman(self, whiteIsPlaying):
-        print("ChooseChessman")
         self.unallow_all_frame()
         for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
             self.__chessboard[i][j].setEnabled(True)
@@ -125,30 +126,23 @@ class Disp(QtGui.QWidget):
                                                         whiteIsPlaying))
     
     def allow_moves(self, whiteIsPlaying):
-        print("Allowmoves")
         self.unallow_all_frame()
-        print("unallowD")
         fr = self.sender()
-        print("senderD")
         # si on reclique sur la case où on est,
         # on revient a l'étape de selection d'une piece a jouer
         self.__chessboard[fr.x][fr.y].setEnabled(True)
-        print("setEnabledD")
+        
         self.__chessboard[fr.x][fr.y].clicked.connect(\
                          lambda : self.choose_chessman(whiteIsPlaying))
-        print("reclique")
 
         # si on clique sur une case on effectue donc un coup
         moves = self.__grid[(fr.x,fr.y)].allowed_moves(self.__grid)
-        print(moves)
         for (i, j) in moves:
             self.__chessboard[i][j].setEnabled(True)
             self.__chessboard[i][j].clicked.connect(lambda : \
-                                        self.play(whiteIsPlaying,fr))
-        print("Connect")                                                              
+                                        self.play(whiteIsPlaying,fr))                                                             
         
     def play(self, whiteIsPlaying, chessmanFrame):
-        print("Play")
         # le joueur vient de cliquer sur la case où il veut aller        
         aim = self.sender()
         
@@ -156,6 +150,7 @@ class Disp(QtGui.QWidget):
         chessman = self.__grid[(chessmanFrame.x,chessmanFrame.y)]
         
         # on effectue le "vrai" deplacement dans self.__grid
+        self.__chessboard[chessmanFrame.x][chessmanFrame.y].deleteChessMan()
         self.__grid.move((aim.x, aim.y), chessman)
         
         # on met a jour l'affichage
