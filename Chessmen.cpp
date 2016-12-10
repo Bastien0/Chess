@@ -159,8 +159,56 @@ vector<vector<2,int>> King::moves(Grid grid){
             }
         }
     }
+    return m;
 }
 
-vector<vector<2,int>> King::moves(Grid grid){
+vector<vector<2,int>> Pawn::moves(Grid grid){
+    vector<vector<2,int> m;
+    int direction = 2*isWhite()-1;
+    // la direction de deplacement differe entre les blancs et
+    // les noirs
+    if (grid.isVoid(x() + direction, y())){
+        vector<2,int> point;
+        point[0] = x() + direction;
+        point[1] = y();
+        m.push_back(point);
+    }
+    m = testedTuples(grid, m);
+    vector<2,int> point;
+    point[0] = x() + direction;
+    point[1] = y() + 1;
+    // avancee initaila
+    // prises normales
+    // d'un cote
+    if ( y()+ 1 < 8 && !grid.isVoid(x() + direction, y() + 1) \
+        && !grid.sameColor(this, x() + direction, y() + 1)){
+            vector<2,int> point;
+            point[0] = x() + direction;
+            point[1] = y() + 1;
+            m.push_back(point);
+    }
+    // de l'autre
+    if ( y() - 1 >= 0 && !grid.isVoid(x() + direction, y() - 1) \
+            && !grid.sameColor(this, x() + direction, y() - 1)){
+                vector<2,int> point;
+                point[0] = x() + direction;
+                point[1] = y() - 1;
+                m.push_back(point);
+    }
+    // avancee de deux cases
+    if (isWhite() && x() == 1 && grid.isVoid(2, y()) && grid.isVoid(3, y())){
+        vector<2,int> point;
+        point[0] = 3;
+        point[1] = y();
+        m.push_back(point);
+    }
+    if (!isWhite() && x() == 6 && grid.isVoid(5, y()) && grid.isVoid(4, y())){
+        vector<2,int> point;
+        point[0] = 4;
+        point[1] = y();
+        m.push_back(point);
+    }
+    // prise en passant
+
 
 }

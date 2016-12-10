@@ -15,6 +15,7 @@ public:
     //Accesseurs et setter
     int x(){ return x;}
     int y(){ return y;}
+    bool isWhite(){return isWhite;}
     string name(){ return name; }
     void setx(int i) { x = i; }
     void sety(int i) { y = i; }
