@@ -11,6 +11,10 @@ from PyQt4 import QtGui, QtCore
 
 from Chess_Grid import Grid
 
+import sip
+
+
+
 dicWhitePict = {
     "Rook" : "white_rook.png",
     "Knight" : "white_knight.png",
@@ -37,9 +41,9 @@ class Frame(QtGui.QPushButton):
         self.__y = y
         #si la somme est paire, la bouton est blanc
         if (x+y)%2 == 0:
-            self.setStyleSheet("background-color: white")
+            self.setStyleSheet("background-color: rgb(225, 206, 154);")
         else:
-            self.setStyleSheet("background-color: grey")
+            self.setStyleSheet("background-color: rgb(139, 69, 19);")
         self.setFixedSize(80,80)
         
     @property
@@ -126,10 +130,10 @@ class Disp(QtGui.QWidget):
             for (i,j) in tabAccess:
                 if (i+j)%2 == 0:
                     self.__chessboard[i][j].setStyleSheet("background-color:\
-                                                            white")
+                                                        rgb(225, 206, 154);")
                 else:
                     self.__chessboard[i][j].setStyleSheet("background-color:\
-                                                                grey")
+                                                        rgb(139, 69, 19);")
                                                                 
         for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
             self.__chessboard[i][j].setEnabled(True)
@@ -146,10 +150,10 @@ class Disp(QtGui.QWidget):
         for (i,j) in tabAccess:
             if (i+j)%2 == 0:
                 self.__chessboard[i][j].setStyleSheet("background-color: \
-                                                    rgb(150, 200, 150,50);")
+                                                    rgb(119, 181, 254,90);")
             else:
                 self.__chessboard[i][j].setStyleSheet("background-color: \
-                                                    rgb(50, 10, 50,100);")
+                                                    rgb(29, 72, 81,90);")
         
         # si on reclique sur la case où on est,
         # on revient a l'étape de selection d'une piece a jouer
@@ -176,34 +180,35 @@ class Disp(QtGui.QWidget):
                                         self.play(whiteIsPlaying,fr,tabAccess))                                                             
     
     def promo(self, whiteIsPlaying, chessmanFrame, tabAccess):
-        choices = QtGui.QVBoxLayout()
+        self.choices = QtGui.QVBoxLayout()
         
         aim = self.sender()
         
-        Knight = Frame(aim.x, aim.y)
-        Knight.addChessMan("Knight", whiteIsPlaying)
-        Knight.clicked.connect(lambda : \
+        self.Knight = Frame(aim.x, aim.y)
+        self.Knight.addChessMan("Knight", whiteIsPlaying)
+        self.Knight.clicked.connect(lambda : \
                 self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Knight"))
-        Queen = Frame(aim.x, aim.y)
-        Queen.addChessMan("Queen", whiteIsPlaying)
-        Queen.clicked.connect(lambda : \
+        
+        self.Queen = Frame(aim.x, aim.y)
+        self.Queen.addChessMan("Queen", whiteIsPlaying)
+        self.Queen.clicked.connect(lambda : \
                 self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Queen"))
-        Rook = Frame(aim.x, aim.y)
-        Rook.addChessMan("Rook", whiteIsPlaying)
-        Rook.clicked.connect(lambda : \
+        self.Rook = Frame(aim.x, aim.y)
+        self.Rook.addChessMan("Rook", whiteIsPlaying)
+        self.Rook.clicked.connect(lambda : \
                 self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Rook"))
-        Bishop = Frame(aim.x, aim.y)
-        Bishop.addChessMan("Bishop", whiteIsPlaying)
-        Bishop.clicked.connect(lambda : \
+        self.Bishop = Frame(aim.x, aim.y)
+        self.Bishop.addChessMan("Bishop", whiteIsPlaying)
+        self.Bishop.clicked.connect(lambda : \
                 self.play(whiteIsPlaying, chessmanFrame, tabAccess, "Bishop"))
         
-        choices.addWidget(Knight)
-        choices.addWidget(Queen)
-        choices.addWidget(Rook)
-        choices.addWidget(Bishop)
+        self.choices.addWidget(self.Knight)
+        self.choices.addWidget(self.Queen)
+        self.choices.addWidget(self.Rook)
+        self.choices.addWidget(self.Bishop)
         
         
-        self.mainLayout.addLayout(choices,1,2)
+        self.mainLayout.addLayout(self.choices,1,2)
         # on doit supprimmer choices après le choix de la promotion.
         
     def play(self, whiteIsPlaying, chessmanFrame,tabAccess, promotion = None):
@@ -217,26 +222,65 @@ class Disp(QtGui.QWidget):
         for (i,j) in tabAccess:
             if (i+j)%2 == 0:
                 self.__chessboard[i][j].setStyleSheet("background-color:\
-                                                        white")
+                                                        rgb(225, 206, 154);")
             else:
-                self.__chessboard[i][j].setStyleSheet("background-color: grey")        
+                self.__chessboard[i][j].setStyleSheet("background-color: \
+                                                rgb(139, 69, 19);")        
 
         # on effectue le "vrai" deplacement dans self.__grid
         self.__chessboard[chessmanFrame.x][chessmanFrame.y].deleteChessMan()
         if promotion == None :
-            self.__grid.move((aim.x, aim.y), chessman)
+            (roqueX,roqueY)=self.__grid.move((aim.x, aim.y), chessman)
+            if roqueX<=7:
+                self.__chessboard[roqueX][roqueY].deleteChessMan()
         else :
+            aim.clicked.disconnect()
+            deleteLayout(self.choices)
             self.__grid.move((aim.x, aim.y), chessman, promotion)
         
         # on met a jour l'affichage
         self.evolve_chessboard()
+        (i,j)=self.__grid.king_position(whiteIsPlaying)
+        if (self.chessMat(whiteIsPlaying)==True):
+            (x,y)=self.__grid.king_position(1-whiteIsPlaying)
+            if (self.__grid.isChessed(self.__grid[(self.__grid.\
+                    king_position(whiteIsPlaying))],x,y)):            
+                print ("Echec et mat !")
+                return (0)
+            else:
+                print("pat")
+                return (0)
         # c'est au joueur suivant de jouer
         self.choose_chessman(not whiteIsPlaying)
         
+    def chessMat(self,whiteIsPlaying):
+        for i in range(8):
+            for j in range(8):
+                Chessman = self.__grid[(i,j)]
+                if not self.__grid.isVoid(i,j):
+                    if (Chessman.isWhite != whiteIsPlaying):
+                        
+                        if (len(Chessman.allowed_moves(self.__grid))!=0):
+                            
+                            
+                            return (False)
+        return (True)
         
     def disp_taken_chessmen():
         pass
     
+#permet de supprimer un Layout
+    
+def deleteLayout(layout):
+    if layout is not None:
+        while layout.count():
+            item = layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+            else:
+                deleteLayout(item.layout())
+        sip.delete(layout)
     
 def disp():
     app = QtGui.QApplication(sys.argv)

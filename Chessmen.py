@@ -71,7 +71,7 @@ class Chessman():
 class Rook(Chessman):
     def __init__(self, isWhite, x,y):
         super(Rook, self).__init__(isWhite, x, y, "Rook")
-        self.__hasMoved = False # utile pour le roque
+        self._hasMoved = False # utile pour le roque
     
         
     # Fonction de déplacement
@@ -81,11 +81,13 @@ class Rook(Chessman):
                self.move_straight(grid, 0, -1) + \
                self.move_straight(grid, 0, 1)
     
+    def setMoved(self):
+        self._hasMoved=True
     
         
     @property
     def hasMoved(self):
-        return self.__hasMoved
+        return self._hasMoved
         
     def allowed_moves(self, grid):
         tabAccess = []
@@ -155,15 +157,15 @@ class Knight(Chessman):
 class King(Chessman):
     def __init__(self, isWhite, x,y):
         super(King, self).__init__(isWhite, x, y, "King")
-        self.__hasMoved = False # utile pour le roque
+        self._hasMoved = False # utile pour le roque
     
     @property
     def hasMoved(self):
-        return self.__hasMoved
+        return self._hasMoved
     
     @hasMoved.setter
-    def hasMoved(self, value):
-        self.__hasMoved = value
+    def setMoved(self):
+        self._hasMoved = True
     
     def moves(self, grid, test = False):
         tab = [(self.x+i,self.y+j) for i in [-1, 0, 1] \
@@ -172,7 +174,7 @@ class King(Chessman):
         # hors roque
         
         # roque
-        if not self.__hasMoved and not test:
+        if not self._hasMoved and not test:
             for (i,j) in [(0,0),(0,7),(7,7),(7,0)]:
                 #tour de gauche (quelque soit la couleur)
                 if j == 0:
@@ -181,8 +183,9 @@ class King(Chessman):
                     # et il ne doit pas y avoir d'echecs le long de la 
                     # trajectoire
                     if not grid.isVoid(i,j) \
+                    and not grid.isVoid(i,0) \
                     and grid[(i,0)].name == "Rook" \
-                    and not grid[(i,0)].hasMoved \
+                    and not grid[(i,0)]._hasMoved \
                     and grid.isVoid(i, 1) and grid.isVoid(i, 2) \
                     and grid.isVoid(i, 3) \
                     and not grid.isChessed(self, i, 2) \
@@ -192,8 +195,9 @@ class King(Chessman):
                 # tour de droite
                 else :
                     if not grid.isVoid(i,j)\
+                    and not grid.isVoid(i,0) \
                     and grid[(i,0)].name == "Rook" \
-                    and not grid[(i,j)].hasMoved \
+                    and not grid[(i,j)]._hasMoved \
                     and grid.isVoid(i, 5) and grid.isVoid(i, 6) \
                     and not grid.isChessed(self, i, 4) \
                     and not grid.isChessed(self, i, 5) \
@@ -226,14 +230,14 @@ class Pawn(Chessman):
     def moves(self, grid, test = False):
         tabAccess = []
         # direction du deplacement : 1 pour les blanc, -1 pour les noirs
-        direction = 2*self.isWhite -1
+        direction = 1-2*self.isWhite
         if grid.isVoid(self.x+direction,self.y):
             tabAccess.append((self.x+direction,self.y))
         tabAccess.append((self.x+direction,self.y+1))
         tabAccess.append((self.x+direction,self.y-1))
-        if self.isWhite and self.x == 1:
+        if self.isWhite and self.x == 6:
             tabAccess.append((self.x+2*direction,self.y))
-        if not self.isWhite and self.x == 6:
+        if not self.isWhite and self.x == 1:
             tabAccess.append((self.x+2*direction,self.y))
         tab = self.testedTuples(grid, tabAccess)
         finaltab=[]

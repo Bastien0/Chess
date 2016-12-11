@@ -24,17 +24,17 @@ class Grid:
 #            self.__whitePawns.append(Pawn(True, 1, i))
         
         
-        self.__grid[0][0] = Rook(True, 0, 0)
-        self.__grid[0][1] = Knight(True, 0, 1)
-        self.__grid[0][2] = Bishop(True, 0, 2)
-        self.__grid[0][3] = Queen(True, 0, 3)
-        self.__grid[0][4] = King(True, 0, 4)
-        self.__grid[0][5] = Bishop(True, 0, 5)
-        self.__grid[0][6] = Knight(True, 0, 6)
-        self.__grid[0][7] = Rook(True, 0, 7)
+        self.__grid[0][0] = Rook(False, 0, 0)
+        self.__grid[0][1] = Knight(False, 0, 1)
+        self.__grid[0][2] = Bishop(False, 0, 2)
+        self.__grid[0][3] = Queen(False, 0, 3)
+        self.__grid[0][4] = King(False, 0, 4)
+        self.__grid[0][5] = Bishop(False, 0, 5)
+        self.__grid[0][6] = Knight(False, 0, 6)
+        self.__grid[0][7] = Rook(False, 0, 7)
         # pions blancs
         for i in range(8):
-            self.__grid[1][i] = Pawn(True, 1, i)
+            self.__grid[1][i] = Pawn(False, 1, i)
         
               
         # pieces noires
@@ -48,17 +48,17 @@ class Grid:
 #        for i in range(8):
 #            self.__blackPawns.append(Pawn(False, 6, i))
         
-        self.__grid[7][0] = Rook(False, 7, 0)
-        self.__grid[7][1] = Knight(False, 7, 1)
-        self.__grid[7][2] = Bishop(False, 7, 2)
-        self.__grid[7][3] = Queen(False, 7, 3)
-        self.__grid[7][4] = King(False, 7, 4)
-        self.__grid[7][5] = Bishop(False, 7, 5)
-        self.__grid[7][6] = Knight(False, 7, 6)
-        self.__grid[7][7] = Rook(False, 7, 7)
+        self.__grid[7][0] = Rook(True, 7, 0)
+        self.__grid[7][1] = Knight(True, 7, 1)
+        self.__grid[7][2] = Bishop(True, 7, 2)
+        self.__grid[7][3] = Queen(True, 7, 3)
+        self.__grid[7][4] = King(True, 7, 4)
+        self.__grid[7][5] = Bishop(True, 7, 5)
+        self.__grid[7][6] = Knight(True, 7, 6)
+        self.__grid[7][7] = Rook(True, 7, 7)
         # pions blancs
         for i in range(8):
-            self.__grid[6][i] = Pawn(False, 6, i)
+            self.__grid[6][i] = Pawn(True, 6, i)
 
     
     # accesseur d'une piece de coordonnees (i,j)
@@ -74,11 +74,12 @@ class Grid:
     
     # vrai deplacement
     def move(self, coord, Chessman, promotion = ""):
-        
+        roqueX=10
+        roqueY=10
         oldCoordChessman = (Chessman.x, Chessman.y)
         # on regarde si la piece a un argument de mouvement
         if Chessman.name in ["King", "Rook"]:
-            Chessman.hasMoved = True
+            Chessman._hasMoved = True
 
         # promotion
         if Chessman.name == "Pawn" and promotion != "":
@@ -107,15 +108,20 @@ class Grid:
             
 
         # s'il y a roque
+        #retourne les coordonnées de la tour roquée
         elif Chessman.name == "King" and (Chessman.y-coord[1]) not in [-1,0,1]:
             # si on va vers la gauche
             if Chessman.y > coord[1]:
                 self[(Chessman.x, 3)] = self[(Chessman.x, 0)]
                 self.setNone(Chessman.x, 0)
-            # vers la gauche
+                roqueX=7*Chessman.isWhite
+                roqueY=0
+            # vers la droite
             else:
                 self[(Chessman.x, 5)] = self[(Chessman.x, 7)]
                 self.setNone(Chessman.x, 7)
+                roqueX=7*Chessman.isWhite
+                roqueY=7
 
         #cas general
         else:
@@ -136,6 +142,7 @@ class Grid:
         
         self.setNone(oldCoordChessman[0],oldCoordChessman[1]) 
         self[coord] = Chessman
+        return (roqueX,roqueY)        
         
     def setNone(self,x,y):
         self.__grid[x][y] = None
