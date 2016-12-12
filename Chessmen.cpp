@@ -7,6 +7,10 @@ Chessman::Chessman(int a, int b, string n, bool iW){
     x = a; y = b; n = name; isWhite = iW;
 }
 
+Chessman(int a, int b, string n){
+    x = a; y = b; n = name;
+}
+
 // deplacement dans la direction (a,b) sur
 // une ligne ou une diagonale entieres.
 vector<vector<2,int>> Chessman::move_straight(Grid grid, int a, int b){
@@ -31,6 +35,7 @@ vector<vector<2,int>> Chessman::move_straight(Grid grid, int a, int b){
     }
     return tabAccess;
 }
+
 
 // Cette fonction renvoie une liste de positions accessibles parmi celles
 // proposées (ne marche pas pour le fou, la dame, et la tour)

@@ -1,5 +1,5 @@
 #pragma once
-
+#include<vector>
 #include "ChessGrid.h"
 #include <iostream>
 using namespace std;
@@ -11,7 +11,7 @@ class Chessman{
 public:
     //Constructeur
     Chessman(int a, int b, string n, bool iW);
-
+    Chessman(int a, int b, string n);
     //Accesseurs et setter
     int x(){ return x;}
     int y(){ return y;}
@@ -25,6 +25,12 @@ public:
     vector<vector<2,int>> move_straight(Grid grid, int a, int b);
     vector<vector<2,int>> testedTuples(Grid grid, vector<vector<2,int>> tab);
     vector<vector<2,int>> allowed_moves(Grid grid);
+};
+
+class Empty_Chessman{
+public:
+    //Constructeur
+    Empty_Chessman(int a, int b) : Chessman(a, b, "Empty"){}
 };
 
 
