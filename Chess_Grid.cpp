@@ -14,8 +14,8 @@ void operator()(int coord0, int coord1, Chessman& chessman){
     grid[coord[0]+8*coord[1]] = Chessman;
 }
 
-int move(vector<2,int>& coord, Chessman& chessman, string promotion = ""){
-    vector<2,int> oldCoordChessman(2,0);
+int move(int coord[2], Chessman& chessman, string promotion = ""){
+    int[2] oldCoordChessman;
     oldCoordChessman[0] = coord[0]; oldCoordChessman[1] = coord[1];
 
     // on regarde si la piece a un argument de mouvement
@@ -88,8 +88,8 @@ void setNone(int x, int y){
     grid[x+8*y] = Empty_Chessman(x, y);
 }
 
-vector<2,int> king_position(bool isWhite){
-    vector<2,int> v;
+int* king_position(bool isWhite){
+    int v[2];
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if (!this->isVoid(i,j) && grid[i+8*j].isWhite() == isWhite && grid[i+8*j].name() == "King"){
@@ -106,12 +106,12 @@ bool isVoid(int x, int y){
 }
 
 vector<Chessman> list_chessman_col(bool colorIsWhite){
-    vector<vector<2,int>> l;
+    vector<int[2]> l;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if (grid[i+8*j] != none){
                 if (grid[i+8*j].isWhite() == colorIsWhite){
-                    vector<2,int> v;
+                    int v[2];
                     v[0] = i;
                     v[1] = j;
                     l.push_back(v);
@@ -139,10 +139,10 @@ bool isChessed(Chessman& chessman, int x, int y){
         someoneTaken = True;
         takenChessman = this(x, y);
     // memoristaion de l'ancienne position
-    vector<2,int> coordIniChess;
+    vector<int[2]> coordIniChess;
     coordIniChess[0] = chessman.x();
     coordIniChess[1] = chessman.y();
-    this(x,y) = chessman;
+    this(x,y,chessman);
     chessman.setx(x);
     chessman.sety(y);
     this->setNone(coordIniChess[0], coordIniChess[1]);
@@ -153,7 +153,7 @@ bool isChessed(Chessman& chessman, int x, int y){
             // ie si la position du roi n'est pas dans la liste des
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
-            vector<Chessman> l = this->list_chessman_col(!chessman.isWhite());
+            vector<int[2]> l = this(i,j).moves(this);
             if (!this->isVoid(i,j) && chessman.isWhite() != this(i,j).isWhite() && l.find(this->king_position(chessman.isWhite())) != l.end()){
                 // On remet l'echiquier en place
                 if (someoneTaken)
