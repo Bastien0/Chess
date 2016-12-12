@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <iostream>
 using namespace std;
 
@@ -9,7 +10,7 @@ class Grid{
     Chessman* grid;
 public:
     Grid();
-    Chessman* operator()(vector<2,int>& coord);
+    Chessman* operator()(int coord0, int coord1);
     void operator()(int coord0, int coord1, Chessman& chessman);
     int move(vector<2,int>& coord, Chessman& chessman, string promotion = "");
     void setNone(int x, int y);

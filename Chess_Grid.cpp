@@ -85,7 +85,7 @@ int move(vector<2,int>& coord, Chessman& chessman, string promotion = ""){
 }
 
 void setNone(int x, int y){
-    grid[x+8*y] = none;
+    grid[x+8*y] = Empty_Chessman(x, y);
 }
 
 vector<2,int> king_position(bool isWhite){
@@ -102,7 +102,7 @@ vector<2,int> king_position(bool isWhite){
 }
 
 bool isVoid(int x, int y){
-    return (grid[x+8*y] == None);
+    return (grid[x+8*y].name() == "Empty");
 }
 
 vector<Chessman> list_chessman_col(bool colorIsWhite){
@@ -154,7 +154,7 @@ bool isChessed(Chessman& chessman, int x, int y){
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
             vector<Chessman> l = this->list_chessman_col(!chessman.isWhite());
-            if (!this->isVoid(i,j) && chessman.isWhite() != this(i,j).isWhite() && find(l.begin(), l.end(), this->king_position(chessman.isWhite()))){
+            if (!this->isVoid(i,j) && chessman.isWhite() != this(i,j).isWhite() && l.find(this->king_position(chessman.isWhite())) != l.end()){
                 // On remet l'echiquier en place
                 if (someoneTaken)
                     this(x,y,takenChessman);
