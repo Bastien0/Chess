@@ -134,7 +134,7 @@ bool sameColor(Chessman& chessman, x, y){
 bool isChessed(Chessman& chessman, int x, int y){
     // memorisation de la piece prise, si le deplacement en prend une
     bool someoneTaken = False;
-    bool takenChessman = None;
+    Chessman takenChessman = Empty_Chessman(-1,-1);
     if (!this->isVoid(x, y))
         someoneTaken = True;
         takenChessman = this(x, y);
