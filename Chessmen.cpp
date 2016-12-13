@@ -1,4 +1,5 @@
 #include "Chessmen.h"
+#include "Chess_Grid.h"
 #include <cmath>
 using namespace std;
 #include<iostream>
@@ -17,9 +18,8 @@ vector<int[2]> Chessman::move_straight(Grid grid, int a, int b){
     vector<int[2]> tabAccess;
     int x0 = x + a;
     int y0 = y + b;
-    int[] coord = {x0, y0};
     while ((0 <= x0 < 8) && (0 <= y0 < 8) && grid.isVoid(x0, y0)){
-        vector<int[2]> point;
+        int[2] point;
         point[0] = x0;
         point[1] = y0;
         tabAccess.push_back(point);
@@ -39,16 +39,16 @@ vector<int[2]> Chessman::move_straight(Grid grid, int a, int b){
 
 // Cette fonction renvoie une liste de positions accessibles parmi celles
 // proposées (ne marche pas pour le fou, la dame, et la tour)
-vector<int[2]> Chessman::testedTuples(Grid grid, vector<vector<2,int>>  tab){
+vector<int[2]> Chessman::testedTuples(Grid grid, vector<int[2]> tab){
    vector<int[2]> tabAccess;
    int s = tab.size();
    for (int i = 0; i < s; i++){
-       point = tab[i];
-       if (0 <= point[0] < 8 && 0 <= point[0] < 8) {
+       int point[2] = tab[i];
+       if (0 <= point[0] < 8 && 0 <= point[1] < 8) {
            if (!grid.isVoid(point[0], point[1]))
-               tabAccess.push_back(point[0], point[1]);
+               tabAccess.push_back(point);
            else if (!grid.sameColor(this, x, y))
-               tabAccess.push_back();
+               tabAccess.push_back(point);
        }
    }
    return tabAccess;
@@ -143,7 +143,7 @@ vector<int[2]> King::moves(Grid grid){
                 // tour de gauche
                 if ( (j == 0) && !grid.isVoid(i,j) \
                      && grid(i,0).name() == "Rook" \
-                     && !grid(i,0).hasMoved() && grid.isVoid(i, 1) && grid.isVoid(i, 3) \
+                     && !grid(i,0).getHasMoved() && grid.isVoid(i, 1) && grid.isVoid(i, 3) \
                      && !grid.isChessed(this, i, 2) && !grid.isChessed(this, i, 2) \
                      && !grid.isChessed(this, i, 4) ){
                     int[2] point;

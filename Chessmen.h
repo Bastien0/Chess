@@ -1,8 +1,11 @@
 #pragma once
 #include<vector>
-#include "ChessGrid.h"
+#include "Chess_Grid.h"
 #include <iostream>
 using namespace std;
+
+
+class Grid;
 
 class Chessman{
     int x,y;
@@ -10,24 +13,28 @@ class Chessman{
     bool isWhite;
 public:
     //Constructeur
+    Chessman(){};
     Chessman(int a, int b, string n, bool iW);
     Chessman(int a, int b, string n);
     //Accesseurs et setter
-    int x(){ return x;}
-    int y(){ return y;}
-    bool isWhite(){return isWhite;}
-    string name(){ return name; }
+    int getx(){ return x;}
+    int gety(){ return y;}
+    bool getIsWhite(){return isWhite;}
+    string getName(){ return name; }
     void setx(int i) { x = i; }
     void sety(int i) { y = i; }
     void setName(string n) { name = n; }
 
     // Fonctions de jeu
-    vector<vector<2,int>> move_straight(Grid grid, int a, int b);
-    vector<vector<2,int>> testedTuples(Grid grid, vector<vector<2,int>> tab);
-    vector<vector<2,int>> allowed_moves(Grid grid);
+    vector<int[2]> move_straight(Grid grid, int a, int b);
+    vector<int[2]> testedTuples(Grid grid, vector<int[2]> tab);
+    vector<int[2]> allowed_moves(Grid grid);
+
+    // Fonction virtuelle sethasMoved
+    virtual void sethasMoved(bool b);
 };
 
-class Empty_Chessman{
+class Empty_Chessman : Chessman{
 public:
     //Constructeur
     Empty_Chessman(int a, int b) : Chessman(a, b, "Empty"){}
@@ -41,10 +48,10 @@ public:
     Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false;}
 
     //Accesseurs
-    bool hasMoved(){ return hasMoved; }
+    bool getHasMoved(){ return hasMoved; }
 
     //Fonction de jeu
-    vector<vector<2,int>> moves(Grid grid);
+    vector<int[2]> moves(Grid& grid);
 };
 
 class Bishop: Chessman{
@@ -53,7 +60,7 @@ public:
     Bishop(int a, int b, bool iW): Chessman(a, b, "Bishop", iW){}
 
     //Fonction de jeu
-    vector<vector<2,int>> moves(Grid grid);
+    vector<int[2]> moves(Grid grid);
 };
 
 
@@ -63,8 +70,8 @@ public:
     Queen(int a, int b, bool iW): Chessman(a, b, "Queen", iW){}
 
     //Fonction de jeu
-    vector<vector<2,int>> moves(Grid grid);
-}
+    vector<int[2]> moves(Grid& grid);
+};
 
 class Knight: Chessman{
 public:
@@ -72,7 +79,7 @@ public:
     Knight(int a, int b, bool iW): Chessman(a, b, "Knight", iW){}
 
     //Fonction de jeu
-    vector<vector<2,int>> moves(Grid grid);
+    vector<int[2]> moves(Grid& grid);
 };
 
 
@@ -83,11 +90,11 @@ public:
     King(int a, int b, bool iW): Chessman(a, b, "King", iW){hasMoved = false;}
 
     //Accesseurs et setter
-    bool hasMoved(){ return hasMoved; }
+    bool getHasMoved(){ return hasMoved; }
     void sethasMoved(bool value){ hasMoved = value; }
 
     //Fonction de jeu
-    vector<vector<2,int>> moves(Grid grid);
+    vector<int[2]> moves(Grid& grid);
 };
 
 
@@ -98,9 +105,9 @@ public:
     Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){}
 
     //Accesseurs et setter
-    bool double_done(){ return double_done; }
+    bool isDouble_done(){ return double_done; }
     void setdouble_done(bool value){ double_done = value; }
 
     //Fonction de jeu
-    vector<2,int>* moves(Grid grid);
+    vector<int[2]> moves(Grid& grid);
 };
