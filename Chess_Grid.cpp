@@ -37,11 +37,11 @@ void Grid::move(int coord[2], Chessman& chessman, string promotion){
     //cas de la prise en passant
     if (chessman.getName() == "Pawn" && chessman.gety() != coord[1] && this->isVoid(coord[0], coord[1])){
         if (!chessman.getIsWhite()){
-            whiteLostChessmen.push_back(this->(coord[0]+1, coord[1]));
+            whiteLostChessmen.push_back(*((*this)(coord[0]+1, coord[1])));
             this->setNone(coord[0]+1, coord[1]);
         }
         else{
-            blackLostChessmen.push_back(this->(coord[0]-1, coord[1]));
+            blackLostChessmen.push_back(*((*this)(coord[0]-1, coord[1])));
             this->setNone(coord[0]-1, coord[1]);
         }
     }
@@ -51,16 +51,16 @@ void Grid::move(int coord[2], Chessman& chessman, string promotion){
         chessman.setdouble_done(true);
 
     // s'il y a roque
-    else if (chessman.getName() == "King" && (chessman.gety()-coord[1]) != -1 && (chessman.gety()-coord[1]) != 0 (chessman.gety()-coord[1]) != 1){
+    else if (chessman.getName() == "King" && (chessman.gety()-coord[1]) != -1 && (chessman.gety()-coord[1]) != 0 && (chessman.gety()-coord[1]) != 1){
         // si on va vers la gauche
         if (chessman.gety() > coord[1]){
-            this(chessman.getx(), 3, this(Chessman.getx(), 0));
+            (*this)(chessman.getx(), 3, *(*this)(chessman.getx(), 0));
             this->setNone(chessman.getx(), 0);
         }
         // vers la gauche
         else{
-            this(Chessman.getx(), 5, this(Chessman.getx(), 7));
-            this->setNone(Chessman.getx(), 7);
+            (*this)(chessman.getx(), 5, *(*this)(chessman.getx(), 7));
+            this->setNone(chessman.getx(), 7);
         }
     }
 
@@ -68,21 +68,22 @@ void Grid::move(int coord[2], Chessman& chessman, string promotion){
     else{
         // si une piece est prise, on l'ajoute a la liste des pieces prises de sa couleur
         if (!this->isVoid(coord[0], coord[1])){
-            if (this(coord[0],coord[1]).getIsWhite())
-                whiteLostChessmen.push_back(this(coord[0], coord[1]));
+            if ((*(*this)(coord[0],coord[1])).getIsWhite())
+                whiteLostChessmen.push_back(*((*this)(coord[0], coord[1])));
             else
-                blackLostChessmen.push_back(this(coord[0], coord[1]));
+                blackLostChessmen.push_back(*((*this)(coord[0], coord[1])));
         }
     }
 
     vector<Chessman> l = this->list_chessman_col(!chessman.getIsWhite());
-    vector<Chessman>::const_iterator it = V.begin();
+    vector<Chessman>::iterator it = l.begin();
     for (; it != l.end(); ++it)
-        if (this(*it[0], *it[1]).name() == "Pawn")
-            this(*it[0], *it[1]).setdouble_done(false);
+        if ((*this)(it->getx(), it->gety())->getName() == "Pawn"){
+            (*this)(it->getx(), it->gety())->setdouble_done(false);
+         }
 
     this->setNone(oldCoordChessman[0],oldCoordChessman[1]);
-    this(coord[0], coord[1], chessman);
+    (*this)(coord[0], coord[1], chessman);
 }
 
 void Grid::setNone(int x, int y){
@@ -118,7 +119,7 @@ vector<Chessman> Grid::list_chessman_col(bool colorIsWhite){
 }
 
 bool Grid::sameColor(Chessman& chessman, int x, int y){
-    return (this(x,y).getIsWhite() == chessman.getIsWhite());
+    return ((*(*this)(x,y)).getIsWhite() == chessman.getIsWhite());
 }
 
 // quand on deplace une piece sur la grille, se met on en echec?
@@ -132,12 +133,12 @@ bool Grid::isChessed(Chessman& chessman, int x, int y){
     Chessman takenChessman = Empty_Chessman(-1,-1);
     if (!this->isVoid(x, y))
         someoneTaken = true;
-        takenChessman = this(x, y);
+        takenChessman = (*this)(x, y);
     // memoristaion de l'ancienne position
-    int[2] coordIniChess;
+    int  coordIniChess[2];
     coordIniChess[0] = chessman.getx();
     coordIniChess[1] = chessman.gety();
-    this(x,y,chessman);
+    (*this)(x,y,chessman);
     chessman.setx(x);
     chessman.sety(y);
     this->setNone(coordIniChess[0], coordIniChess[1]);
@@ -148,27 +149,29 @@ bool Grid::isChessed(Chessman& chessman, int x, int y){
             // ie si la position du roi n'est pas dans la liste des
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
-            vector<int[2]> l = this(i,j).moves(this);
-            if (!this->isVoid(i,j) && chessman.getIsWhite() != this->(i,j).getIsWhite() \
-                    && l.find(this->king_position(chessman.getIsWhite())) != l.end()){
-                // On remet l'echiquier en place
-                if (someoneTaken)
-                    this->(x,y,takenChessman);
-                else
-                    this->setNone(x,y);
-                chessman.setx(coordIniChess[0]);
-                chessman.sety(coordIniChess[1]);
-                this(coordIniChess[0], coordIniChess[1], chessman);
-                return true;
+            if(!this->isVoid(i,j)){
+                vector<int[2]> l = (*(*this)(i,j)).moves(this);
+                if (chessman.getIsWhite() != (*this)(i,j)->getIsWhite() \
+                        && l.find(l.begin(),l.end(),this->king_position(chessman.getIsWhite())) != l.end()){
+                    // On remet l'echiquier en place
+                    if (someoneTaken)
+                        (*this)(x,y,takenChessman);
+                    else
+                        this->setNone(x,y);
+                    chessman.setx(coordIniChess[0]);
+                    chessman.sety(coordIniChess[1]);
+                    (*this)(coordIniChess[0], coordIniChess[1], chessman);
+                    return true;
+                }
             }
         }
     }
     if (someoneTaken)
-        this(x,y,takenChessman);
+        (*this)(x,y,takenChessman);
     else
         this->setNone(x,y);
     chessman.setx(coordIniChess[0]);
     chessman.sety(coordIniChess[1]);
-    this(coordIniChess[0], coordIniChess[1], chessman);
+    (*this)(coordIniChess[0], coordIniChess[1], chessman);
     return false;
 }

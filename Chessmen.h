@@ -24,11 +24,13 @@ public:
     void setx(int i) { x = i; }
     void sety(int i) { y = i; }
     void setName(string n) { name = n; }
+    virtual void setdouble_done(bool value);
 
     // Fonctions de jeu
     vector<int[2]> move_straight(Grid grid, int a, int b);
     vector<int[2]> testedTuples(Grid grid, vector<int[2]> tab);
     vector<int[2]> allowed_moves(Grid grid);
+    virtual vector<int[2]> moves(Grid& grid);
 
     // Fonction virtuelle sethasMoved
     virtual void sethasMoved(bool b);
