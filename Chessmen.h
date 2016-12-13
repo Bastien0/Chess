@@ -13,7 +13,7 @@ class Chessman{
     bool isWhite;
 public:
     //Constructeur
-    Chessman(){};
+    Chessman(){}
     Chessman(int a, int b, string n, bool iW);
     Chessman(int a, int b, string n);
     //Accesseurs et setter
@@ -25,6 +25,7 @@ public:
     void sety(int i) { y = i; }
     void setName(string n) { name = n; }
     virtual void setdouble_done(bool value);
+    Chessman (const Chessman& C) {x=C.x ; y=C.y ; name=C.name; isWhite=C.isWhite;}
 
     // Fonctions de jeu
     vector<int[2]> move_straight(Grid grid, int a, int b);

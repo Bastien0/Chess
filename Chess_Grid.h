@@ -2,7 +2,10 @@
 #include"Chessmen.h"
 #include <vector>
 #include <iostream>
+#include <algorithm>
 using namespace std;
+
+class Chessman;
 
 class Grid{
     vector<Chessman> whiteLostChessmen;

@@ -8,7 +8,7 @@ Chessman::Chessman(int a, int b, string n, bool iW){
     x = a; y = b; n = name; isWhite = iW;
 }
 
-Chessman(int a, int b, string n){
+Chessman::Chessman(int a, int b, string n){
     x = a; y = b; n = name;
 }
 
@@ -19,7 +19,7 @@ vector<int[2]> Chessman::move_straight(Grid grid, int a, int b){
     int x0 = x + a;
     int y0 = y + b;
     while ((0 <= x0 < 8) && (0 <= y0 < 8) && grid.isVoid(x0, y0)){
-        int[2] point;
+        int point[2];
         point[0] = x0;
         point[1] = y0;
         tabAccess.push_back(point);
@@ -35,6 +35,8 @@ vector<int[2]> Chessman::move_straight(Grid grid, int a, int b){
     }
     return tabAccess;
 }
+
+
 
 
 // Cette fonction renvoie une liste de positions accessibles parmi celles
@@ -236,6 +238,4 @@ vector<vector<2,int>> Pawn::moves(Grid grid){
             Point[1]=y-1;
             m.push_back(Point);
         }
-
-
 }

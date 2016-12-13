@@ -26,13 +26,13 @@ void Grid::move(int coord[2], Chessman& chessman, string promotion){
     //promotion
     if (chessman.getName() == "Pawn" && promotion != ""){
         if (promotion == "Queen")
-            chessman = Queen(chessman.getIsWhite(), chessman.getx(), chessman.gety());
+            Chessman chessman(Chessman(chessman.getIsWhite(), chessman.getx(),"Queen" ,chessman.gety()));
         if (promotion == "Bishop")
-            chessman = Bishop(chessman.getIsWhite(), chessman.getx(), chessman.gety());
+            Chessman chessman(Chessman(chessman.getIsWhite(), chessman.getx(),"Bishop" ,chessman.gety()));
         if (promotion == "Knight")
-            chessman = Knight(chessman.getIsWhite(), chessman.getx(), chessman.gety());
+            Chessman chessman(Chessman(chessman.getIsWhite(), chessman.getx(), "Knight" ,chessman.gety()));
         if (promotion == "Rook")
-            chessman = Rook(chessman.getIsWhite(), chessman.getx(), chessman.gety());
+            Chessman chessman(Chessman(chessman.getIsWhite(), chessman.getx(), "Rook",chessman.gety()));
     }
     //cas de la prise en passant
     if (chessman.getName() == "Pawn" && chessman.gety() != coord[1] && this->isVoid(coord[0], coord[1])){
@@ -86,8 +86,11 @@ void Grid::move(int coord[2], Chessman& chessman, string promotion){
     (*this)(coord[0], coord[1], chessman);
 }
 
+
+//Attention à la construction par copie !
 void Grid::setNone(int x, int y){
-    grid[x+8*y] = Empty_Chessman(x, y);
+    Chessman C(x,y, "Empty");
+    grid[x+8*y]=C;
 }
 
 int* Grid::king_position(bool isWhite){
@@ -130,10 +133,11 @@ bool Grid::sameColor(Chessman& chessman, int x, int y){
 bool Grid::isChessed(Chessman& chessman, int x, int y){
     // memorisation de la piece prise, si le deplacement en prend une
     bool someoneTaken = false;
-    Chessman takenChessman = Empty_Chessman(-1,-1);
+    Chessman takenChessman(-1,-1,"Empty");
     if (!this->isVoid(x, y))
         someoneTaken = true;
-        takenChessman = (*this)(x, y);
+    //Attention à la construction par copie
+        takenChessman = (*(*this)(x, y));
     // memoristaion de l'ancienne position
     int  coordIniChess[2];
     coordIniChess[0] = chessman.getx();
@@ -150,9 +154,9 @@ bool Grid::isChessed(Chessman& chessman, int x, int y){
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
             if(!this->isVoid(i,j)){
-                vector<int[2]> l = (*(*this)(i,j)).moves(this);
+                vector<int[2]> l = (*(*this)(i,j)).moves((*this));
                 if (chessman.getIsWhite() != (*this)(i,j)->getIsWhite() \
-                        && l.find(l.begin(),l.end(),this->king_position(chessman.getIsWhite())) != l.end()){
+                        && std::find(l.begin(),l.end(),this->king_position(chessman.getIsWhite())) != l.end()){
                     // On remet l'echiquier en place
                     if (someoneTaken)
                         (*this)(x,y,takenChessman);
