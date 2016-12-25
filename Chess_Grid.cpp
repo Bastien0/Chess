@@ -1,5 +1,4 @@
 #include "Chess_Grid.h"
-#include "Chessmen.h"
 Grid::Grid(){
     grid = new Chessman[64];
 }
@@ -93,14 +92,11 @@ void Grid::setNone(int x, int y){
     grid[x+8*y]=C;
 }
 
-int* Grid::king_position(bool isWhite){
-    int v[2];
+Point Grid::king_position(bool isWhite){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if (!this->isVoid(i,j) && grid[i+8*j].getIsWhite() == isWhite && grid[i+8*j].getName() == "King"){
-                v[0] = i;
-                v[1] = j;
-                return v;
+                return Point(i,j);
             }
         }
     }
@@ -134,15 +130,17 @@ bool Grid::isChessed(Chessman& chessman, int x, int y){
     // memorisation de la piece prise, si le deplacement en prend une
     bool someoneTaken = false;
     Chessman takenChessman(-1,-1,"Empty");
-    if (!this->isVoid(x, y))
+    if (!this->isVoid(x, y)){
         someoneTaken = true;
-    //Attention à la construction par copie
+        //Attention à la construction par copie
         takenChessman = (*(*this)(x, y));
+    }
     // memoristaion de l'ancienne position
     int  coordIniChess[2];
     coordIniChess[0] = chessman.getx();
     coordIniChess[1] = chessman.gety();
     (*this)(x,y,chessman);
+    // utile ?
     chessman.setx(x);
     chessman.sety(y);
     this->setNone(coordIniChess[0], coordIniChess[1]);
@@ -154,9 +152,9 @@ bool Grid::isChessed(Chessman& chessman, int x, int y){
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
             if(!this->isVoid(i,j)){
-                vector<int[2]> l = (*(*this)(i,j)).moves((*this));
+                vector<Point> l = (*(*this)(i,j)).moves((*this));
                 if (chessman.getIsWhite() != (*this)(i,j)->getIsWhite() \
-                        && std::find(l.begin(),l.end(),this->king_position(chessman.getIsWhite())) != l.end()){
+                        && std::find(l.begin(),l.end(), this->king_position(chessman.getIsWhite())) != l.end()){
                     // On remet l'echiquier en place
                     if (someoneTaken)
                         (*this)(x,y,takenChessman);

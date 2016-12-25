@@ -2,6 +2,7 @@
 #include<vector>
 #include "Chess_Grid.h"
 #include <iostream>
+#include "point.h"
 using namespace std;
 
 
@@ -30,10 +31,10 @@ public:
     Chessman (const Chessman& C) {x=C.x ; y=C.y ; name=C.name; isWhite=C.isWhite;}
 
     // Fonctions de jeu
-    vector<int[2]> move_straight(Grid grid, int a, int b);
-    vector<int[2]> testedTuples(Grid& grid, vector<int[2]> tab);
-    vector<int[2]> allowed_moves(Grid grid);
-    virtual vector<int[2]> moves(Grid& grid);
+    vector<Point> move_straight(Grid grid, int a, int b);
+    vector<Point> testedTuples(Grid& grid, vector<Point> tab);
+    vector<Point> allowed_moves(Grid grid);
+    virtual vector<Point> moves(Grid& grid);
 
     // Fonction virtuelle sethasMoved
     virtual void sethasMoved(bool b);
@@ -56,7 +57,7 @@ public:
     bool getHasMoved(){ return hasMoved; }
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
 
 class Bishop: Chessman{
@@ -65,7 +66,7 @@ public:
     Bishop(int a, int b, bool iW): Chessman(a, b, "Bishop", iW){}
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
 
 
@@ -75,7 +76,7 @@ public:
     Queen(int a, int b, bool iW): Chessman(a, b, "Queen", iW){}
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
 
 class Knight: Chessman{
@@ -84,7 +85,7 @@ public:
     Knight(int a, int b, bool iW): Chessman(a, b, "Knight", iW){}
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
 
 
@@ -99,7 +100,7 @@ public:
     void sethasMoved(bool value){ hasMoved = value; }
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
 
 
@@ -114,5 +115,5 @@ public:
     void setdouble_done(bool value){ double_done = value; }
 
     //Fonction de jeu
-    vector<int[2]> moves(Grid& grid);
+    vector<Point> moves(Grid& grid);
 };
