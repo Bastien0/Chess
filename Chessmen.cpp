@@ -25,7 +25,7 @@ vector<Point> Chessman::move_straight(Grid grid, int a, int b){
         y0 = y0 + b;
     }
     // prise
-    if (0 <=x < 8 && 0 <=y < 8 && !grid.sameColor((*this), x0, y0)){
+    if (0 <=x < 8 && 0 <=y < 8 && !grid.sameColor(this, x0, y0)){
         Point point(x0, y0);
         tabAccess.push_back(point);
     }
@@ -44,7 +44,7 @@ vector<Point> Chessman::testedTuples(Grid &grid, vector<Point> tab){
        if (0 <= tab[i].getx() < 8 && 0 <= tab[i].gety() < 8) {
            if (!grid.isVoid(tab[i].getx(), tab[i].gety()))
                tabAccess.push_back(tab[i]);
-           else if (!grid.sameColor((*this), x, y))
+           else if (!grid.sameColor(this, x, y))
                tabAccess.push_back(tab[i]);
        }
    }
@@ -55,7 +55,7 @@ vector<Point> Chessman::allowed_moves(Grid grid){
     vector<Point> allowed;
     vector<Point> vecMoves = moves(grid);
     for (int i = 0; i < vecMoves.size(); i++){
-        if (!grid.isChessed((*this), vecMoves[i].getx(), vecMoves[i].gety()))
+        if (!grid.isChessed(this, vecMoves[i].getx(), vecMoves[i].gety()))
             allowed.push_back(vecMoves[i]);
     }
     return allowed;
@@ -139,16 +139,16 @@ vector<Point> King::moves(Grid& grid){
                 if ( (j == 0) && !grid.isVoid(i,j) \
                      && grid(i,0)->getName() == "Rook" \
                      && !grid(i,0)->getHasMoved() && grid.isVoid(i, 1) && grid.isVoid(i, 3) \
-                     && !grid.isChessed((*this), i, 2) && !grid.isChessed((*this), i, 2) \
-                     && !grid.isChessed((*this), i, 4) ){
+                     && !grid.isChessed(this, i, 2) && !grid.isChessed(this, i, 2) \
+                     && !grid.isChessed(this, i, 4) ){
                     Point point(i, 2);
                     m.push_back(point);
                 }
                 // tour de droite
                 else if (!grid.isVoid(i,j) && grid(i,0)->getName() == "Rook" \
                         && !grid(i,j)->getHasMoved() && grid.isVoid(i,6)\
-                        && grid.isVoid(i,5) && !grid.isChessed((*this), i, 4) \
-                        && !grid.isChessed((*this), i, 5) && !grid.isChessed((*this), i, 6)){
+                        && grid.isVoid(i,5) && !grid.isChessed(this, i, 4) \
+                        && !grid.isChessed(this, i, 5) && !grid.isChessed(this, i, 6)){
                     Point point(i, 6);
                     m.push_back(point);
                 }
@@ -172,13 +172,13 @@ vector<Point> Pawn::moves(Grid& grid){
     // prises normales
     // d'un cote
     if ( this->gety()+ 1 < 8 && !grid.isVoid(this->getx() + direction, this->gety() + 1) \
-        && !grid.sameColor((*this), this->getx() + direction, this->gety() + 1)){
+        && !grid.sameColor(this, this->getx() + direction, this->gety() + 1)){
             Point point(this->getx() + direction, this->gety() + 1);
             m.push_back(point);
     }
     // de l'autre
     if ( this->gety() - 1 >= 0 && !grid.isVoid(this->getx() + direction, this->gety() - 1) \
-            && !grid.sameColor((*this), this->getx() + direction, this->gety() - 1)){
+            && !grid.sameColor(this, this->getx() + direction, this->gety() - 1)){
                 Point point(this->getx() + direction, this->gety() - 1);
                 m.push_back(point);
     }
