@@ -55,7 +55,7 @@ class Rook: Chessman{
 public:
     //Constructeur
     Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false;}
-    Chessman* clone(){ return new Rook(x, y, isWhite); }
+    Chessman* clone(){return new Rook(x, y, isWhite); }
 
     //Accesseurs
     bool getHasMoved(){ return hasMoved; }

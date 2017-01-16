@@ -5,7 +5,7 @@ using namespace std;
 #include<iostream>
 
 Chessman::Chessman(int a, int b, string n, bool iW){
-    x = a; y = b; n = name; isWhite = iW;
+    x = a; y = b; name = n; isWhite = iW;
 }
 
 Chessman::Chessman(int a, int b, string n){
@@ -214,15 +214,4 @@ vector<Point> Pawn::moves(Grid& grid){
     }
 }
 
-/*
-int main(int argc, char **argv) {
-    Py_Initialize();
-    int err = PyRun_SimpleString("for x in range(10): print(’test’, x)");
-    if (err) printf("*** Erreur d’exe´cution");
-    Py_Finalize();
-    return 0;
-}
-*/
-int main(){
-    return 0;
-}
+

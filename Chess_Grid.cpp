@@ -6,14 +6,13 @@ Grid::Grid(string s){
     int ligne = 0;
     int colonne = 0;
     int caractere = 0;
+    cout << "constructeur de Grid" << endl;
     while (s[caractere] != ' '){
         if (s[caractere] == '/'){
             ligne += 1;
-            // on initialise a -1 pour avoir 0 a la fin
             colonne = -1;
         }
-
-        // Cas des pieces blanches
+        // Cas des pieces noires
         else if (s[caractere] == 'r'){
             Rook r(ligne, colonne, false);
             (*this)(ligne, colonne, r.clone());
@@ -39,7 +38,7 @@ Grid::Grid(string s){
             (*this)(ligne, colonne, p.clone());
         }
 
-        //Cas des pieces noires
+        //Cas des pieces blanches
         else if (s[caractere] == 'R'){
             Rook r(ligne, colonne, true);
             (*this)(ligne, colonne, r.clone());
@@ -68,14 +67,15 @@ Grid::Grid(string s){
         // Cas des chiffres
         else{
             int n = s[caractere]-'0';
+            cout << "on a "<< n << "cases vides a la suite"<<endl;
             for (int i = 0; i < n; i++){
                 Empty_Chessman e(ligne, colonne);
                 (*this)(ligne, colonne, e.clone());
-                colonne += 1;
+                if (i < n-1)
+                    colonne += 1; // on augmente la colonne de n-1 au total
             }
-            colonne -= 1;
         }
-
+        cout << "on a lu la case " << ligne <<" "<< colonne<< endl;
         caractere += 1;
         colonne += 1;
     }
@@ -106,7 +106,7 @@ Grid::Grid(string s){
         bool Presencek=false;
         bool PresenceQ=false;
         bool Presenceq=false;
-        for (int ind=0;ind<s.size();ind++){
+        for (int ind=0;ind<ch.size();ind++){
             if(ch[ind]== 'K'){
                 PresenceK = true;
             }
@@ -183,14 +183,14 @@ void Grid::move(int coord[2], Chessman* chessman, string promotion){
     oldCoordChessman[0] = coord[0]; oldCoordChessman[1] = coord[1];
     countHalfMove += 1;
     countMove += 1;
-
+    cout << "on entre bien dans la fonction move" << endl;
     // on regarde si la piece a un argument de mouvement
     if ((*chessman).getName() == "King" || (*chessman).getName() == "Rook")
         chessman->sethasMoved(true);
 
     if ((*chessman).getName() == "Pawn"){
         countHalfMove = 0;
-
+        cout<< "on a bien teste que c'est un pion"<< endl;
         //cas de la prise en passant
         if ((*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1])){
             if ((*chessman).getIsWhite()){
@@ -467,10 +467,10 @@ string Grid::fen(){
         n -= 1;
     }
 
-    string resultat[f.size()];
-
+    string resultat;
+    cout << "la taille de f est : " << f.size() << endl;
     for (int i = 0; i<f.size(); i++)
-        resultat[i] = f[i];
+        resultat += f[i];
 
-    return (*resultat);
+    return resultat;
 }
