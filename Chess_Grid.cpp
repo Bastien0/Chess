@@ -181,43 +181,51 @@ void Grid::operator()(int coord0, int coord1, Chessman* chessman){
 void Grid::move(int coord[2], Chessman* chessman, string promotion){
     int oldCoordChessman[2];
     oldCoordChessman[0] = coord[0]; oldCoordChessman[1] = coord[1];
+    countHalfMove += 1;
+    countMove += 1;
 
     // on regarde si la piece a un argument de mouvement
     if ((*chessman).getName() == "King" || (*chessman).getName() == "Rook")
         chessman->sethasMoved(true);
 
-    //promotion
-    if ((*chessman).getName() == "Pawn" && promotion != ""){
-        if (promotion == "Queen"){
-            delete chessman;
-            chessman = chessman->clone();
+    if ((*chessman).getName() == "Pawn"){
+        countHalfMove = 0;
+
+        //cas de la prise en passant
+        if ((*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1])){
+            if ((*chessman).getIsWhite()){
+                this->setNone(coord[0]+1, coord[1]);
+            }
+            else{
+                this->setNone(coord[0]-1, coord[1]);
+            }
         }
-        if (promotion == "Bishop"){
-            delete chessman;
-            chessman = chessman->clone();
+
+        //promotion
+        if (promotion != ""){
+            if (promotion == "Queen"){
+                delete chessman;
+                chessman = chessman->clone();
+            }
+            if (promotion == "Bishop"){
+                delete chessman;
+                chessman = chessman->clone();
+            }
+            if (promotion == "Knight"){
+                delete chessman;
+                chessman = chessman->clone();
+            }
+            if (promotion == "Rook"){
+                delete chessman;
+                chessman = chessman->clone();
+            }
         }
-        if (promotion == "Knight"){
-            delete chessman;
-            chessman = chessman->clone();
-        }
-        if (promotion == "Rook"){
-            delete chessman;
-            chessman = chessman->clone();
-        }
-    }
-    //cas de la prise en passant
-    if ((*chessman).getName() == "Pawn" && (*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1])){
-        if ((*chessman).getIsWhite()){
-            this->setNone(coord[0]+1, coord[1]);
-        }
-        else{
-            this->setNone(coord[0]-1, coord[1]);
-        }
+
+        // cas du coup double du pion
+        if ((*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1]))
+            chessman->setdouble_done(true);
     }
 
-    // cas du coup double du pion
-    else if ((*chessman).getName() == "Pawn" && (*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1]))
-        chessman->setdouble_done(true);
 
     // s'il y a roque
     else if (chessman->getName() == "King" && (chessman->gety() != coord[1])-1 && (chessman->gety()-coord[1]) != 0 && (chessman->gety()-coord[1]) != 1){
@@ -232,6 +240,9 @@ void Grid::move(int coord[2], Chessman* chessman, string promotion){
             this->setNone((*chessman).getx(), 7);
         }
     }
+
+    if (!this->isVoid(coord[0], coord[1]))
+        countHalfMove = 0;
 
     vector<Chessman*> l = this->list_chessman_col(!(*chessman).getIsWhite());
     vector<Chessman*>::iterator it = l.begin();
