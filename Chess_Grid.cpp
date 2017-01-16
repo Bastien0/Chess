@@ -1,6 +1,170 @@
 #include "Chess_Grid.h"
-Grid::Grid(){
+Grid::Grid(string s){
     grid = new Chessman*[64];
+    countMove = 0;
+    countHalfMove = 0;
+    int ligne = 0;
+    int colonne = 0;
+    int caractere = 0;
+    while (s[caractere] != ' '){
+        if (s[caractere] == '/'){
+            ligne += 1;
+            // on initialise a -1 pour avoir 0 a la fin
+            colonne = -1;
+        }
+
+        // Cas des pieces blanches
+        else if (s[caractere] == 'r'){
+            Rook r(ligne, colonne, false);
+            (*this)(ligne, colonne, r.clone());
+        }
+        else if (s[caractere] == 'n'){
+            Knight n(ligne, colonne, false);
+            (*this)(ligne, colonne, n.clone());
+        }
+        else if (s[caractere] == 'b'){
+            Bishop b(ligne, colonne, false);
+            (*this)(ligne, colonne, b.clone());
+        }
+        else if (s[caractere] == 'q'){
+            Queen q(ligne, colonne, false);
+            (*this)(ligne, colonne, q.clone());
+        }
+        else if (s[caractere] == 'k'){
+            King k(ligne, colonne, false);
+            (*this)(ligne, colonne, k.clone());
+        }
+        else if (s[caractere] == 'p'){
+            Pawn p(ligne, colonne, false);
+            (*this)(ligne, colonne, p.clone());
+        }
+
+        //Cas des pieces noires
+        else if (s[caractere] == 'R'){
+            Rook r(ligne, colonne, true);
+            (*this)(ligne, colonne, r.clone());
+        }
+        else if (s[caractere] == 'N'){
+            Knight n(ligne, colonne, true);
+            (*this)(ligne, colonne, n.clone());
+        }
+        else if (s[caractere] == 'B'){
+            Bishop b(ligne, colonne, true);
+            (*this)(ligne, colonne, b.clone());
+        }
+        else if (s[caractere] == 'Q'){
+            Queen q(ligne, colonne, true);
+            (*this)(ligne, colonne, q.clone());
+        }
+        else if (s[caractere] == 'K'){
+            King k(ligne, colonne, true);
+            (*this)(ligne, colonne, k.clone());
+        }
+        else if (s[caractere] == 'P'){
+            Pawn p(ligne, colonne, true);
+            (*this)(ligne, colonne, p.clone());
+        }
+
+        // Cas des chiffres
+        else{
+            int n = s[caractere]-'0';
+            for (int i = 0; i < n; i++){
+                Empty_Chessman e(ligne, colonne);
+                (*this)(ligne, colonne, e.clone());
+                colonne += 1;
+            }
+            colonne -= 1;
+        }
+
+        caractere += 1;
+        colonne += 1;
+    }
+
+    // Codage du joueur en cours
+    caractere += 1;
+    if (s[caractere] == 'w')
+        whiteIsPlaying = true;
+    else
+        whiteIsPlaying = false;
+    caractere += 2;
+
+    // Roque possible
+    string ch="    ";
+    for (int i=0;i<4;i++){
+        ch[i]=(s[caractere]);
+        caractere +=1;
+    }
+        //S'il n 'y a pas de roque possible
+    if (s[0] == '-'){
+        Point Break = this->king_position(whiteIsPlaying);
+        (*this)(Break.getx(), Break.gety())->sethasMoved(true);
+    }
+        //Sinon
+
+    else{
+        bool PresenceK=false;
+        bool Presencek=false;
+        bool PresenceQ=false;
+        bool Presenceq=false;
+        for (int ind=0;ind<s.size();ind++){
+            if(ch[ind]== 'K'){
+                PresenceK = true;
+            }
+            else if(ch[ind]== 'q'){
+                Presenceq = true;
+            }
+            else if(ch[ind]== 'Q'){
+                PresenceQ = true;
+            }
+            else if(ch[ind]== 'k'){
+                Presencek = true;
+            }
+
+        }
+        if(!PresenceK){
+            if ((*this)(7,7)->getName()=="Rook"){
+                (*this)(7,7)->sethasMoved(true);
+            }
+        }
+        if(!PresenceQ){
+            if ((*this)(7,0)->getName()=="Rook"){
+                (*this)(7,0)->sethasMoved(true);
+            }
+        }
+        if(!Presenceq){
+            if ((*this)(0,0)->getName()=="Rook"){
+                (*this)(0,0)->sethasMoved(true);
+            }
+        }
+        if(!Presencek){
+            if ((*this)(0,7)->getName()=="Rook"){
+                (*this)(0,7)->sethasMoved(true);
+            }
+        }
+    }
+    caractere +=1;
+
+    //Prise en passant
+    if (s[caractere] != '-'){
+        int direc=2*whiteIsPlaying-1; //selon si les blancs jouent ou non, on considere la case au dessus/dessous
+        (*this)(int(s[caractere+1]-'0')+direc,int(s[caractere]-'a'))->setdouble_done(true);
+        caractere +=1;
+    }
+    caractere += 2;
+
+    countHalfMove = 0;
+    while (s[caractere] != ' '){
+        countHalfMove = countHalfMove*10+int(s[caractere]-'0');
+        caractere +=1;
+    }
+
+    caractere += 1;
+
+    countMove = 0;
+    while (caractere != s.size()){
+        countMove = countMove*10+int(s[caractere]-'0');
+        caractere +=1;
+    }
 }
 
 Chessman* Grid::operator()(int coord0, int coord1){
@@ -43,12 +207,10 @@ void Grid::move(int coord[2], Chessman* chessman, string promotion){
     }
     //cas de la prise en passant
     if ((*chessman).getName() == "Pawn" && (*chessman).gety() != coord[1] && this->isVoid(coord[0], coord[1])){
-        if (!(*chessman).getIsWhite()){
-            whiteLostChessmen.push_back((*this)(coord[0]+1, coord[1]));
+        if ((*chessman).getIsWhite()){
             this->setNone(coord[0]+1, coord[1]);
         }
         else{
-            blackLostChessmen.push_back((*this)(coord[0]-1, coord[1]));
             this->setNone(coord[0]-1, coord[1]);
         }
     }
@@ -68,17 +230,6 @@ void Grid::move(int coord[2], Chessman* chessman, string promotion){
         else{
             (*this)((*chessman).getx(), 5, (*this)((*chessman).getx(), 7));
             this->setNone((*chessman).getx(), 7);
-        }
-    }
-
-    // cas general
-    else{
-        // si une piece est prise, on l'ajoute a la liste des pieces prises de sa couleur
-        if (!this->isVoid(coord[0], coord[1])){
-            if ((*(*this)(coord[0],coord[1])).getIsWhite())
-                whiteLostChessmen.push_back((*this)(coord[0], coord[1]));
-            else
-                blackLostChessmen.push_back((*this)(coord[0], coord[1]));
         }
     }
 
@@ -186,4 +337,129 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     chessman->sety(coordIniChess[1]);
     (*this)(coordIniChess[0], coordIniChess[1], chessman);
     return false;
+}
+
+string Grid::fen(){
+    vector<char> f;
+    char letter;
+    for (int ligne=0;ligne<7;ligne++){
+        int colonne=0;
+        while (colonne <= 7){
+            int compt = 0;
+            if ((*this)(ligne,colonne)->getName() == "Empty_Chessman"){
+                compt += 1;
+                colonne += 1;
+                while (colonne<8 && (*this)(ligne,colonne)->getName() == "Empty_Chessman"){
+                    compt += 1;
+                    colonne += 1;
+                }
+                f.push_back(compt + (0));
+                compt = 0;
+            }
+            else{
+                if((*this)(ligne,colonne)->getName() == "Knight"){
+                    letter = 'N';
+                }
+                else{
+                    letter = ((*this)(ligne,colonne)->getName())[0];
+                }
+                //Les pieces noires sont écrites en minuscule
+                if (! (*this)(ligne,colonne)->getIsWhite()){
+                    letter = letter - 'A' + 'a';
+                }
+                f.push_back(letter);
+                colonne += 1;
+            }
+        }
+        if (ligne < 7){
+            f.push_back('/');
+        }
+
+    }
+    f.push_back(' ');
+
+    //couleur du joueur
+    if (whiteIsPlaying){
+        f.push_back('w');
+    }
+    else{
+        f.push_back('b');
+    }
+    f.push_back(' ');
+
+    //roques possibles
+    //pour les blancs
+    bool Rockpossible = false;
+    if (((*this)(0,4)->getName() != "Empty_Chessman") && ((*this)(0,4)->getName() != "King") && (!(*this)(0,4)->getHasMoved())){
+        if (((*this)(0,7)->getName() != "Empty_Chessman") && ((*this)(0,7)->getName() != "Rook") && (!(*this)(0,7)->getHasMoved())){
+            f.push_back('K');
+            Rockpossible=true;
+        }
+        if (((*this)(0,0)->getName() != "Empty_Chessman") && ((*this)(0,0)->getName() != "Rook") && (!(*this)(0,0)->getHasMoved())){
+            f.push_back('Q');
+            Rockpossible=true;
+        }
+    }
+    //pour les noirs
+    if (((*this)(7,4)->getName() != "Empty_Chessman") && ((*this)(7,4)->getName() != "King") && (!(*this)(7,4)->getHasMoved())){
+        if (((*this)(7,7)->getName() != "Empty_Chessman") && ((*this)(7,7)->getName() != "Rook") && (!(*this)(7,7)->getHasMoved())){
+            f.push_back('k');
+            Rockpossible=true;
+        }
+        if (((*this)(7,0)->getName() != "Empty_Chessman") && ((*this)(7,0)->getName() != "Rook") && (!(*this)(7,0)->getHasMoved())){
+            f.push_back('q');
+            Rockpossible=true;
+        }
+    }
+    if (!Rockpossible){
+        f.push_back('-');
+    }
+    f.push_back(' ');
+
+    //position de la prise en passant
+
+    bool passing = false;
+    int li = 4 - whiteIsPlaying;
+    for (int col=0;col<8;col++){
+        if (((*this).isVoid(li,col)) && ((*this)(li,col)->getName() != "Pawn") && (!(*this)(li,col)->isDouble_done())){
+            passing = true;
+            f.push_back(char(col + 'a')); //caractere associé au code ASCII
+            f.push_back(char(li-2+whiteIsPlaying));
+        }
+    }
+    if(!passing){
+        f.push_back('-');
+    }
+    f.push_back(' ');
+
+    //Nombre de demi-coups
+    int n = 1;
+    int count = countHalfMove;
+    while (count/10 != 0){
+        n += 1;
+        count = count/10;
+    }
+    while (n != -1){
+        f.push_back(char(countHalfMove/pow(10,n)-10*(countHalfMove/pow(10,n+1))+'0'));
+        n -= 1;
+    }
+
+    // Nombre de coups
+    n = 1;
+    count = countMove;
+    while (count/10 != 0){
+        n += 1;
+        count = count/10;
+    }
+    while (n != -1){
+        f.push_back(char(countMove/pow(10,n)-10*(countMove/pow(10,n+1))+'0'));
+        n -= 1;
+    }
+
+    string resultat[f.size()];
+
+    for (int i = 0; i<f.size(); i++)
+        resultat[i] = f[i];
+
+    return (*resultat);
 }
