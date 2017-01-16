@@ -34,7 +34,7 @@ class Chessman():
     @name.setter
     def name(self, word):
         self.__name = word
-        
+    
     # On a besoin de ce deplacer tout droit dans 8 directions pour
     # le fou et la tour.
     # Cette fonction permet d'eviter de copier 8 boucles tres similaires
@@ -265,7 +265,6 @@ class Pawn(Chessman):
 
     def allowed_moves(self, grid):
         tabAccess = []
-        direction = 2*self.isWhite -1
         for coord in self.moves(grid):
             if not grid.isChessed(self,coord[0],coord[1]):
                 tabAccess.append(coord)

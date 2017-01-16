@@ -109,6 +109,8 @@ class Disp(QtGui.QWidget):
                     self.__chessboard[i][j].addChessMan( \
                                   self.__grid[(i,j)].name,\
                                   self.__grid[(i,j)].isWhite)
+                else :
+                    self.__chessboard[i][j].deleteChessMan()
                     
                         
     
@@ -230,9 +232,7 @@ class Disp(QtGui.QWidget):
         # on effectue le "vrai" deplacement dans self.__grid
         self.__chessboard[chessmanFrame.x][chessmanFrame.y].deleteChessMan()
         if promotion == None :
-            (roqueX,roqueY)=self.__grid.move((aim.x, aim.y), chessman)
-            if roqueX<=7:
-                self.__chessboard[roqueX][roqueY].deleteChessMan()
+            self.__grid.move((aim.x, aim.y), chessman)
         else :
             aim.clicked.disconnect()
             deleteLayout(self.choices)
@@ -250,6 +250,7 @@ class Disp(QtGui.QWidget):
             else:
                 print("pat")
                 return (0)
+        print(self.__grid.grid_to_ascii())
         # c'est au joueur suivant de jouer
         self.choose_chessman(not whiteIsPlaying)
         
@@ -269,8 +270,7 @@ class Disp(QtGui.QWidget):
     def disp_taken_chessmen():
         pass
     
-#permet de supprimer un Layout
-    
+#permet de supprimer un Layout    
 def deleteLayout(layout):
     if layout is not None:
         while layout.count():

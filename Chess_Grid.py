@@ -9,21 +9,8 @@ from Chessmen import Rook, Knight, Bishop, Queen, King, Pawn
 
 class Grid:
     def __init__(self):
-        self.__whiteLostChessmen = []
-        self.__blackLostChessmen = []
+        # pieces noires
         self.__grid = [[None for j in range(8)] for i in range(8)]
-#        # pieces blanches
-#        self.__whiteRooks = [Rook(True, 0, 0), Rook(True, 0, 7)]        
-#        self.__whiteKnights = [Knight(True, 0, 1), Knight(True, 0, 6)]
-#        self.__whiteBishops = [Bishop(True, 0, 2), Bishop(True, 0, 5)]
-#        self.__whiteQueen = Queen(True, 0, 3)
-#        self.__whiteKing = King(True, 0, 4)
-#        # pions blancs
-#        self.__whitePawns = []
-#        for i in range(8):
-#            self.__whitePawns.append(Pawn(True, 1, i))
-        
-        
         self.__grid[0][0] = Rook(False, 0, 0)
         self.__grid[0][1] = Knight(False, 0, 1)
         self.__grid[0][2] = Bishop(False, 0, 2)
@@ -32,22 +19,11 @@ class Grid:
         self.__grid[0][5] = Bishop(False, 0, 5)
         self.__grid[0][6] = Knight(False, 0, 6)
         self.__grid[0][7] = Rook(False, 0, 7)
-        # pions blancs
+        # pions noirs
         for i in range(8):
             self.__grid[1][i] = Pawn(False, 1, i)
         
-              
-        # pieces noires
-#        self.__blackRooks = [Rook(False, 7, 0), Rook(False, 7, 7)]        
-#        self.__blackKnights = [Knight(False, 7, 1), Knight(False, 7, 6)]
-#        self.__blackBishops = [Bishop(False, 7, 2), Bishop(False, 7, 5)]
-#        self.__blackQueen = Queen(False, 7, 3)
-#        self.__blackKing = King(False, 7, 4)
-#        # pions blancs
-#        self.__blackPawns = []
-#        for i in range(8):
-#            self.__blackPawns.append(Pawn(False, 6, i))
-        
+        # pieces blanches
         self.__grid[7][0] = Rook(True, 7, 0)
         self.__grid[7][1] = Knight(True, 7, 1)
         self.__grid[7][2] = Bishop(True, 7, 2)
@@ -59,6 +35,15 @@ class Grid:
         # pions blancs
         for i in range(8):
             self.__grid[6][i] = Pawn(True, 6, i)
+        
+        # compteurs
+        # compteur du nombre total de coups
+        self.__countMoves = 0
+        # compteur du nombre de coups depuis qu'un pion a bouge ou la derniere
+        # prise, "demi-coups"
+        self.__countHalfMoves = 0
+        
+        self.__whiteIsPlaying = True
 
     
     # accesseur d'une piece de coordonnees (i,j)
@@ -74,75 +59,67 @@ class Grid:
     
     # vrai deplacement
     def move(self, coord, Chessman, promotion = ""):
-        roqueX=10
-        roqueY=10
+        # on incremente les compteurs de 1 
+        self.__countMoves += 1
+        self.__countHalfMoves += 1
+        self.__whiteIsPlaying = not self.__whiteIsPlaying  
+        
+    
         oldCoordChessman = (Chessman.x, Chessman.y)
         # on regarde si la piece a un argument de mouvement
         if Chessman.name in ["King", "Rook"]:
             Chessman._hasMoved = True
 
-        # promotion
-        if Chessman.name == "Pawn" and promotion != "":
-            if promotion == "Queen":
-                Chessman = Queen(Chessman.isWhite, Chessman.x, Chessman.y)
-            if promotion == "Bishop":
-                Chessman = Bishop(Chessman.isWhite, Chessman.x, Chessman.y)
-            if promotion == "Knight":
-                Chessman = Knight(Chessman.isWhite, Chessman.x, Chessman.y)
-            if promotion == "Rook":
-                Chessman = Rook(Chessman.isWhite, Chessman.x, Chessman.y)
-        
-        #cas de la prise en passant
-        if Chessman.name == "Pawn" and Chessman.y != coord[1] and\
-           self.isVoid(coord[0], coord[1]):
-            if not Chessman.isWhite:
-                self.__whiteLostChessmen.append(self[(coord[0]+1, coord[1])])
-                self.setNone(coord[0]+1, coord[1])
-            else:
-                self.__blackLostChessmen.append(self[(coord[0]-1, coord[1])])
-                self.setNone(coord[0]-1, coord[1])
-
-        #cas du coup double du pion
-        elif Chessman.name == "Pawn" and (Chessman.x-coord[0]) not in [-1,1]:
-            Chessman.double_done = True
+        elif Chessman.name == "Pawn" :
+            self.__countHalfMoves = 0 
             
+            # cas du coup double du pion
+            if (Chessman.x-coord[0]) not in [-1,1]:
+                Chessman.double_done = True
+                
+            # cas de la prise en passant
+            if Chessman.y != coord[1] and\
+               self.isVoid(coord[0], coord[1]):
+                if Chessman.isWhite:
+                    self.setNone(coord[0]+1, coord[1])
+                else:
+                    self.setNone(coord[0]-1, coord[1])
+            # promotion 
+            if promotion != "":
+                if promotion == "Queen":
+                    Chessman = Queen(Chessman.isWhite, Chessman.x, Chessman.y)
+                if promotion == "Bishop":
+                    Chessman = Bishop(Chessman.isWhite, Chessman.x, Chessman.y)
+                if promotion == "Knight":
+                    Chessman = Knight(Chessman.isWhite, Chessman.x, Chessman.y)
+                if promotion == "Rook":
+                    Chessman = Rook(Chessman.isWhite, Chessman.x, Chessman.y)
+              
 
         # s'il y a roque
         #retourne les coordonnées de la tour roquée
         elif Chessman.name == "King" and (Chessman.y-coord[1]) not in [-1,0,1]:
+            self.__countHalfMoves = 0 
             # si on va vers la gauche
             if Chessman.y > coord[1]:
                 self[(Chessman.x, 3)] = self[(Chessman.x, 0)]
                 self.setNone(Chessman.x, 0)
-                roqueX=7*Chessman.isWhite
-                roqueY=0
             # vers la droite
             else:
                 self[(Chessman.x, 5)] = self[(Chessman.x, 7)]
-                self.setNone(Chessman.x, 7)
-                roqueX=7*Chessman.isWhite
-                roqueY=7
-
-        #cas general
-        else:
-            # si une piece est prise, on l'ajoute a la liste des pieces
-            #prises de sa couleur
-            if not self.isVoid(coord[0], coord[1]):
-                if self[coord].isWhite:
-                    self.__whiteLostChessmen.append(self[coord])
-                else:
-                    self.__blackLostChessmen.append(self[coord])
-
+                self.setNone(Chessman.x, 7)        
         
-        
-        # a faire
+        # on passe a false l'avancee de double de la couleur opposee
         for frame in self.list_chessman_col(not Chessman.isWhite):
             if self[frame].name == "Pawn":
                 self[frame].double_done = False
         
-        self.setNone(oldCoordChessman[0],oldCoordChessman[1]) 
+        self.setNone(oldCoordChessman[0],oldCoordChessman[1])
+        # s'il y a prise, on doit ramener countHalfMoves a 0
+        if self[coord] != None :
+            self.__countHalfMoves = 0
         self[coord] = Chessman
-        return (roqueX,roqueY)        
+           
         
     def setNone(self,x,y):
         self.__grid[x][y] = None
@@ -161,20 +138,7 @@ class Grid:
     def isVoid(self, x, y):
         return (self.__grid[x][y] == None)
     
-    # Recherche tous les cavaliers blancs si colorIsWhite==True, noir sinon
-    # utile pour le roque
-    def listRooks(self, colorIsWhite):
-        for i in range(8):
-            for j in range(8):
-                if self.__grid[i][j] != None:
-                    if self.__grid[i][j].isWhite==colorisWhite:
-                        if self.__grid[i][j].name == "King":
-                            return (i,j)        
-        if colorIsWhite :
-            
-            return self.__whiteRooks
-        else :
-            return self.__blackRooks
+
     
     def list_chessman_col(self, colorIsWhite):
         l = []
@@ -238,3 +202,89 @@ class Grid:
         self[coordIniChess] = Chessman
         return False
         
+    def grid_to_ascii(self):
+        fen = ""
+        
+        # etat de l'echiquier
+        for x in range(8):
+            y = 0
+            while (y < 8) :
+                if self[(x,y)] == None :
+                    compt = 1
+                    y += 1
+                    while (y < 8 and self[(x,y)] == None):
+                        compt += 1
+                        y += 1
+                    fen += str(compt)
+                else :
+                    if self[(x,y)].name == "Knight" :
+                        letter = 'N'
+                    else :
+                        letter = self[(x,y)].name[0]
+                    # les pieces noires sont ecrites en minuscules
+                    if not self[(x,y)].isWhite :
+                        letter = letter.lower()
+                    fen += letter
+                    y += 1
+            if x < 7 :
+                fen+="/"
+        fen += " "
+        # couleur du joueur dont c'est le tour
+        if self.__whiteIsPlaying :
+            fen += "w"
+        else :
+            fen += "b"
+        fen+=" "
+        
+        # roques possibles
+        # pour les blancs
+        rockPossible = False
+        if self[(0,4)] != None and self[(0,4)].name == "King" \
+            and not (self[(0,4)].hasMoved) :
+                if self[(0,7)] != None and self[(0,7)].name == "Rook" \
+                    and not (self[(0,7)].hasMoved):
+                        fen += "K"
+                        rockPossible = True
+                if self[(0,0)] != None and self[(0,0)].name == "Rook" \
+                    and not (self[(0,0)].hasMoved):
+                        fen += "Q"
+                        rockPossible = True
+        
+        # pour les noirs
+        if self[(7,4)] != None and self[(7,4)].name == "King" \
+            and not (self[(7,4)].hasMoved) :
+                if self[(7,7)] != None and self[(7,7)].name == "Rook" \
+                    and not (self[(7,7)].hasMoved):
+                        fen += "k"
+                        rockPossible = True
+                if self[(7,0)] != None and self[(7,0)].name == "Rook" \
+                    and not (self[(7,0)].hasMoved):
+                        fen += "q" 
+                        rockPossible = True
+        if not rockPossible :
+            fen += "-"
+        fen +=" "
+        
+        # position de prise en passant
+        
+        # si c'est au blanc de jouer, les noirs ont pu faire un coup double
+        # sur la ligne 3
+        # sinon, les blancs ont pu faire un coup double sur la ligne 4
+        passing = False
+        lign = 4 - self.__whiteIsPlaying
+        for y in range(8):
+            if self[(lign,y)] != None and self[(lign,y)].name == "Pawn" \
+                and self[(lign,y)].double_done:
+                    passing = True
+                    fen += chr(y + ord('a')) #a pour 0, b pour 1, c pour 2 etc.
+                    fen += str(lign -  2*self.__whiteIsPlaying + 1)
+        if not passing :
+            fen += "-"
+        fen += " "
+        
+        # nombres de demi coups
+        fen += str(self.__countHalfMoves) 
+        fen += " "
+        # nombre de coups
+        fen += str(self.__countMoves)
+        return fen
