@@ -8,10 +8,6 @@ Chessman::Chessman(int a, int b, string n, bool iW){
     x = a; y = b; name = n; isWhite = iW;
 }
 
-Chessman::Chessman(int a, int b, string n){
-    x = a; y = b; n = name;
-}
-
 // deplacement dans la direction (a,b) sur
 // une ligne ou une diagonale entieres.
 vector<Point> Chessman::move_straight(Grid grid, int a, int b){

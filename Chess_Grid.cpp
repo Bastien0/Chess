@@ -145,25 +145,44 @@ Grid::Grid(string s){
     caractere +=1;
 
     //Prise en passant
+    cout<<"TEST SUR LA PRISE EN PASSANT"<<endl;
     if (s[caractere] != '-'){
+        if (s[caractere+1]=='6'){
+            (*this)(4,int(s[caractere]-'a'))->setdouble_done(true);
+        }
+        if (s[caractere+1]=='3'){
+            (*this)(3,int(s[caractere]-'a'))->setdouble_done(true);
+        }
         int direc=2*whiteIsPlaying-1; //selon si les blancs jouent ou non, on considere la case au dessus/dessous
-        (*this)(int(s[caractere+1]-'0')+direc,int(s[caractere]-'a'))->setdouble_done(true);
+        cout<<int(s[caractere]-'a')<<endl;
         caractere +=1;
     }
+    cout<<"test prise en passant"<<endl;
+    cout<<(*this)(4,4)->isDouble_done()<<endl;
     caractere += 2;
 
+    //Compte des coups
     countHalfMove = 0;
     while (s[caractere] != ' '){
         countHalfMove = countHalfMove*10+int(s[caractere]-'0');
         caractere +=1;
     }
-
+    cout<<"demis coups : "<<countHalfMove<<endl;
     caractere += 1;
 
     countMove = 0;
     while (caractere != s.size()){
         countMove = countMove*10+int(s[caractere]-'0');
         caractere +=1;
+    }
+    cout<<"coups : "<<countMove<<endl;
+
+
+    //Test pour le constructeur
+    for (int i=0;i<8;i++){
+        for(int j=0;j<8;j++){
+        cout<<(*this)(i,j)->getName()<<endl;
+        }
     }
 }
 
@@ -353,18 +372,21 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
 string Grid::fen(){
     vector<char> f;
     char letter;
-    for (int ligne=0;ligne<7;ligne++){
+    for (int ligne=0;ligne<=7;ligne++){
         int colonne=0;
         while (colonne <= 7){
             int compt = 0;
-            if ((*this)(ligne,colonne)->getName() == "Empty_Chessman"){
+            cout<<"Test0"<<endl;
+            if ((*this).isVoid(ligne,colonne)){
+                cout<<"Test 1"<<endl;
                 compt += 1;
                 colonne += 1;
-                while (colonne<8 && (*this)(ligne,colonne)->getName() == "Empty_Chessman"){
+                while (colonne<8 && (*this).isVoid(ligne,colonne)){
+                    cout<<"Test2 "<<compt<<endl;
                     compt += 1;
                     colonne += 1;
                 }
-                f.push_back(compt + (0));
+                f.push_back(char(compt + '0'));
                 compt = 0;
             }
             else{
@@ -401,23 +423,23 @@ string Grid::fen(){
     //roques possibles
     //pour les blancs
     bool Rockpossible = false;
-    if (((*this)(0,4)->getName() != "Empty_Chessman") && ((*this)(0,4)->getName() != "King") && (!(*this)(0,4)->getHasMoved())){
-        if (((*this)(0,7)->getName() != "Empty_Chessman") && ((*this)(0,7)->getName() != "Rook") && (!(*this)(0,7)->getHasMoved())){
-            f.push_back('K');
+    if (((*this)(0,4)->getName() != "Empty_Chessman") && ((*this)(0,4)->getName() == "King") && (!(*this)(0,4)->getHasMoved())){
+        if (((*this)(0,7)->getName() != "Empty_Chessman") && ((*this)(0,7)->getName() == "Rook") && (!(*this)(0,7)->getHasMoved())){
+            f.push_back('k');
             Rockpossible=true;
         }
-        if (((*this)(0,0)->getName() != "Empty_Chessman") && ((*this)(0,0)->getName() != "Rook") && (!(*this)(0,0)->getHasMoved())){
-            f.push_back('Q');
+        if (((*this)(0,0)->getName() != "Empty_Chessman") && ((*this)(0,0)->getName() == "Rook") && (!(*this)(0,0)->getHasMoved())){
+            f.push_back('q');
             Rockpossible=true;
         }
     }
     //pour les noirs
-    if (((*this)(7,4)->getName() != "Empty_Chessman") && ((*this)(7,4)->getName() != "King") && (!(*this)(7,4)->getHasMoved())){
-        if (((*this)(7,7)->getName() != "Empty_Chessman") && ((*this)(7,7)->getName() != "Rook") && (!(*this)(7,7)->getHasMoved())){
+    if (((*this)(7,4)->getName() != "Empty_Chessman") && ((*this)(7,4)->getName() == "King") && (!(*this)(7,4)->getHasMoved())){
+        if (((*this)(7,7)->getName() != "Empty_Chessman") && ((*this)(7,7)->getName() == "Rook") && (!(*this)(7,7)->getHasMoved())){
             f.push_back('k');
             Rockpossible=true;
         }
-        if (((*this)(7,0)->getName() != "Empty_Chessman") && ((*this)(7,0)->getName() != "Rook") && (!(*this)(7,0)->getHasMoved())){
+        if (((*this)(7,0)->getName() != "Empty_Chessman") && ((*this)(7,0)->getName() == "Rook") && (!(*this)(7,0)->getHasMoved())){
             f.push_back('q');
             Rockpossible=true;
         }
@@ -432,10 +454,20 @@ string Grid::fen(){
     bool passing = false;
     int li = 4 - whiteIsPlaying;
     for (int col=0;col<8;col++){
-        if (((*this).isVoid(li,col)) && ((*this)(li,col)->getName() != "Pawn") && (!(*this)(li,col)->isDouble_done())){
-            passing = true;
-            f.push_back(char(col + 'a')); //caractere associé au code ASCII
-            f.push_back(char(li-2+whiteIsPlaying));
+        if (!(*this).isVoid(li,col)){
+            if (((*this)(li,col)->getName() == "Pawn")){
+                cout<<"ligne "<<li<<"colonne "<<col<<endl;
+                if ((*this)(li,col)->isDouble_done()){
+                    passing = true;
+                    f.push_back(char(col + 'a')); //caractere associé au code ASCII
+                    if (li==4){
+                        f.push_back(char(6+'0'));
+                    }
+                    if (li==3){
+                        f.push_back(char(3+'0'));
+                    }
+                }
+            }
         }
     }
     if(!passing){
@@ -444,27 +476,32 @@ string Grid::fen(){
     f.push_back(' ');
 
     //Nombre de demi-coups
-    int n = 1;
+    int n = 0;
     int count = countHalfMove;
-    while (count/10 != 0){
-        n += 1;
-        count = count/10;
+    if (count<10){
+        f.push_back(char(count+'0'));
     }
-    while (n != -1){
-        f.push_back(char(countHalfMove/pow(10,n)-10*(countHalfMove/pow(10,n+1))+'0'));
-        n -= 1;
+    else {
+        n = count/10;
+        count = count%10;
+        cout<<"n "<<n<<"count vaut "<<count<<endl;
+        f.push_back(char(n+'0'));
+        f.push_back(char(count+'0'));
     }
 
+    f.push_back(' ');
+
     // Nombre de coups
-    n = 1;
+    n = 0;
     count = countMove;
-    while (count/10 != 0){
-        n += 1;
-        count = count/10;
+    if (count<10){
+        f.push_back(char(count+'0'));
     }
-    while (n != -1){
-        f.push_back(char(countMove/pow(10,n)-10*(countMove/pow(10,n+1))+'0'));
-        n -= 1;
+    else {
+        n = count/10;
+        count = count%10;
+        f.push_back(char(n+'0'));
+        f.push_back(char(count+'0'));
     }
 
     string resultat;

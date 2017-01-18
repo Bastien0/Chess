@@ -17,7 +17,6 @@ public:
     //Constructeur
     Chessman(){}
     Chessman(int a, int b, string n, bool iW);
-    Chessman(int a, int b, string n);
     virtual Chessman* clone(){}
 
     //Accesseurs et setter
@@ -42,10 +41,12 @@ public:
     virtual vector<Point> moves(Grid& grid){}
 };
 
+//Empty_Chessman est une pièce blanche qui n'existe pas.
+//Attention à ne pas prendre en compte sa couleur.
 class Empty_Chessman : Chessman{
 public:
     //Constructeur
-    Empty_Chessman(int a, int b) : Chessman(a, b, "Empty"){}
+    Empty_Chessman(int a, int b) : Chessman(a, b, "Empty", true){}
     Chessman* clone(){ return new Empty_Chessman(x, y); }
 };
 
@@ -116,7 +117,7 @@ class Pawn: Chessman{
     bool double_done;
 public:
     //Constructeur
-    Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){}
+    Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){double_done = false;}
     Chessman* clone(){ return new Pawn(x, y, isWhite); }
 
     //Accesseurs et setter

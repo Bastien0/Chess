@@ -6,7 +6,7 @@ int main(){
     std::cout << "test de jeu"<< std::endl;
     while(true){
 
-
+        // rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 64 8
         string s;
         cout << "fen svp" << endl;
         getline(cin,s);
