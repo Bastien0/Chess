@@ -6,7 +6,6 @@ Grid::Grid(string s){
     int ligne = 0;
     int colonne = 0;
     int caractere = 0;
-    cout << "constructeur de Grid" << endl;
     while (s[caractere] != ' '){
         if (s[caractere] == '/'){
             ligne += 1;
@@ -67,7 +66,6 @@ Grid::Grid(string s){
         // Cas des chiffres
         else{
             int n = s[caractere]-'0';
-            cout << "on a "<< n << "cases vides a la suite"<<endl;
             for (int i = 0; i < n; i++){
                 Empty_Chessman e(ligne, colonne);
                 (*this)(ligne, colonne, e.clone());
@@ -75,7 +73,6 @@ Grid::Grid(string s){
                     colonne += 1; // on augmente la colonne de n-1 au total
             }
         }
-        cout << "on a lu la case " << ligne <<" "<< colonne<< endl;
         caractere += 1;
         colonne += 1;
     }
@@ -91,8 +88,7 @@ Grid::Grid(string s){
     // Roque possible
     string ch="    ";
     for (int i=0;i<4;i++){
-        ch[i]=(s[caractere]);
-        caractere +=1;
+        ch[i]=(s[caractere+i]);
     }
         //S'il n 'y a pas de roque possible
     if (s[0] == '-'){
@@ -109,15 +105,19 @@ Grid::Grid(string s){
         for (int ind=0;ind<ch.size();ind++){
             if(ch[ind]== 'K'){
                 PresenceK = true;
+                caractere += 1;
             }
             else if(ch[ind]== 'q'){
                 Presenceq = true;
+                caractere += 1;
             }
             else if(ch[ind]== 'Q'){
                 PresenceQ = true;
+                caractere += 1;
             }
             else if(ch[ind]== 'k'){
                 Presencek = true;
+                caractere += 1;
             }
 
         }
@@ -145,7 +145,6 @@ Grid::Grid(string s){
     caractere +=1;
 
     //Prise en passant
-    cout<<"TEST SUR LA PRISE EN PASSANT"<<endl;
     if (s[caractere] != '-'){
         if (s[caractere+1]=='6'){
             (*this)(4,int(s[caractere]-'a'))->setdouble_done(true);
@@ -153,36 +152,23 @@ Grid::Grid(string s){
         if (s[caractere+1]=='3'){
             (*this)(3,int(s[caractere]-'a'))->setdouble_done(true);
         }
-        int direc=2*whiteIsPlaying-1; //selon si les blancs jouent ou non, on considere la case au dessus/dessous
-        cout<<int(s[caractere]-'a')<<endl;
         caractere +=1;
     }
-    cout<<"test prise en passant"<<endl;
-    cout<<(*this)(4,4)->isDouble_done()<<endl;
     caractere += 2;
 
     //Compte des coups
     countHalfMove = 0;
+
     while (s[caractere] != ' '){
         countHalfMove = countHalfMove*10+int(s[caractere]-'0');
         caractere +=1;
     }
-    cout<<"demis coups : "<<countHalfMove<<endl;
     caractere += 1;
 
     countMove = 0;
     while (caractere != s.size()){
         countMove = countMove*10+int(s[caractere]-'0');
         caractere +=1;
-    }
-    cout<<"coups : "<<countMove<<endl;
-
-
-    //Test pour le constructeur
-    for (int i=0;i<8;i++){
-        for(int j=0;j<8;j++){
-        cout<<(*this)(i,j)->getName()<<endl;
-        }
     }
 }
 
@@ -292,7 +278,7 @@ Point Grid::king_position(bool isWhite){
 }
 
 bool Grid::isVoid(int x, int y){
-    return (grid[x+8*y]->getName() == "Empty");
+    return ((grid[x+8*y]->getName()) == "Empty");
 }
 
 vector<Chessman*> Grid::list_chessman_col(bool colorIsWhite){
@@ -369,20 +355,17 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     return false;
 }
 
-string Grid::fen(){
+string Grid::fen(){ // code la grille en standard fen
     vector<char> f;
     char letter;
     for (int ligne=0;ligne<=7;ligne++){
         int colonne=0;
         while (colonne <= 7){
             int compt = 0;
-            cout<<"Test0"<<endl;
             if ((*this).isVoid(ligne,colonne)){
-                cout<<"Test 1"<<endl;
                 compt += 1;
                 colonne += 1;
                 while (colonne<8 && (*this).isVoid(ligne,colonne)){
-                    cout<<"Test2 "<<compt<<endl;
                     compt += 1;
                     colonne += 1;
                 }
@@ -425,11 +408,11 @@ string Grid::fen(){
     bool Rockpossible = false;
     if (((*this)(0,4)->getName() != "Empty_Chessman") && ((*this)(0,4)->getName() == "King") && (!(*this)(0,4)->getHasMoved())){
         if (((*this)(0,7)->getName() != "Empty_Chessman") && ((*this)(0,7)->getName() == "Rook") && (!(*this)(0,7)->getHasMoved())){
-            f.push_back('k');
+            f.push_back('K');
             Rockpossible=true;
         }
         if (((*this)(0,0)->getName() != "Empty_Chessman") && ((*this)(0,0)->getName() == "Rook") && (!(*this)(0,0)->getHasMoved())){
-            f.push_back('q');
+            f.push_back('Q');
             Rockpossible=true;
         }
     }
@@ -456,7 +439,6 @@ string Grid::fen(){
     for (int col=0;col<8;col++){
         if (!(*this).isVoid(li,col)){
             if (((*this)(li,col)->getName() == "Pawn")){
-                cout<<"ligne "<<li<<"colonne "<<col<<endl;
                 if ((*this)(li,col)->isDouble_done()){
                     passing = true;
                     f.push_back(char(col + 'a')); //caractere associé au code ASCII
@@ -484,7 +466,6 @@ string Grid::fen(){
     else {
         n = count/10;
         count = count%10;
-        cout<<"n "<<n<<"count vaut "<<count<<endl;
         f.push_back(char(n+'0'));
         f.push_back(char(count+'0'));
     }
@@ -505,7 +486,6 @@ string Grid::fen(){
     }
 
     string resultat;
-    cout << "la taille de f est : " << f.size() << endl;
     for (int i = 0; i<f.size(); i++)
         resultat += f[i];
 

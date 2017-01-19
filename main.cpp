@@ -4,15 +4,20 @@ using namespace std;
 
 int main(){
     std::cout << "test de jeu"<< std::endl;
-    while(true){
+    //while(true){
 
         // rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 64 8
-        string s;
-        cout << "fen svp" << endl;
-        getline(cin,s);
+        string s = "4kR2/8/8/8/5q2/8/8/4K3 b - - 0 0";
+        /*cout << "fen svp" << endl;
+        getline(cin,s);*/
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
+        cout << G.operator ()(4,5)->getName() << endl;
+        cout << G.isChessed(G(4,5),4,6) << endl;
+        vector<Point> move = G.operator ()(4,5)->allowed_moves(G);
+        for (int i = 0; i < move.size(); i++)
+            cout << move[i].getx() << " " << move[i].gety() << endl;
 
         /*
         string posdep;
@@ -35,7 +40,7 @@ int main(){
         cout<< "bug pendant G.fen()" << endl;
         cout << "et voici la fen de la nouvelle config" << s << endl;
         */
-    }
+    //}
 
     return 0;
 }

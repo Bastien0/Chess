@@ -8,7 +8,7 @@ public:
     sety(int j){y = j;}
     int getx() const {return x;}
     int gety() const {return y;}
-    Point(){};
+    Point(){}
     Point(int x0, int y0){
         x = x0;
         y = y0;

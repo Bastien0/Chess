@@ -10,18 +10,18 @@ Chessman::Chessman(int a, int b, string n, bool iW){
 
 // deplacement dans la direction (a,b) sur
 // une ligne ou une diagonale entieres.
-vector<Point> Chessman::move_straight(Grid grid, int a, int b){
+vector<Point> Chessman::move_straight(Grid& grid, int a, int b){
     vector<Point> tabAccess;
     int x0 = x + a;
     int y0 = y + b;
-    while ((0 <= x0 < 8) && (0 <= y0 < 8) && grid.isVoid(x0, y0)){
+    while (0 <= x0 && x0< 8 && 0 <= y0 && y0 < 8 && grid.isVoid(x0, y0)){
         Point point(x0, y0);
         tabAccess.push_back(point);
         x0 = x0 + a;
         y0 = y0 + b;
     }
     // prise
-    if (0 <=x < 8 && 0 <=y < 8 && !grid.sameColor(this, x0, y0)){
+    if (0 <= x0 && x0 < 8 && 0 <=y0 && y0 < 8 && !grid.sameColor(this, x0, y0)){
         Point point(x0, y0);
         tabAccess.push_back(point);
     }
@@ -37,8 +37,8 @@ vector<Point> Chessman::testedTuples(Grid &grid, vector<Point> tab){
    vector<Point> tabAccess;
    int s = tab.size();
    for (int i = 0; i < s; i++){
-       if (0 <= tab[i].getx() < 8 && 0 <= tab[i].gety() < 8) {
-           if (!grid.isVoid(tab[i].getx(), tab[i].gety()))
+       if (0 <= tab[i].getx() && tab[i].getx() < 8 && 0 <= tab[i].gety() && tab[i].gety() < 8) {
+           if (grid.isVoid(tab[i].getx(), tab[i].gety()))
                tabAccess.push_back(tab[i]);
            else if (!grid.sameColor(this, x, y))
                tabAccess.push_back(tab[i]);
@@ -47,7 +47,7 @@ vector<Point> Chessman::testedTuples(Grid &grid, vector<Point> tab){
    return tabAccess;
 }
 
-vector<Point> Chessman::allowed_moves(Grid grid){
+vector<Point> Chessman::allowed_moves(Grid& grid){
     vector<Point> allowed;
     vector<Point> vecMoves = moves(grid);
     for (int i = 0; i < vecMoves.size(); i++){
@@ -103,12 +103,12 @@ vector<Point> Queen::moves(Grid& grid){
 vector<Point> Knight::moves(Grid& grid){
     vector<Point> m;
     int t[4] = {-1, 1, -2, 2};
-    for (int i = 0; i < 3; i++){
-        for (int j = 0; j <3; j++){
+    for (int i = 0; i < 4; i++){
+        for (int j = 0; j <4; j++){
             if (abs(t[i]) != abs(t[j])){
                 Point pos;
-                pos.setx(this->getx() + t[i]);
-                pos.sety(this->gety() + t[j]);
+                pos.setx(x + t[i]);
+                pos.sety(y + t[j]);
                 m.push_back(pos);
             }
         }
@@ -121,7 +121,7 @@ vector<Point> King::moves(Grid& grid){
     for (int i = -1; i< 2; i++){
         for (int j = -1; j< 2; j++){
             if ((i != 0) || (j != 0)){
-                Point point(this->getx() + i, this->gety() + j);
+                Point point(x + i, y + j);
                 m.push_back(point);
             }
         }

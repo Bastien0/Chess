@@ -35,9 +35,9 @@ public:
     Chessman (const Chessman& C) {x=C.x ; y=C.y ; name=C.name; isWhite=C.isWhite;}
 
     // Fonctions de jeu
-    vector<Point> move_straight(Grid grid, int a, int b);
+    vector<Point> move_straight(Grid& grid, int a, int b);
     vector<Point> testedTuples(Grid& grid, vector<Point> tab);
-    vector<Point> allowed_moves(Grid grid);
+    vector<Point> allowed_moves(Grid &grid);
     virtual vector<Point> moves(Grid& grid){}
 };
 
