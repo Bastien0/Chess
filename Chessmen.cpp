@@ -156,21 +156,22 @@ vector<Point> King::moves(Grid& grid){
 
 vector<Point> Pawn::moves(Grid& grid){
     vector<Point> m;
-    int direction = 2*this->getIsWhite()-1;
+    int direction = 2*!isWhite-1;
     // la direction de deplacement differe entre les blancs et
     // les noirs
-    if (grid.isVoid(this->getx() + direction, this->gety())){
-        Point point(this->getx() + direction,this->gety());
+    if (grid.isVoid(x + direction, y)){
+        Point point(x + direction, y);
         m.push_back(point);
     }
-    m = testedTuples(grid, m);
     // avancee initiales
     // prises normales
     // d'un cote
-    if ( this->gety()+ 1 < 8 && !grid.isVoid(this->getx() + direction, this->gety() + 1) \
-        && !grid.sameColor(this, this->getx() + direction, this->gety() + 1)){
+    //cout << this->getx() << "    " << this->gety() <<endl;
+    if (y +1 < 8 && !grid.isVoid(x + direction, y + 1)){
+        if (!grid.sameColor(this, this->getx() + direction, this->gety() + 1)){
             Point point(this->getx() + direction, this->gety() + 1);
             m.push_back(point);
+        }
     }
     // de l'autre
     if ( this->gety() - 1 >= 0 && !grid.isVoid(this->getx() + direction, this->gety() - 1) \
@@ -179,12 +180,12 @@ vector<Point> Pawn::moves(Grid& grid){
                 m.push_back(point);
     }
     // avancee de deux cases
-    if (this->getIsWhite() && this->getx() == 1 && grid.isVoid(2, this->gety()) && grid.isVoid(3, this->gety())){
-        Point point(3,this->gety());
+    if (this->getIsWhite() && this->getx() == 6 && grid.isVoid(5, this->gety()) && grid.isVoid(4, this->gety())){
+        Point point(4,this->gety());
         m.push_back(point);
     }
-    if (!this->getIsWhite() && this->getx() == 6 && grid.isVoid(5, this->gety()) && grid.isVoid(4, this->gety())){
-        Point point(4, this->gety());
+    if (!this->getIsWhite() && this->getx() == 1 && grid.isVoid(2, this->gety()) && grid.isVoid(3, this->gety())){
+        Point point(3, this->gety());
         m.push_back(point);
     }
     // prise en passant
@@ -208,6 +209,7 @@ vector<Point> Pawn::moves(Grid& grid){
         point.sety(this->gety()-1);
         m.push_back(point);
     }
+    return testedTuples(grid, m);
 }
 
 

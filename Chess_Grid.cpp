@@ -91,9 +91,10 @@ Grid::Grid(string s){
         ch[i]=(s[caractere+i]);
     }
         //S'il n 'y a pas de roque possible
-    if (s[0] == '-'){
+    if (ch[0] == '-'){
         Point Break = this->king_position(whiteIsPlaying);
         (*this)(Break.getx(), Break.gety())->sethasMoved(true);
+        caractere += 1;
     }
         //Sinon
 
@@ -278,6 +279,7 @@ Point Grid::king_position(bool isWhite){
 }
 
 bool Grid::isVoid(int x, int y){
+    cout << "x "<<x<<" y "<<y<<endl;
     return ((grid[x+8*y]->getName()) == "Empty");
 }
 

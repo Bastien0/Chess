@@ -7,15 +7,15 @@ int main(){
     //while(true){
 
         // rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 64 8
-        string s = "4kR2/8/8/8/5q2/8/8/4K3 b - - 0 0";
+        string s = "4k3/8/8/4pP2/8/8/8/4K3 w - e3 0 0";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
-        cout << G.operator ()(4,5)->getName() << endl;
-        cout << G.isChessed(G(4,5),4,6) << endl;
-        vector<Point> move = G.operator ()(4,5)->allowed_moves(G);
+        cout << G.operator ()(3,4)->isDouble_done() << endl;
+        //cout << G.isChessed(G(4,5),4,6) << endl;
+        vector<Point> move = G.operator ()(3,5)->moves(G);
         for (int i = 0; i < move.size(); i++)
             cout << move[i].getx() << " " << move[i].gety() << endl;
 
