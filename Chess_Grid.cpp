@@ -261,6 +261,46 @@ void Grid::move(int coord[2], Chessman* chessman, string promotion){
     (*this)(coord[0], coord[1], chessman);
 }
 
+// Annulattion des coups
+void Grid::unmove(Chessman& departure, Chessman& arrival){
+    // Roque
+    if (departure.getName() == "King" && abs(departure.gety() - arrival.gety()) == 2){
+        if (arrival.gety() == 2){
+            Chessman* king = departure.clone();
+            dep->sety(4);
+            grid[departure.getx()] = Rook(departure.getx(),0,departure.getIsWhite());
+            grid[departure.getx() + 8*4] = king;
+        }
+        else{
+            Chessman* dep = arrival.clone();
+            dep->sety(4);
+            grid[departure.getx()+ 8*7] = new Rook(departure.getx(),7,departure.getIsWhite());
+            grid[departure.getx() + 8*4] = dep;
+        }
+        grid[departure.getx()+8*departure.gety()] = new Empty_Chessman(departure.getx(),departure.gety());
+        grid[arrival.getx()+8*arrival.gety()] = new Empty_Chessman(arrival.getx(),arrival.gety());
+    }
+    // what french people call "en passant"
+    else if (departure.getName() == "Pawn" && arrival.getName() == "Empty" && departure.gety()!= arrival.gety()){
+        if (departure.getIsWhite()){
+            grid[3 + 8*arrival.gety()] = new Pawn(3,arrival.gety(),false);
+            grid[3 + 8*departure.gety()] = departure.clone();
+        }
+        else{
+            grid[4 + 8*arrival.gety()] = new Pawn(4,arrival.gety(),true);
+            grid[4 + 8*departure.gety()] = departure.clone();
+        }
+    }
+    //Promotion is the same that to cancel a normal move, so we don't consider it here. In a philosophycal approach
+    // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"
+
+    // normal situation : it's so easy dude.
+    else if (arrival.getName() == "Empty"){
+        grid[arrival.getx()+8*arrival.gety()] = arrival.clone();
+        grid[departure.getx() +8*arrival.gety()] = departure.clone(); // un peu idiot non, on ferait mieux de pas cloner et pas supprimer ?
+    }
+
+}
 
 //Attention à la construction par copie !
 void Grid::setNone(int x, int y){

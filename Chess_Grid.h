@@ -19,6 +19,7 @@ public:
     Chessman* operator()(int coord0, int coord1);
     void operator()(int coord0, int coord1, Chessman* chessman);
     void move(int coord[2], Chessman *chessman, string promotion = "");
+    void unmove(Chessman &departure, Chessman &arrival);
     void setNone(int x, int y);
     Point king_position(bool isWhite);
     bool isVoid(int x, int y);
