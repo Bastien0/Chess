@@ -2,6 +2,8 @@
 #include "Chess_Grid.h"
 using namespace std;
 
+int best_move(int depth, string fen);
+
 int main(){
     std::cout << "test de jeu"<< std::endl;
     //while(true){
@@ -13,11 +15,15 @@ int main(){
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
-        cout << G.operator ()(3,4)->isDouble_done() << endl;
-        //cout << G.isChessed(G(4,5),4,6) << endl;
-        vector<Point> move = G.operator ()(3,5)->moves(G);
-        for (int i = 0; i < move.size(); i++)
-            cout << move[i].getx() << " " << move[i].gety() << endl;
+        cout << best_move(3, s) << endl;
+        /*Point p(2,4);
+        Chessman* c1 = G(3,5)->clone();
+        Chessman* c2 = G(2,4)->clone();
+        G.move(p, G(3,5));
+        cout << G.fen() << endl;
+        G.unmove(c1, c2);
+        cout << G.fen() << endl;*/
+
 
         /*
         string posdep;

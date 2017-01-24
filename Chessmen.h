@@ -26,6 +26,7 @@ public:
     string getName(){ return name; }
     void setx(int i) { x = i; }
     void sety(int i) { y = i; }
+    void setIsWhite(bool value){ isWhite = value; }
     void setName(string n) { name = n; }
     virtual void setdouble_done(bool value){}
     virtual bool getHasMoved(){}
