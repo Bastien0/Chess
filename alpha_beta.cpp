@@ -10,29 +10,34 @@ int evaluation(Grid& G){
     for (int i=0;i<7;i++){
         PawnOnColumn[i]=0;
     }
+    int sameCol;
     for (int i=0;i<8;i++){
         for (int j=0;j<8;j++){
             if (!G.isVoid(i,j)){
+                sameCol = 2*(G.getWhiteIsPlaying() != G(i,j)->getIsWhite()) - 1;
+                //vaut 1 si le joueur qui a joue est de la meme couleur que la piece
+                //vaut -1 s'ils sont differents
                 vector<Point> allow=G(i,j)->allowed_moves(G);
                 eval += allow.size();
                 if (G(i,j)->getName() == "Pawn"){
-                    eval += 100; //valeur du pion est 100
+                    eval += sameCol*100; //valeur du pion est 100
+                    /*
                     if (PawnOnColumn[j]==1){
                         eval -= 50;
-                    }
+                    }*/
 
                 }
                 if (G(i,j)->getName() == "Knight"){
-                    eval += 300; //valeur du cavalier est 300
+                    eval += sameCol*300; //valeur du cavalier est 300
                 }
                 if (G(i,j)->getName() == "Bishop"){
-                    eval += 300; //valeur du fou est 300
+                    eval += sameCol*300; //valeur du fou est 300
                 }
                 if (G(i,j)->getName() == "Rook"){
-                    eval += 500; //valeur de la tour est 500
+                    eval += sameCol*500; //valeur de la tour est 500
                 }
                 if (G(i,j)->getName() == "Queen"){
-                    eval += 900; //valeur de la reine est 900
+                    eval += sameCol*900; //valeur de la reine est 900
                 }
             }
         }

@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.6)
 project(Echecs)
 add_executable(Echecs
-	       main.cpp
+	       main.cpp 
+	       alpha_beta.cpp
                Chess_Grid.h Chess_Grid.cpp
                Chessmen.h Chessmen.cpp
                point.h
