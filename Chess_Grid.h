@@ -1,5 +1,5 @@
 #pragma once
-#include"Chessmen.h"
+#include "Chessmen.h"
 #include "point.h"
 #include <vector>
 #include <iostream>
@@ -18,12 +18,14 @@ public:
     // get and set
     bool getWhiteIsPlaying(){ return whiteIsPlaying; }
 
-    //
+    // Constructeur et desctructeur
     Grid(string s);
+    ~Grid();
+
     Chessman* operator()(int coord0, int coord1);
     void operator()(int coord0, int coord1, Chessman* chessman);
     void move(Point point, Chessman *chessman);
-    void unmove(Chessman *departure, Chessman *arrival);
+    void unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant);
     void setNone(int x, int y);
     Point king_position(bool isWhite);
     bool isVoid(int x, int y);

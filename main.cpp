@@ -5,17 +5,66 @@ using namespace std;
 int best_move(int depth, string fen);
 
 
+bool test_move_unmove(Grid& G){
+ string fen_ini = G.fen();
+ string posdep;
+ cout << "case de depart svp en mode e5"<<endl;
+ cin >> posdep;
+ int dep[2];
+ dep[0] = '8'- posdep[1];
+ dep[1] = posdep[0]-'a';
+
+ string posarr;
+ cout <<" case d'arrivee svp en mode e5" << endl;
+ cin >> posarr;
+ int arr[2];
+ arr[0] = '8' - posarr[1];
+ arr[1] = posarr[0] -'a';
+ cout << arr[0] << " " << arr[1] << endl;
+ Point arriv(arr[0],arr[1]);
+
+ cout << "construction du point ok" << endl ;
+ Chessman* c1 = G(dep[0],dep[1])->clone();
+ Chessman* c2 = G(arr[0],arr[1])->clone();
+ G.move(arriv, G(dep[0],dep[1]));
+
+ cout << "deplacement effectue" << endl;
+
+ cout << "ancien fen : " << fen_ini << endl;
+ cout << "fen apres deplacement : "<< G.fen() << endl;
+ Point final(arr[0], arr[1]);
+ Point Enpassant(4,4);
+
+ G.unmove(c1, c2, final, Enpassant);
+ cout << "annulation effectuee" << endl;
+ cout << "fen apres annulation : " << G.fen() << endl;
+ cout << G(4,4)->isDouble_done() << endl;
+
+ if (G.fen() == fen_ini){
+ cout << "on annule bien le mouvement"<< endl;
+ }
+ return G.fen() == fen_ini;
+}
+
 int main(){
     std::cout << "test de jeu"<< std::endl;
     //while(true){
 
-        // rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 64 8
-        string s = "4k3/8/8/4pP2/8/8/8/4K3 w - e3 0 0";
+        string s = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 0";
+        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 w - e3 0 0";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
+        //while(test_move_unmove(G)){}
+        /*Point P(0,5);
+        Chessman* d = G(0,4);
+        Chessman* d1 = d->clone();
+        Chessman* a = G(0,5);
+        G.move(P, G(0,4));
+        G.unmove(d1,a,P);
+        cout << "G.fen : " << G.fen() << endl;*/
         cout << best_move(3, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();

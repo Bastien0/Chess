@@ -4,7 +4,7 @@
 #include "point.h"
 using namespace std;
 
-int evaluation(Grid& G){
+int evaluation(Grid& G, bool color){
     int eval=0;
     int PawnOnColumn[7];
     for (int i=0;i<7;i++){
@@ -14,7 +14,7 @@ int evaluation(Grid& G){
     for (int i=0;i<8;i++){
         for (int j=0;j<8;j++){
             if (!G.isVoid(i,j)){
-                sameCol = 2*(G.getWhiteIsPlaying() != G(i,j)->getIsWhite()) - 1;
+                sameCol = 2*(color == G(i,j)->getIsWhite()) - 1;
                 //vaut 1 si le joueur qui a joue est de la meme couleur que la piece
                 //vaut -1 s'ils sont differents
                 vector<Point> allow=G(i,j)->allowed_moves(G);
@@ -42,15 +42,24 @@ int evaluation(Grid& G){
             }
         }
     }
-    cout << eval << endl;
-    cout << G.fen() << endl;
+    /*cout << eval << endl;
+    cout << G.fen() << endl;*/
     return eval;
 }
 
-int alpha_beta(Grid& G, int depth, bool isMax){
+int alpha_beta(Grid& G, int depth, bool isMax, bool color){
     int eval = 0;
+
+    // On enregistre la prise en passant
+    Point Enpassant(0,0);
+    for (int i = 0; i < 8; i++)
+        if (G(i, 4-G.getWhiteIsPlaying())->getName() == "Pawn" && G(i, 4-G.getWhiteIsPlaying())->isDouble_done()){
+            Enpassant.setx(i);
+            Enpassant.sety(4-G.getWhiteIsPlaying());
+        }
+
     if (depth == 0)
-        return evaluation(G);
+        return evaluation(G, color);
     else if (isMax){
         int M = INT_MIN;
         for (int i = 0; i < 8; i++){
@@ -67,11 +76,11 @@ int alpha_beta(Grid& G, int depth, bool isMax){
                         else
                             G.move((*it), G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax);
+                        eval = alpha_beta(G, depth-1, !isMax, color);
                         // Si l'evaluation est meilleure
                         if (eval > M)
                             M = eval;
-                        G.unmove(startingFrame, arrivingFrame);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
                     }
                 }
             }
@@ -94,11 +103,11 @@ int alpha_beta(Grid& G, int depth, bool isMax){
                         else
                             G.move(*it, G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax);
+                        eval = alpha_beta(G, depth-1, !isMax, color);
                         // Si l'evaluation est meilleure
                         if (eval < M)
                             M = eval;
-                        G.unmove(startingFrame, arrivingFrame);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
                     }
                 }
             }
@@ -109,6 +118,13 @@ int alpha_beta(Grid& G, int depth, bool isMax){
 
 int best_move(int depth, string fen){
     Grid G(fen);
+    // On enregistre la prise en passant
+    Point Enpassant(0,0);
+    for (int i = 0; i < 8; i++)
+        if (G(i, 4-G.getWhiteIsPlaying())->getName() == "Pawn" && G(i, 4-G.getWhiteIsPlaying())->isDouble_done()){
+            Enpassant.setx(i);
+            Enpassant.sety(4-G.getWhiteIsPlaying());
+        }
     int M = INT_MIN;
     int move = 0;
     int eval;
@@ -126,13 +142,13 @@ int best_move(int depth, string fen){
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille
-                    eval = alpha_beta(G, depth-1, false);
+                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying());
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;
                         move = 1000*i+100*j+10*(*it).getx()+(*it).gety();
                     }
-                    G.unmove(startingFrame, arrivingFrame);
+                    G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
                 }
             }
         }

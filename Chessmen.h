@@ -14,10 +14,11 @@ protected:
     string name;
     bool isWhite;
 public:
-    //Constructeur
+    //Constructeur et destructeur
     Chessman(){}
     Chessman(int a, int b, string n, bool iW);
     virtual Chessman* clone(){}
+    virtual ~Chessman(){}
 
     //Accesseurs et setter
     int getx(){ return x;}
@@ -44,20 +45,22 @@ public:
 
 //Empty_Chessman est une pièce blanche qui n'existe pas.
 //Attention à ne pas prendre en compte sa couleur.
-class Empty_Chessman : Chessman{
+class Empty_Chessman : public Chessman{
 public:
     //Constructeur
-    Empty_Chessman(int a, int b) : Chessman(a, b, "Empty", true){}
-    Chessman* clone(){ return new Empty_Chessman(x, y); }
+    Empty_Chessman() : Chessman(0, 0, "Empty", true){}
+    Chessman* clone(){ return new Empty_Chessman(); }
+    ~Empty_Chessman(){}
 };
 
 
-class Rook: Chessman{
+class Rook: public Chessman{
     bool hasMoved;
 public:
-    //Constructeur
+    //Constructeur et destructeur
     Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false;}
     Chessman* clone(){return new Rook(x, y, isWhite); }
+    ~Rook(){}
 
     //Accesseurs
     bool getHasMoved(){ return hasMoved; }
@@ -66,44 +69,48 @@ public:
     vector<Point> moves(Grid& grid);
 };
 
-class Bishop: Chessman{
+class Bishop: public Chessman{
 public:
     //Constructeur
     Bishop(int a, int b, bool iW): Chessman(a, b, "Bishop", iW){}
     Chessman* clone(){ return new Bishop(x, y, isWhite); }
+    ~Bishop(){}
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
 };
 
 
-class Queen: Chessman{
+class Queen: public Chessman{
 public:
     //Constructeur
     Queen(int a, int b, bool iW): Chessman(a, b, "Queen", iW){}
     Chessman* clone(){ return new Queen(x, y, isWhite); }
+    ~Queen(){}
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
 };
 
-class Knight: Chessman{
+class Knight:  public Chessman{
 public:
     //Constructeur
     Knight(int a, int b, bool iW): Chessman(a, b, "Knight", iW){}
     Chessman* clone(){ return new Knight(x, y, isWhite); }
+    ~Knight(){}
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
 };
 
 
-class King: Chessman{
+class King: public Chessman{
     bool hasMoved;
 public:
     //Constructeur
     King(int a, int b, bool iW): Chessman(a, b, "King", iW){hasMoved = false;}
     Chessman* clone(){ return new King(x, y, isWhite); }
+    ~King(){}
 
     //Accesseurs et setter
     bool getHasMoved(){ return hasMoved; }
@@ -114,12 +121,13 @@ public:
 };
 
 
-class Pawn: Chessman{
+class Pawn: public Chessman{
     bool double_done;
 public:
     //Constructeur
     Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){double_done = false;}
     Chessman* clone(){ return new Pawn(x, y, isWhite); }
+    ~Pawn(){}
 
     //Accesseurs et setter
     bool isDouble_done(){ return double_done; }

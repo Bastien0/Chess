@@ -1,6 +1,15 @@
 #include "Chess_Grid.h"
+
+Chessman* Empty = new Empty_Chessman();
+
+
 Grid::Grid(string s){
     grid = new Chessman*[64];
+
+    // On initialise une grille vide
+    for (int i = 0; i < 64; i++)
+        grid[i] = Empty;
+
     countMove = 0;
     countHalfMove = 0;
     int ligne = 0;
@@ -67,8 +76,7 @@ Grid::Grid(string s){
         else{
             int n = s[caractere]-'0';
             for (int i = 0; i < n; i++){
-                Empty_Chessman e(ligne, colonne);
-                (*this)(ligne, colonne, e.clone());
+                (*this)(ligne, colonne, Empty);
                 if (i < n-1)
                     colonne += 1; // on augmente la colonne de n-1 au total
             }
@@ -173,6 +181,16 @@ Grid::Grid(string s){
     }
 }
 
+
+Grid::~Grid(){
+    for(int i = 0; i < 64; i++){
+        if (grid[i]->getName() != "Empty")
+            delete (grid[i]);
+    }
+    delete[] grid;
+}
+
+
 Chessman* Grid::operator()(int coord0, int coord1){
     return grid[coord0+8*coord1];
 }
@@ -180,6 +198,10 @@ Chessman* Grid::operator()(int coord0, int coord1){
 void Grid::operator()(int coord0, int coord1, Chessman* chessman){
     chessman->setx(coord0);
     chessman->sety(coord1);
+    /*if (!this->isVoid(coord0, coord1)){
+        cout << "Test" << endl;
+        delete (*this)(coord0, coord1);
+    }*/
     grid[coord0+8*coord1] = chessman;
 }
 
@@ -245,71 +267,85 @@ void Grid::move(Point point, Chessman* chessman){
         }
     }
 
-    if (!this->isVoid(point.getx(), point.gety()))
-        countHalfMove = 0;
+    // Reinitialisation des double_done
+    for (int i = 0; i < 8; i++){
+        if ((*this)(i, 4-whiteIsPlaying)->getName() == "Pawn")
+            (*this)(i, 4-whiteIsPlaying)->setdouble_done(false);
+    }
 
-    vector<Chessman*> l = this->list_chessman_col(!(*chessman).getIsWhite());
-    vector<Chessman*>::iterator it = l.begin();
-    for (; it != l.end(); ++it)
-        if ((*this)((*it)->getx(), (*it)->gety())->getName() == "Pawn"){
-            (*this)((*it)->getx(), (*it)->gety())->setdouble_done(false);
-         }
+    if (!this->isVoid(point.getx(), point.gety())){
+        delete (*this)(point.getx(), point.gety());
+        countHalfMove = 0;
+    }
 
     this->setNone(oldCoordChessman.getx(),oldCoordChessman.gety());
     (*this)(point.getx(), point.gety(), chessman);
-    this->whiteIsPlaying = !this->whiteIsPlaying;
+
+    whiteIsPlaying = !whiteIsPlaying;
 }
 
 // Annulation des coups
-void Grid::unmove(Chessman* departure, Chessman* arrival){
+void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant){
     // Roque
-    if (departure->getName() == "King" && abs(departure->gety() - arrival->gety()) == 2){
-        if (arrival->gety() == 2){
-            Chessman* rook = (this->operator ()(departure->getx(), 3))->clone();
+    countHalfMove -= 1;
+    countMove -= 1;
+    if (departure->getName() == "Pawn")
+        countHalfMove = 0;
+    if (departure->getName() == "King" && abs(departure->gety() - final.gety()) == 2){
+        if (final.gety() == 2){
+            Chessman* rook = this->operator ()(departure->getx(), 3);
             rook->sethasMoved(false);
+            rook->setx(departure->getx());
+            rook->sety(0);
             (*this)(departure->getx(), 0, rook);
-            (*this)(departure->getx(), 4, departure);
         }
         else{
-            Chessman* rook = (this->operator ()(departure->getx(), 5))->clone();
+            Chessman* rook = this->operator ()(departure->getx(), 5);
             rook->sethasMoved(false);
+            rook->setx(departure->getx());
+            rook->sety(7);
             (*this)(departure->getx(), 7, rook);
-            (*this)(departure->getx(), 4, departure);
         }
-        (*this)(arrival->getx(), arrival->gety(), arrival);
     }
     // what french people call "en passant"
-    else if (departure->getName() == "Pawn" && arrival->getName() == "Empty" && departure->gety()!= arrival->gety()){
+    else if (departure->getName() == "Pawn" && arrival->getName() == "Empty" && departure->gety()!= final.gety()){
         if (departure->getIsWhite()){
             Chessman* pawn = departure->clone();
             pawn->setIsWhite(false);
-            (*this)(3, departure->gety(), departure);
-            (*this)(3, arrival->gety(), pawn);
-            (*this)(arrival->getx(), arrival->gety(), arrival);
+            pawn->setdouble_done(true);
+            (*this)(3, final.gety(), pawn);
         }
         else{
             Chessman* pawn = departure->clone();
             pawn->setIsWhite(true);
-            (*this)(4, departure->gety(), departure);
-            (*this)(4, arrival->gety(), pawn);
-            (*this)(arrival->getx(), arrival->gety(), arrival);
+            pawn->setdouble_done(true);
+            (*this)(4, final.gety(), pawn);
         }
     }
     //Promotion is the same that to cancel a normal move, so we don't consider it here. In a philosophycal approach
     // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"
 
     // normal situation : it's so easy dude.
-    else{
-        (*this)(departure->getx(), departure->gety(), departure);
-        (*this)(arrival->getx(), arrival->gety(), arrival);
+    delete (*this)(final.getx(), final.gety());
+    (*this)(departure->getx(), departure->gety(), departure);
+    if (arrival->getName() == "Empty"){
+        (*this)(final.getx(), final.gety(), Empty);
+        delete arrival;
     }
-    this->whiteIsPlaying = !this->whiteIsPlaying;
+    else
+        (*this)(final.getx(), final.gety(), arrival);
+
+    whiteIsPlaying = !whiteIsPlaying;
+
+    // On reinitialise la prise en passant
+    if (Enpassant.getx() != 0)
+        (*this)(Enpassant.getx(), Enpassant.gety())->setdouble_done(true);
+
 }
 
 //Attention à la construction par copie !
 void Grid::setNone(int x, int y){
-    Empty_Chessman E(x,y);
-    (*this)(x, y, E.clone());
+    (*this)(x, y, Empty);
 }
 
 Point Grid::king_position(bool isWhite){
@@ -350,8 +386,7 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     // memorisation de la piece prise, si le deplacement en prend une
     bool someoneTaken = false;
     Chessman* takenChessman;
-    Empty_Chessman E(-1,-1);
-    takenChessman = E.clone();
+    takenChessman = Empty;
     if (!this->isVoid(x, y)){
         someoneTaken = true;
         //Attention à la construction par copie
@@ -373,10 +408,9 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
             // ie si la position du roi n'est pas dans la liste des
             // positions accessibles,
             // on repare ce qu'on a bouge dans la grille et on renvoie true
-            if(!this->isVoid(i,j)){
+            if(!this->isVoid(i,j) && chessman->getIsWhite() != (*this)(i,j)->getIsWhite()){
                 vector<Point> l = (*(*this)(i,j)).moves((*this));
-                if (chessman->getIsWhite() != (*this)(i,j)->getIsWhite() \
-                        && std::find(l.begin(),l.end(), this->king_position(chessman->getIsWhite())) != l.end()){
+                if (std::find(l.begin(),l.end(), this->king_position(chessman->getIsWhite())) != l.end()){
                     // On remet l'echiquier en place
                     if (someoneTaken)
                         (*this)(x,y,takenChessman);

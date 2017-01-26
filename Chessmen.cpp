@@ -212,6 +212,8 @@ vector<Point> Pawn::moves(Grid& grid){
     return testedTuples(grid, m);
 }
 
+
+
 /*
 static PyObject* faux_min_max(PyObject* s){
     PyObject* v;
