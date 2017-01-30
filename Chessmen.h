@@ -59,7 +59,8 @@ class Rook: public Chessman{
 public:
     //Constructeur et destructeur
     Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false;}
-    Chessman* clone(){return new Rook(x, y, isWhite); }
+    Rook(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "Rook", iW){hasMoved = hasmoved;}
+    Chessman* clone(){return new Rook(x, y, isWhite, hasMoved); }
     ~Rook(){}
 
     //Accesseurs
@@ -109,7 +110,8 @@ class King: public Chessman{
 public:
     //Constructeur
     King(int a, int b, bool iW): Chessman(a, b, "King", iW){hasMoved = false;}
-    Chessman* clone(){ return new King(x, y, isWhite); }
+    King(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "King", iW){hasMoved = hasmoved;}
+    Chessman* clone(){ return new King(x, y, isWhite, hasMoved); }
     ~King(){}
 
     //Accesseurs et setter

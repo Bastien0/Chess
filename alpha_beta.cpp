@@ -4,6 +4,8 @@
 #include "point.h"
 using namespace std;
 
+int count12 = 0;
+
 int evaluation(Grid& G, bool color){
     int eval=0;
     int PawnOnColumn[7];
@@ -49,7 +51,8 @@ int evaluation(Grid& G, bool color){
 
 int alpha_beta(Grid& G, int depth, bool isMax, bool color){
     int eval = 0;
-
+    count12 += 1;
+    vector<Point> possibleMoves;
     // On enregistre la prise en passant
     Point Enpassant(0,0);
     for (int i = 0; i < 8; i++)
@@ -58,14 +61,14 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color){
             Enpassant.sety(4-G.getWhiteIsPlaying());
         }
 
-    if (depth == 0)
+    if (depth <= 0)
         return evaluation(G, color);
     else if (isMax){
         int M = INT_MIN;
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
-                    vector<Point> possibleMoves = G(i,j)->allowed_moves(G);
+                    possibleMoves = G(i,j)->allowed_moves(G);
                     for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
                         Chessman* startingFrame = G(i,j)->clone();
                         Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
@@ -92,7 +95,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color){
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
-                    vector<Point> possibleMoves = G(i,j)->allowed_moves(G);
+                    possibleMoves = G(i,j)->allowed_moves(G);
                     for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
                         Chessman* startingFrame = G(i,j)->clone();
                         Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
@@ -118,6 +121,8 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color){
 
 int best_move(int depth, string fen){
     Grid G(fen);
+    vector<Point> possibleMoves;
+
     // On enregistre la prise en passant
     Point Enpassant(0,0);
     for (int i = 0; i < 8; i++)
@@ -131,7 +136,7 @@ int best_move(int depth, string fen){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
-                vector<Point> possibleMoves = G(i,j)->allowed_moves(G);
+                possibleMoves = G(i,j)->allowed_moves(G);
                 for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
                     Chessman* startingFrame = G(i,j)->clone();
                     Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
@@ -153,5 +158,6 @@ int best_move(int depth, string fen){
             }
         }
     }
+    cout << count12 << endl;
     return move;
 }

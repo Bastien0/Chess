@@ -198,10 +198,6 @@ Chessman* Grid::operator()(int coord0, int coord1){
 void Grid::operator()(int coord0, int coord1, Chessman* chessman){
     chessman->setx(coord0);
     chessman->sety(coord1);
-    /*if (!this->isVoid(coord0, coord1)){
-        cout << "Test" << endl;
-        delete (*this)(coord0, coord1);
-    }*/
     grid[coord0+8*coord1] = chessman;
 }
 
@@ -227,7 +223,7 @@ void Grid::move(Point point, Chessman* chessman){
         }
 
         //promotion
-        if (point.getx() == (!chessman->getIsWhite())*7){
+        /*if (point.getx() == (!chessman->getIsWhite())*7){
             string promotion = "Queen";
             if (promotion == "Queen"){
                 delete chessman;
@@ -245,7 +241,7 @@ void Grid::move(Point point, Chessman* chessman){
                 delete chessman;
                 chessman = chessman->clone();
             }
-        }
+        }*/
 
         // cas du coup double du pion
         if ((*chessman).gety() != point.gety() && this->isVoid(point.getx(), point.gety()))
@@ -254,13 +250,14 @@ void Grid::move(Point point, Chessman* chessman){
 
 
     // s'il y a roque
-    else if (chessman->getName() == "King" && (chessman->gety() != point.gety())-1 && (chessman->gety()-point.getx()) != 0 && (chessman->gety()-point.gety()) != 1){
+    else if (chessman->getName() == "King" && chessman->gety()-point.gety() != -1 && (chessman->gety()-point.gety()) != 0 && (chessman->gety()-point.gety()) != 1){
         // si on va vers la gauche
         if (chessman->gety() > point.gety()){
+            // On deplace la tour
             (*this)((*chessman).getx(), 3, (*this)((*chessman).getx(), 0));
             this->setNone((*chessman).getx(), 0);
         }
-        // vers la gauche
+        // vers la droite
         else{
             (*this)((*chessman).getx(), 5, (*this)((*chessman).getx(), 7));
             this->setNone((*chessman).getx(), 7);
@@ -291,19 +288,17 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     countMove -= 1;
     if (departure->getName() == "Pawn")
         countHalfMove = 0;
-    if (departure->getName() == "King" && abs(departure->gety() - final.gety()) == 2){
+    if (departure->getName() == "King" && abs(departure->gety() - final.gety()) >= 2){
         if (final.gety() == 2){
-            Chessman* rook = this->operator ()(departure->getx(), 3);
+            Chessman* rook = (*this)(departure->getx(), 3);
             rook->sethasMoved(false);
-            rook->setx(departure->getx());
-            rook->sety(0);
+            (*this).setNone(departure->getx(), 3);
             (*this)(departure->getx(), 0, rook);
         }
         else{
             Chessman* rook = this->operator ()(departure->getx(), 5);
             rook->sethasMoved(false);
-            rook->setx(departure->getx());
-            rook->sety(7);
+            (*this).setNone(departure->getx(), 5);
             (*this)(departure->getx(), 7, rook);
         }
     }
@@ -326,11 +321,11 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"
 
     // normal situation : it's so easy dude.
-    delete (*this)(final.getx(), final.gety());
+    if (!this->isVoid(final.getx(), final.gety()))
+        delete (*this)(final.getx(), final.gety());
     (*this)(departure->getx(), departure->gety(), departure);
     if (arrival->getName() == "Empty"){
         (*this)(final.getx(), final.gety(), Empty);
-        delete arrival;
     }
     else
         (*this)(final.getx(), final.gety(), arrival);
@@ -351,11 +346,12 @@ void Grid::setNone(int x, int y){
 Point Grid::king_position(bool isWhite){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            if (!this->isVoid(i,j) && grid[i+8*j]->getIsWhite() == isWhite && grid[i+8*j]->getName() == "King"){
+            if ((*this)(i,j)->getName() == "King" && (*this)(i,j)->getIsWhite() == isWhite){
                 return Point(i,j);
             }
         }
     }
+    cout << "Test" << endl;
 }
 
 bool Grid::isVoid(int x, int y){

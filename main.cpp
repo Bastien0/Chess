@@ -6,44 +6,44 @@ int best_move(int depth, string fen);
 
 
 bool test_move_unmove(Grid& G){
- string fen_ini = G.fen();
- string posdep;
- cout << "case de depart svp en mode e5"<<endl;
- cin >> posdep;
- int dep[2];
- dep[0] = '8'- posdep[1];
- dep[1] = posdep[0]-'a';
+    string fen_ini = G.fen();
+    string posdep;
+    cout << "case de depart svp en mode e5"<<endl;
+    cin >> posdep;
+    int dep[2];
+    dep[0] = '8'- posdep[1];
+    dep[1] = posdep[0]-'a';
 
- string posarr;
- cout <<" case d'arrivee svp en mode e5" << endl;
- cin >> posarr;
- int arr[2];
- arr[0] = '8' - posarr[1];
- arr[1] = posarr[0] -'a';
- cout << arr[0] << " " << arr[1] << endl;
- Point arriv(arr[0],arr[1]);
+    string posarr;
+    cout <<" case d'arrivee svp en mode e5" << endl;
+    cin >> posarr;
+    int arr[2];
+    arr[0] = '8' - posarr[1];
+    arr[1] = posarr[0] -'a';
+    cout << arr[0] << " " << arr[1] << endl;
+    Point arriv(arr[0],arr[1]);
 
- cout << "construction du point ok" << endl ;
- Chessman* c1 = G(dep[0],dep[1])->clone();
- Chessman* c2 = G(arr[0],arr[1])->clone();
- G.move(arriv, G(dep[0],dep[1]));
+    cout << "construction du point ok" << endl ;
+    Chessman* c1 = G(dep[0],dep[1])->clone();
+    Chessman* c2 = G(arr[0],arr[1])->clone();
+    G.move(arriv, G(dep[0],dep[1]));
 
- cout << "deplacement effectue" << endl;
+    cout << "deplacement effectue" << endl;
 
- cout << "ancien fen : " << fen_ini << endl;
- cout << "fen apres deplacement : "<< G.fen() << endl;
- Point final(arr[0], arr[1]);
- Point Enpassant(4,4);
+    cout << "ancien fen : " << fen_ini << endl;
+    cout << "fen apres deplacement : "<< G.fen() << endl;
+    Point final(arr[0], arr[1]);
+    Point Enpassant(4,4);
 
- G.unmove(c1, c2, final, Enpassant);
- cout << "annulation effectuee" << endl;
- cout << "fen apres annulation : " << G.fen() << endl;
- cout << G(4,4)->isDouble_done() << endl;
+    G.unmove(c1, c2, final, Enpassant);
+    cout << "annulation effectuee" << endl;
+    cout << "fen apres annulation : " << G.fen() << endl;
+    cout << G(4,4)->isDouble_done() << endl;
 
- if (G.fen() == fen_ini){
- cout << "on annule bien le mouvement"<< endl;
- }
- return G.fen() == fen_ini;
+    if (G.fen() == fen_ini){
+        cout << "on annule bien le mouvement"<< endl;
+    }
+    return G.fen() == fen_ini;
 }
 
 int main(){
@@ -51,7 +51,7 @@ int main(){
     //while(true){
 
         string s = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 0";
-        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 w - e3 0 0";
+        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b - - 0 0";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;

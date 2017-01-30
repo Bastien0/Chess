@@ -15,8 +15,7 @@ vector<Point> Chessman::move_straight(Grid& grid, int a, int b){
     int x0 = x + a;
     int y0 = y + b;
     while (0 <= x0 && x0< 8 && 0 <= y0 && y0 < 8 && grid.isVoid(x0, y0)){
-        Point point(x0, y0);
-        tabAccess.push_back(point);
+        tabAccess.push_back(Point(x0,y0));
         x0 = x0 + a;
         y0 = y0 + b;
     }
@@ -133,15 +132,18 @@ vector<Point> King::moves(Grid& grid){
             for (int j = 0; j<8; j+=7){
                 // tour de gauche
                 if ( (j == 0) && !grid.isVoid(i,j) \
-                     && grid(i,0)->getName() == "Rook" \
-                     && !grid(i,0)->getHasMoved() && grid.isVoid(i, 1) && grid.isVoid(i, 3) \
-                     && !grid.isChessed(this, i, 2) && !grid.isChessed(this, i, 2) \
+                     && grid(i,j)->getName() == "Rook" \
+                     && grid(i,j)->getIsWhite()== isWhite
+                     && !grid(i,j)->getHasMoved() && grid.isVoid(i, 1) && grid.isVoid(i, 2)
+                     && grid.isVoid(i, 3) \
+                     && !grid.isChessed(this, i, 2) && !grid.isChessed(this, i, 3)
                      && !grid.isChessed(this, i, 4) ){
                     Point point(i, 2);
                     m.push_back(point);
                 }
                 // tour de droite
-                else if (!grid.isVoid(i,j) && grid(i,0)->getName() == "Rook" \
+                else if ((j == 7) && !grid.isVoid(i,j) && grid(i,j)->getName() == "Rook" \
+                        && grid(i,j)->getIsWhite()== isWhite
                         && !grid(i,j)->getHasMoved() && grid.isVoid(i,6)\
                         && grid.isVoid(i,5) && !grid.isChessed(this, i, 4) \
                         && !grid.isChessed(this, i, 5) && !grid.isChessed(this, i, 6)){
