@@ -50,7 +50,7 @@ int main(){
     std::cout << "test de jeu"<< std::endl;
     //while(true){
 
-        string s = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 0";
+        string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
         //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b - - 0 0";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
@@ -65,7 +65,7 @@ int main(){
         G.move(P, G(0,4));
         G.unmove(d1,a,P);
         cout << "G.fen : " << G.fen() << endl;*/
-        cout << best_move(3, s) << endl;
+        cout << best_move(4, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();
         Chessman* c2 = G(2,4)->clone();

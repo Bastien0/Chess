@@ -4,14 +4,14 @@
 #include "point.h"
 using namespace std;
 
-int count12 = 0;
 
 int evaluation(Grid& G, bool color){
+    return 1;
     int eval=0;
-    int PawnOnColumn[7];
+    /*int PawnOnColumn[7];
     for (int i=0;i<7;i++){
         PawnOnColumn[i]=0;
-    }
+    }*/
     int sameCol;
     for (int i=0;i<8;i++){
         for (int j=0;j<8;j++){
@@ -19,8 +19,8 @@ int evaluation(Grid& G, bool color){
                 sameCol = 2*(color == G(i,j)->getIsWhite()) - 1;
                 //vaut 1 si le joueur qui a joue est de la meme couleur que la piece
                 //vaut -1 s'ils sont differents
-                vector<Point> allow=G(i,j)->allowed_moves(G);
-                eval += allow.size();
+                /*vector<Point> allow=G(i,j)->allowed_moves(G);
+                eval += allow.size();*/
                 if (G(i,j)->getName() == "Pawn"){
                     eval += sameCol*100; //valeur du pion est 100
                     /*
@@ -29,16 +29,16 @@ int evaluation(Grid& G, bool color){
                     }*/
 
                 }
-                if (G(i,j)->getName() == "Knight"){
+                else if (G(i,j)->getName() == "Knight"){
                     eval += sameCol*300; //valeur du cavalier est 300
                 }
-                if (G(i,j)->getName() == "Bishop"){
+                else if (G(i,j)->getName() == "Bishop"){
                     eval += sameCol*300; //valeur du fou est 300
                 }
-                if (G(i,j)->getName() == "Rook"){
+                else if (G(i,j)->getName() == "Rook"){
                     eval += sameCol*500; //valeur de la tour est 500
                 }
-                if (G(i,j)->getName() == "Queen"){
+                else if (G(i,j)->getName() == "Queen"){
                     eval += sameCol*900; //valeur de la reine est 900
                 }
             }
@@ -49,9 +49,8 @@ int evaluation(Grid& G, bool color){
     return eval;
 }
 
-int alpha_beta(Grid& G, int depth, bool isMax, bool color){
+int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
     int eval = 0;
-    count12 += 1;
     vector<Point> possibleMoves;
     // On enregistre la prise en passant
     Point Enpassant(0,0);
@@ -79,11 +78,13 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color){
                         else
                             G.move((*it), G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color);
+                        eval = alpha_beta(G, depth-1, !isMax, color, M);
                         // Si l'evaluation est meilleure
                         if (eval > M)
                             M = eval;
                         G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        if (M > alpha)
+                            return M;
                     }
                 }
             }
@@ -106,11 +107,13 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color){
                         else
                             G.move(*it, G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color);
+                        eval = alpha_beta(G, depth-1, !isMax, color, M);
                         // Si l'evaluation est meilleure
                         if (eval < M)
                             M = eval;
                         G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        if (M < alpha)
+                            return M;
                     }
                 }
             }
@@ -147,7 +150,7 @@ int best_move(int depth, string fen){
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille
-                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying());
+                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), M);
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;
@@ -158,6 +161,5 @@ int best_move(int depth, string fen){
             }
         }
     }
-    cout << count12 << endl;
     return move;
 }
