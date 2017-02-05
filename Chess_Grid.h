@@ -24,7 +24,7 @@ public:
 
     Chessman* operator()(int coord0, int coord1);
     void operator()(int coord0, int coord1, Chessman* chessman);
-    void move(Point point, Chessman *chessman);
+    void move(Point point, Chessman *chessman, string promotion = " ");
     void unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant);
     void setNone(int x, int y);
     Point king_position(bool isWhite);
@@ -32,5 +32,5 @@ public:
     vector<Chessman *> list_chessman_col(bool colorIsWhite);
     bool sameColor(Chessman *chessman, int x, int y);
     bool isChessed(Chessman *chessman, int x, int y);
-    string fen();
+    string fen(bool just_grid = false);
 };

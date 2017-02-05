@@ -1,5 +1,7 @@
 #include "Chess_Grid.h"
 #include <iostream>
+#include <set>
+#include <map>
 #include <limits.h>
 #include "point.h"
 using namespace std;
@@ -49,19 +51,26 @@ int evaluation(Grid& G, bool color){
     return eval;
 }
 
-int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
+int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, map<string,Point>& memory){
     int eval = 0;
     vector<Point> possibleMoves;
     // On enregistre la prise en passant
     Point Enpassant(0,0);
     for (int i = 0; i < 8; i++)
-        if (G(i, 4-G.getWhiteIsPlaying())->getName() == "Pawn" && G(i, 4-G.getWhiteIsPlaying())->isDouble_done()){
-            Enpassant.setx(i);
-            Enpassant.sety(4-G.getWhiteIsPlaying());
+        if (G(4-G.getWhiteIsPlaying(), i)->getName() == "Pawn" && G(4-G.getWhiteIsPlaying(), i)->isDouble_done()){
+            Enpassant.setx(4-G.getWhiteIsPlaying());
+            Enpassant.sety(i);
         }
 
     if (depth <= 0)
         return evaluation(G, color);
+
+    map<string,Point>::iterator it = memory.find(G.fen(true));
+    // Si on a deja teste la grille avec une profondeur au moins egale
+    // On retourne la valeur deja calculee
+    if (it != memory.end() && (*it).second.getx()>= depth)
+        return (*it).second.gety();
+
     else if (isMax){
         int M = INT_MIN;
         for (int i = 0; i < 8; i++){
@@ -74,11 +83,11 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
                         // On teste si un pion arrive sur la case de promotion
                         // On ne teste que pour la reine pour l'instant
                         if (G(i,j)->getName() == "Pawn" && (*it).getx() == (!G(i,j)->getIsWhite())*7)
-                            G.move((*it), G(i,j));
+                            G.move((*it), G(i,j), "Queen");
                         else
                             G.move((*it), G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, M);
+                        eval = alpha_beta(G, depth-1, !isMax, color, M, memory);
                         // Si l'evaluation est meilleure
                         if (eval > M)
                             M = eval;
@@ -89,6 +98,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
                 }
             }
         }
+        memory.insert(pair<string,Point>(G.fen(true), Point(depth, M)));
         return M;
     }
     else{
@@ -103,11 +113,11 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
                         // On teste si un pion arrive sur la case de promotion
                         // On ne teste que pour la reine pour l'instant
                         if (G(i,j)->getName() == "Pawn" && (*it).getx() == (!G(i,j)->getIsWhite())*7)
-                            G.move(*it, G(i,j));
+                            G.move(*it, G(i,j), "Queen");
                         else
                             G.move(*it, G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, M);
+                        eval = alpha_beta(G, depth-1, !isMax, color, M, memory);
                         // Si l'evaluation est meilleure
                         if (eval < M)
                             M = eval;
@@ -118,6 +128,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
                 }
             }
         }
+        memory.insert(pair<string,Point>(G.fen(true), Point(depth, M)));
         return M;
     }
 }
@@ -125,13 +136,14 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha){
 int best_move(int depth, string fen){
     Grid G(fen);
     vector<Point> possibleMoves;
+    map<string, Point> memory;
 
     // On enregistre la prise en passant
     Point Enpassant(0,0);
     for (int i = 0; i < 8; i++)
-        if (G(i, 4-G.getWhiteIsPlaying())->getName() == "Pawn" && G(i, 4-G.getWhiteIsPlaying())->isDouble_done()){
-            Enpassant.setx(i);
-            Enpassant.sety(4-G.getWhiteIsPlaying());
+        if (G(4-G.getWhiteIsPlaying(), i)->getName() == "Pawn" && G(4-G.getWhiteIsPlaying(), i)->isDouble_done()){
+            Enpassant.setx(4-G.getWhiteIsPlaying());
+            Enpassant.sety(i);
         }
     int M = INT_MIN;
     int move = 0;
@@ -146,11 +158,11 @@ int best_move(int depth, string fen){
                     // On teste si un pion arrive sur la case de promotion
                     // On ne teste que pour la reine pour l'instant
                     if (G(i,j)->getName() == "Pawn" && (*it).getx() == !(G(i,j)->getIsWhite())*7)
-                        G.move(*it, G(i,j));
+                        G.move(*it, G(i,j), "Queen");
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille
-                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), M);
+                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), M, memory);
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;

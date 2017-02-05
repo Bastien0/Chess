@@ -26,7 +26,7 @@ bool test_move_unmove(Grid& G){
     cout << "construction du point ok" << endl ;
     Chessman* c1 = G(dep[0],dep[1])->clone();
     Chessman* c2 = G(arr[0],arr[1])->clone();
-    G.move(arriv, G(dep[0],dep[1]));
+    G.move(arriv, G(dep[0],dep[1]), " ");
 
     cout << "deplacement effectue" << endl;
 
@@ -51,7 +51,7 @@ int main(){
     //while(true){
 
         string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
-        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b - - 0 0";
+        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b q - 0 0";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
@@ -65,6 +65,7 @@ int main(){
         G.move(P, G(0,4));
         G.unmove(d1,a,P);
         cout << "G.fen : " << G.fen() << endl;*/
+        //cout << G.isChessed(G(0,0), 7, 0) << endl;
         cout << best_move(4, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();

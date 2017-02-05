@@ -1,7 +1,13 @@
 #include "Chess_Grid.h"
 
+// Un pointeur sur une pièce vide qui sera commun a toutes les cases vides
+
 Chessman* Empty = new Empty_Chessman();
 
+
+/***************************************************************************************************/
+/***********Constructeur d'une grille a partir d'une chînr de caractere (standard fen)**************/
+/***************************************************************************************************/
 
 Grid::Grid(string s){
     grid = new Chessman*[64];
@@ -182,6 +188,10 @@ Grid::Grid(string s){
 }
 
 
+/************************************************************************************************/
+/***********************************Destructeur de la grille*************************************/
+/************************************************************************************************/
+
 Grid::~Grid(){
     for(int i = 0; i < 64; i++){
         if (grid[i]->getName() != "Empty")
@@ -190,6 +200,10 @@ Grid::~Grid(){
     delete[] grid;
 }
 
+
+/************************************************************************************************/
+/********************************Operateurs affectation et accessibilite**************************/
+/************************************************************************************************/
 
 Chessman* Grid::operator()(int coord0, int coord1){
     return grid[coord0+8*coord1];
@@ -201,8 +215,13 @@ void Grid::operator()(int coord0, int coord1, Chessman* chessman){
     grid[coord0+8*coord1] = chessman;
 }
 
-// il y avait un probleme avec string promotion = "" j'essaie d ne rien mettre
-void Grid::move(Point point, Chessman* chessman){
+
+/************************************************************************************************/
+/*********************************Fonctions de mouvement sur la grille***************************/
+/************************************************************************************************/
+
+// Fonction de mouvement: la fonction deplace chessman ves le point donne
+void Grid::move(Point point, Chessman* chessman, string promotion){
     Point oldCoordChessman(chessman->getx(), chessman->gety());
     countHalfMove += 1;
     countMove += 1;
@@ -222,30 +241,29 @@ void Grid::move(Point point, Chessman* chessman){
             }
         }
 
+        // cas du coup double du pion
+        if (abs((*chessman).getx()-point.getx()) > 1 && this->isVoid(point.getx(), point.gety()))
+            chessman->setdouble_done(true);
+
         //promotion
-        /*if (point.getx() == (!chessman->getIsWhite())*7){
-            string promotion = "Queen";
+        if (point.getx() == (!chessman->getIsWhite())*7){
             if (promotion == "Queen"){
                 delete chessman;
-                chessman = chessman->clone();
+                chessman = new Queen(point.getx(), point.gety(), point.getx() == 0);
             }
-            if (promotion == "Bishop"){
+            else if (promotion == "Bishop"){
                 delete chessman;
-                chessman = chessman->clone();
+                chessman = new Bishop(point.getx(), point.gety(), point.getx() == 0);
             }
-            if (promotion == "Knight"){
+            else if (promotion == "Knight"){
                 delete chessman;
-                chessman = chessman->clone();
+                chessman = new Knight(point.getx(), point.gety(), point.getx() == 0);
             }
-            if (promotion == "Rook"){
+            else if (promotion == "Rook"){
                 delete chessman;
-                chessman = chessman->clone();
+                chessman = new Rook(point.getx(), point.gety(), point.getx() == 0);
             }
-        }*/
-
-        // cas du coup double du pion
-        if ((*chessman).gety() != point.gety() && this->isVoid(point.getx(), point.gety()))
-            chessman->setdouble_done(true);
+        }
     }
 
 
@@ -266,8 +284,8 @@ void Grid::move(Point point, Chessman* chessman){
 
     // Reinitialisation des double_done
     for (int i = 0; i < 8; i++){
-        if ((*this)(i, 4-whiteIsPlaying)->getName() == "Pawn")
-            (*this)(i, 4-whiteIsPlaying)->setdouble_done(false);
+        if ((*this)(4-whiteIsPlaying, i)->getName() == "Pawn")
+            (*this)(4-whiteIsPlaying, i)->setdouble_done(false);
     }
 
     if (!this->isVoid(point.getx(), point.gety())){
@@ -338,11 +356,16 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
 
 }
 
-//Attention à la construction par copie !
+/************************************************************************************************************/
+/*************************************Diverses fonctions utiles**********************************************/
+/************************************************************************************************************/
+
+// Rend une case vide
 void Grid::setNone(int x, int y){
     (*this)(x, y, Empty);
 }
 
+// Renvoie la position du roi de la couleur donnee
 Point Grid::king_position(bool isWhite){
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
@@ -355,10 +378,12 @@ Point Grid::king_position(bool isWhite){
     cout << "Test" << endl;
 }
 
+// Verifie si une case est vide
 bool Grid::isVoid(int x, int y){
     return ((*this)(x, y)->getName() == "Empty");
 }
 
+// Vecteur des pieces d'une couleur donnee
 vector<Chessman*> Grid::list_chessman_col(bool colorIsWhite){
     vector<Chessman*> l;
     for (int i = 0; i < 8; i++){
@@ -370,15 +395,10 @@ vector<Chessman*> Grid::list_chessman_col(bool colorIsWhite){
     return l;
 }
 
+// Indique si la couleur de chessman est la meme que celle de la piece en x,y
 bool Grid::sameColor(Chessman* chessman, int x, int y){
     return ((*(*this)(x,y)).getIsWhite() == chessman->getIsWhite());
 }
-
-
-
-
-
-
 
 
 /*************************************************************************************************/
@@ -425,7 +445,7 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     }
 
     // On regarde si un pion met en echec le roi
-    if (0 <= Kpos.getx()+2*chessman->getIsWhite()-1 && Kpos.getx()+2*chessman->getIsWhite()-1 <8){
+    if (!chess && 0 <= Kpos.getx()+2*chessman->getIsWhite()-1 && Kpos.getx()+2*chessman->getIsWhite()-1 <8){
         if (0 <= Kpos.gety()-1 && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()-1)->getName() == "Pawn"
                 && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()-1)->getIsWhite() != chessman->getIsWhite()){
             chess = true;
@@ -458,7 +478,7 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
 
     while (Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx(), Kpos.gety()+incr))
         incr += 1;
-    if (!chess && Kpos.gety()+incr < 0){
+    if (!chess && Kpos.gety()+incr < 8){
         // Le roi adverse est a cote
         if (incr ==1 && (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "King"){
             chess = true;
@@ -571,7 +591,7 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
 /******************************************Conversion de la grille en notation fen**************************/
 /***********************************************************************************************************/
 
-string Grid::fen(){ // code la grille en standard fen
+string Grid::fen(bool just_grid){ // code la grille en standard fen
     vector<char> f;
     char letter;
     for (int ligne=0;ligne<=7;ligne++){
@@ -673,6 +693,16 @@ string Grid::fen(){ // code la grille en standard fen
     if(!passing){
         f.push_back('-');
     }
+
+    // Si on ne s'interesse pas au nombre de coups
+    string resultat;
+    if (just_grid){
+        for (int i = 0; i<f.size(); i++)
+            resultat += f[i];
+
+        return resultat;
+    }
+
     f.push_back(' ');
 
     //Nombre de demi-coups
@@ -703,7 +733,6 @@ string Grid::fen(){ // code la grille en standard fen
         f.push_back(char(count+'0'));
     }
 
-    string resultat;
     for (int i = 0; i<f.size(); i++)
         resultat += f[i];
 
