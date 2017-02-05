@@ -70,7 +70,7 @@ class Grid:
         if Chessman.name in ["King", "Rook"]:
             Chessman._hasMoved = True
 
-        elif Chessman.name == "Pawn" :
+        if Chessman.name == "Pawn" :
             self.__countHalfMoves = 0 
             
             # cas du coup double du pion
@@ -98,8 +98,8 @@ class Grid:
 
         # s'il y a roque
         #retourne les coordonnées de la tour roquée
-        elif Chessman.name == "King" and (Chessman.y-coord[1]) not in [-1,0,1]:
-            self.__countHalfMoves = 0 
+        elif Chessman.name == "King" and abs(Chessman.y-coord[1]) == 2:
+            self.__countHalfMoves = 0
             # si on va vers la gauche
             if Chessman.y > coord[1]:
                 self[(Chessman.x, 3)] = self[(Chessman.x, 0)]
@@ -237,30 +237,31 @@ class Grid:
         fen+=" "
         
         # roques possibles
-        # pour les blancs
         rockPossible = False
-        if self[(0,4)] != None and self[(0,4)].name == "King" \
-            and not (self[(0,4)].hasMoved) :
-                if self[(0,7)] != None and self[(0,7)].name == "Rook" \
-                    and not (self[(0,7)].hasMoved):
-                        fen += "K"
-                        rockPossible = True
-                if self[(0,0)] != None and self[(0,0)].name == "Rook" \
-                    and not (self[(0,0)].hasMoved):
-                        fen += "Q"
-                        rockPossible = True
-        
-        # pour les noirs
+        # pour les blancs
         if self[(7,4)] != None and self[(7,4)].name == "King" \
             and not (self[(7,4)].hasMoved) :
                 if self[(7,7)] != None and self[(7,7)].name == "Rook" \
                     and not (self[(7,7)].hasMoved):
-                        fen += "k"
+                        fen += "K"
                         rockPossible = True
                 if self[(7,0)] != None and self[(7,0)].name == "Rook" \
                     and not (self[(7,0)].hasMoved):
-                        fen += "q" 
+                        fen += "Q" 
                         rockPossible = True
+        
+        # pour les noirs
+        if self[(0,4)] != None and self[(0,4)].name == "King" \
+            and not (self[(0,4)].hasMoved) :
+                if self[(0,7)] != None and self[(0,7)].name == "Rook" \
+                    and not (self[(0,7)].hasMoved):
+                        fen += "k"
+                        rockPossible = True
+                if self[(0,0)] != None and self[(0,0)].name == "Rook" \
+                    and not (self[(0,0)].hasMoved):
+                        fen += "q"
+                        rockPossible = True
+
         if not rockPossible :
             fen += "-"
         fen +=" "
