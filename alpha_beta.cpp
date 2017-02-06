@@ -6,7 +6,6 @@
 #include "point.h"
 using namespace std;
 
-
 int evaluation(Grid& G, bool color){
     return 1;
     int eval=0;
@@ -46,12 +45,10 @@ int evaluation(Grid& G, bool color){
             }
         }
     }
-    /*cout << eval << endl;
-    cout << G.fen() << endl;*/
     return eval;
 }
 
-int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, map<string,Point>& memory){
+int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, map<string,Point>& memory){
     int eval = 0;
     vector<Point> possibleMoves;
     // On enregistre la prise en passant
@@ -87,12 +84,14 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, map<string
                         else
                             G.move((*it), G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, M, memory);
+                        eval = alpha_beta(G, depth-1, !isMax, color, alpha, beta, memory);
                         // Si l'evaluation est meilleure
                         if (eval > M)
                             M = eval;
+                        if (alpha < M)
+                            alpha = M;
                         G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
-                        if (M > alpha)
+                        if (beta < alpha)
                             return M;
                     }
                 }
@@ -117,12 +116,14 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, map<string
                         else
                             G.move(*it, G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, M, memory);
+                        eval = alpha_beta(G, depth-1, !isMax, color, alpha, beta, memory);
                         // Si l'evaluation est meilleure
                         if (eval < M)
                             M = eval;
+                        if (beta > M)
+                            beta = M;
                         G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
-                        if (M < alpha)
+                        if (beta < alpha)
                             return M;
                     }
                 }
@@ -162,7 +163,7 @@ int best_move(int depth, string fen){
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille
-                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), M, memory);
+                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;
