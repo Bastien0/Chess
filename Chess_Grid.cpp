@@ -11,6 +11,7 @@ Chessman* Empty = new Empty_Chessman();
 
 Grid::Grid(string s){
     grid = new Chessman*[64];
+    score = 0;
 
     // On initialise une grille vide
     for (int i = 0; i < 64; i++)
@@ -30,52 +31,64 @@ Grid::Grid(string s){
         else if (s[caractere] == 'r'){
             Rook r(ligne, colonne, false);
             (*this)(ligne, colonne, r.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'n'){
             Knight n(ligne, colonne, false);
             (*this)(ligne, colonne, n.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'b'){
             Bishop b(ligne, colonne, false);
             (*this)(ligne, colonne, b.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'q'){
             Queen q(ligne, colonne, false);
             (*this)(ligne, colonne, q.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'k'){
             King k(ligne, colonne, false);
             (*this)(ligne, colonne, k.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'p'){
             Pawn p(ligne, colonne, false);
             (*this)(ligne, colonne, p.clone());
+            score -= (*this)(ligne, colonne)->getValue();
         }
 
         //Cas des pieces blanches
         else if (s[caractere] == 'R'){
             Rook r(ligne, colonne, true);
             (*this)(ligne, colonne, r.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'N'){
             Knight n(ligne, colonne, true);
             (*this)(ligne, colonne, n.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'B'){
             Bishop b(ligne, colonne, true);
             (*this)(ligne, colonne, b.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'Q'){
             Queen q(ligne, colonne, true);
             (*this)(ligne, colonne, q.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'K'){
             King k(ligne, colonne, true);
             (*this)(ligne, colonne, k.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'P'){
             Pawn p(ligne, colonne, true);
             (*this)(ligne, colonne, p.clone());
+            score += (*this)(ligne, colonne)->getValue();
         }
 
         // Cas des chiffres
@@ -223,6 +236,7 @@ void Grid::operator()(int coord0, int coord1, Chessman* chessman){
 // Fonction de mouvement: la fonction deplace chessman ves le point donne
 void Grid::move(Point point, Chessman* chessman, string promotion){
     Point oldCoordChessman(chessman->getx(), chessman->gety());
+    score += (2*chessman->getIsWhite()-1)*((*this)(point.getx(), point.gety())->getValue());
     countHalfMove += 1;
     countMove += 1;
     // on regarde si la piece a un argument de mouvement
@@ -239,6 +253,7 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
             else{
                 this->setNone(point.getx()-1, point.gety());
             }
+            score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
         }
 
         // cas du coup double du pion
@@ -248,20 +263,28 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         //promotion
         if (point.getx() == (!chessman->getIsWhite())*7){
             if (promotion == "Queen"){
+                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
                 delete chessman;
                 chessman = new Queen(point.getx(), point.gety(), point.getx() == 0);
+                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
             }
             else if (promotion == "Bishop"){
+                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
                 delete chessman;
                 chessman = new Bishop(point.getx(), point.gety(), point.getx() == 0);
+                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
             }
             else if (promotion == "Knight"){
+                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
                 delete chessman;
                 chessman = new Knight(point.getx(), point.gety(), point.getx() == 0);
+                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
             }
             else if (promotion == "Rook"){
+                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
                 delete chessman;
                 chessman = new Rook(point.getx(), point.gety(), point.getx() == 0);
+                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
             }
         }
     }
@@ -302,10 +325,11 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 // Annulation des coups
 void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant){
     // Roque
+    score -= (2*departure->getIsWhite()-1)*(arrival->getValue());
     countHalfMove -= 1;
     countMove -= 1;
-    if (departure->getName() == "Pawn")
-        countHalfMove = 0;
+    if (departure->getName() == "Pawn" && final.getx() == (!departure->getIsWhite())*7)
+        score = score - (2*departure->getIsWhite()-1)*(*this)(final.getx(), final.gety())->getValue() + (2*departure->getIsWhite()-1)*departure->getValue();
     if (departure->getName() == "King" && abs(departure->gety() - final.gety()) >= 2){
         if (final.gety() == 2){
             Chessman* rook = (*this)(departure->getx(), 3);
@@ -334,6 +358,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
             pawn->setdouble_done(true);
             (*this)(4, final.gety(), pawn);
         }
+        score -= (2*departure->getIsWhite()-1)*(departure->getValue());
     }
     //Promotion is the same that to cancel a normal move, so we don't consider it here. In a philosophycal approach
     // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"

@@ -14,9 +14,11 @@ class Grid{
     int countMove;
     int countHalfMove;
     bool whiteIsPlaying;
+    int score;
 public:
     // get and set
     bool getWhiteIsPlaying(){ return whiteIsPlaying; }
+    int getScore() { return score; }
 
     // Constructeur et desctructeur
     Grid(string s);

@@ -7,7 +7,6 @@
 using namespace std;
 
 int evaluation(Grid& G, bool color){
-    return 1;
     int eval=0;
     /*int PawnOnColumn[7];
     for (int i=0;i<7;i++){
@@ -60,7 +59,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
         }
 
     if (depth <= 0)
-        return evaluation(G, color);
+        return (2*color-1)*G.getScore();
 
     map<string,Point>::iterator it = memory.find(G.fen(true));
     // Si on a deja teste la grille avec une profondeur au moins egale
@@ -162,7 +161,7 @@ int best_move(int depth, string fen){
                         G.move(*it, G(i,j), "Queen");
                     else
                         G.move(*it, G(i,j));
-                    // On evalue la grille
+                    // On evalue la grille (la couleur d'evaluation est celle precedent le move
                     eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
                     // Si l'evaluation est meilleure
                     if (eval > M){

@@ -13,6 +13,7 @@ protected:
     int x,y;
     string name;
     bool isWhite;
+    int value;
 public:
     //Constructeur et destructeur
     Chessman(){}
@@ -29,6 +30,7 @@ public:
     void sety(int i) { y = i; }
     void setIsWhite(bool value){ isWhite = value; }
     void setName(string n) { name = n; }
+    int getValue() { return value; }
     virtual void setdouble_done(bool value){}
     virtual bool getHasMoved(){}
     virtual bool isDouble_done(){}
@@ -48,7 +50,7 @@ public:
 class Empty_Chessman : public Chessman{
 public:
     //Constructeur
-    Empty_Chessman() : Chessman(0, 0, "Empty", true){}
+    Empty_Chessman() : Chessman(0, 0, "Empty", true){ value = 0; }
     Chessman* clone(){ return new Empty_Chessman(); }
     ~Empty_Chessman(){}
 };
@@ -58,8 +60,8 @@ class Rook: public Chessman{
     bool hasMoved;
 public:
     //Constructeur et destructeur
-    Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false;}
-    Rook(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "Rook", iW){hasMoved = hasmoved;}
+    Rook(int a, int b, bool iW): Chessman(a, b, "Rook", iW){hasMoved = false; value = 500; }
+    Rook(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "Rook", iW){hasMoved = hasmoved; value =500; }
     Chessman* clone(){return new Rook(x, y, isWhite, hasMoved); }
     ~Rook(){}
 
@@ -73,7 +75,7 @@ public:
 class Bishop: public Chessman{
 public:
     //Constructeur
-    Bishop(int a, int b, bool iW): Chessman(a, b, "Bishop", iW){}
+    Bishop(int a, int b, bool iW): Chessman(a, b, "Bishop", iW){ value = 300; }
     Chessman* clone(){ return new Bishop(x, y, isWhite); }
     ~Bishop(){}
 
@@ -85,7 +87,7 @@ public:
 class Queen: public Chessman{
 public:
     //Constructeur
-    Queen(int a, int b, bool iW): Chessman(a, b, "Queen", iW){}
+    Queen(int a, int b, bool iW): Chessman(a, b, "Queen", iW){ value = 900; }
     Chessman* clone(){ return new Queen(x, y, isWhite); }
     ~Queen(){}
 
@@ -96,7 +98,7 @@ public:
 class Knight:  public Chessman{
 public:
     //Constructeur
-    Knight(int a, int b, bool iW): Chessman(a, b, "Knight", iW){}
+    Knight(int a, int b, bool iW): Chessman(a, b, "Knight", iW){ value = 300; }
     Chessman* clone(){ return new Knight(x, y, isWhite); }
     ~Knight(){}
 
@@ -109,8 +111,8 @@ class King: public Chessman{
     bool hasMoved;
 public:
     //Constructeur
-    King(int a, int b, bool iW): Chessman(a, b, "King", iW){hasMoved = false;}
-    King(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "King", iW){hasMoved = hasmoved;}
+    King(int a, int b, bool iW): Chessman(a, b, "King", iW){hasMoved = false; value = 0; }
+    King(int a, int b, bool iW, bool hasmoved): Chessman(a, b, "King", iW){hasMoved = hasmoved; value = 0; }
     Chessman* clone(){ return new King(x, y, isWhite, hasMoved); }
     ~King(){}
 
@@ -127,7 +129,7 @@ class Pawn: public Chessman{
     bool double_done;
 public:
     //Constructeur
-    Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){double_done = false;}
+    Pawn(int a, int b, bool iW): Chessman(a, b, "Pawn", iW){double_done = false; value = 100; }
     Chessman* clone(){ return new Pawn(x, y, isWhite); }
     ~Pawn(){}
 
