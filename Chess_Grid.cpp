@@ -376,7 +376,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     whiteIsPlaying = !whiteIsPlaying;
 
     // On reinitialise la prise en passant
-    if (Enpassant.getx() != 0)
+    if (Enpassant.getx() > 0)
         (*this)(Enpassant.getx(), Enpassant.gety())->setdouble_done(true);
 
 }
@@ -470,13 +470,13 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     }
 
     // On regarde si un pion met en echec le roi
-    if (!chess && 0 <= Kpos.getx()+2*chessman->getIsWhite()-1 && Kpos.getx()+2*chessman->getIsWhite()-1 <8){
-        if (0 <= Kpos.gety()-1 && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()-1)->getName() == "Pawn"
-                && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()-1)->getIsWhite() != chessman->getIsWhite()){
+    if (!chess && 0 <= Kpos.getx()+2*(!chessman->getIsWhite())-1 && Kpos.getx()+2*(!chessman->getIsWhite())-1 <8){
+        if (0 <= Kpos.gety()-1 && (*this)(Kpos.getx()+2*(!chessman->getIsWhite())-1, Kpos.gety()-1)->getName() == "Pawn"
+                && (*this)(Kpos.getx()+2*(!chessman->getIsWhite())-1, Kpos.gety()-1)->getIsWhite() != chessman->getIsWhite()){
             chess = true;
         }
-        if (Kpos.gety()+1 < 8 && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()+1)->getName() == "Pawn"
-                && (*this)(Kpos.getx()+2*chessman->getIsWhite()-1, Kpos.gety()+1)->getIsWhite() != chessman->getIsWhite()){
+        if (Kpos.gety()+1 < 8 && (*this)(Kpos.getx()+2*(!chessman->getIsWhite())-1, Kpos.gety()+1)->getName() == "Pawn"
+                && (*this)(Kpos.getx()+2*(!chessman->getIsWhite())-1, Kpos.gety()+1)->getIsWhite() != chessman->getIsWhite()){
             chess = true;
         }
     }

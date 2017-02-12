@@ -39,8 +39,9 @@ vector<Point> Chessman::testedTuples(Grid &grid, vector<Point> tab){
        if (0 <= tab[i].getx() && tab[i].getx() < 8 && 0 <= tab[i].gety() && tab[i].gety() < 8) {
            if (grid.isVoid(tab[i].getx(), tab[i].gety()))
                tabAccess.push_back(tab[i]);
-           else if (!grid.sameColor(this, x, y))
+           else if (!grid.sameColor(this, tab[i].getx(), tab[i].gety())){
                tabAccess.push_back(tab[i]);
+           }
        }
    }
    return tabAccess;

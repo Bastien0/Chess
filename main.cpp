@@ -33,13 +33,13 @@ bool test_move_unmove(Grid& G){
 
     cout << "ancien fen : " << fen_ini << endl;
     cout << "fen apres deplacement : "<< G.fen() << endl;
+    cout << G.getScore() << endl;
     Point final(arr[0], arr[1]);
-    Point Enpassant(4,4);
+    Point Enpassant(0,0);
 
     G.unmove(c1, c2, final, Enpassant);
     cout << "annulation effectuee" << endl;
     cout << "fen apres annulation : " << G.fen() << endl;
-    cout << G(4,4)->isDouble_done() << endl;
 
     if (G.fen() == fen_ini){
         cout << "on annule bien le mouvement"<< endl;
@@ -53,12 +53,13 @@ int main(){
 
         //string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
         string s = "r3k3/8/8/4pP2/8/8/8/4K3 b q - 0 0";
+        //string s = "r4rk1/pbp2ppp/7P/1p2q1n1/8/6Q1/P6K/2q4R b - - 11 73";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
-        //while(test_move_unmove(G)){}
+        //while(test_move_unmove(G)){cout << G.getScore() << endl;}
         /*Point P(0,5);
         Chessman* d = G(0,4);
         Chessman* d1 = d->clone();
@@ -67,7 +68,12 @@ int main(){
         G.unmove(d1,a,P);
         cout << "G.fen : " << G.fen() << endl;*/
         //cout << G.isChessed(G(0,0), 7, 0) << endl;
-        cout << best_move(9, s) << endl;
+        //cout << G.getScore() << endl;
+        /*vector<Point> all = G.operator ()(6,6)->allowed_moves(G);
+        for (vector<Point>::iterator it = all.begin(); it != all.end(); ++it){
+            cout << it->getx() << " " << it-> gety() << endl;
+        }*/
+        cout << best_move(7, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();
         Chessman* c2 = G(2,4)->clone();

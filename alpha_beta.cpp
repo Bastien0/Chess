@@ -47,7 +47,9 @@ int evaluation(Grid& G, bool color){
     return eval;
 }
 
-int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, map<string,Point>& memory){
+int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alpha, int beta, map<string,Point>& memory){
+    if (depth <= 0)
+        return (2*color-1)*G.getScore();
     int eval = 0;
     vector<Point> possibleMoves;
     // On enregistre la prise en passant
@@ -58,9 +60,6 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
             Enpassant.sety(i);
         }
 
-    if (depth <= 0)
-        return (2*color-1)*G.getScore();
-
     map<string,Point>::iterator it = memory.find(G.fen(true));
     // Si on a deja teste la grille avec une profondeur au moins egale
     // On retourne la valeur deja calculee
@@ -68,7 +67,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
         return (*it).second.gety();
 
     else if (isMax){
-        int M = INT_MIN;
+        int M = (INT_MIN+depthmax)-depth;
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
@@ -83,7 +82,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
                         else
                             G.move((*it), G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, alpha, beta, memory);
+                        eval = alpha_beta(G, depth-1, depthmax, !isMax, color, alpha, beta, memory);
                         // Si l'evaluation est meilleure
                         if (eval > M)
                             M = eval;
@@ -100,7 +99,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
         return M;
     }
     else{
-        int M = INT_MAX;
+        int M = (INT_MAX-depthmax)+depth;
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 8; j++){
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
@@ -115,7 +114,7 @@ int alpha_beta(Grid& G, int depth, bool isMax, bool color, int alpha, int beta, 
                         else
                             G.move(*it, G(i,j));
                         // On evalue la grille
-                        eval = alpha_beta(G, depth-1, !isMax, color, alpha, beta, memory);
+                        eval = alpha_beta(G, depth-1, depthmax, !isMax, color, alpha, beta, memory);
                         // Si l'evaluation est meilleure
                         if (eval < M)
                             M = eval;
@@ -146,13 +145,15 @@ int best_move(int depth, string fen){
             Enpassant.sety(i);
         }
     int M = INT_MIN;
-    int move = 0;
+    int move = -1;
     int eval;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
                 possibleMoves = G(i,j)->allowed_moves(G);
                 for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
+                    if (move == -1)
+                        move = 1000*i+100*j+10*(*it).getx()+(*it).gety();
                     Chessman* startingFrame = G(i,j)->clone();
                     Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
                     // On teste si un pion arrive sur la case de promotion
@@ -162,7 +163,7 @@ int best_move(int depth, string fen){
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille (la couleur d'evaluation est celle precedent le move
-                    eval = alpha_beta(G, depth-1, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
+                    eval = alpha_beta(G, depth-1, depth, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;
