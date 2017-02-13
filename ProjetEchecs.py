@@ -213,7 +213,7 @@ class Disp(QtGui.QWidget):
         self.mainLayout.addLayout(self.choices,1,2)
         # on doit supprimmer choices après le choix de la promotion.
         
-    def play(self, whiteIsPlaying, chessmanFrame,tabAccess, promotion = None):
+    def play2(self, whiteIsPlaying, chessmanFrame,tabAccess, promotion = None):
         # le joueur vient de cliquer sur la case où il veut aller        
         aim = self.sender()
         
@@ -254,6 +254,84 @@ class Disp(QtGui.QWidget):
         # c'est au joueur suivant de jouer
         self.choose_chessman(not whiteIsPlaying)
         
+    def play(self, whiteIsPlaying, chessmanFrame,tabAccess, promotion = None):
+        if whiteIsPlaying :
+            # le joueur vient de cliquer sur la case où il veut aller        
+            aim = self.sender()
+            
+            # on recupere la piece qui va bouger
+            chessman = self.__grid[(chessmanFrame.x,chessmanFrame.y)] 
+           
+            #On réinitinalise les cases accessibles
+            for (i,j) in tabAccess:
+                if (i+j)%2 == 0:
+                    self.__chessboard[i][j].setStyleSheet("background-color:\
+                                                            rgb(225, 206, 154);")
+                else:
+                    self.__chessboard[i][j].setStyleSheet("background-color: \
+                                                    rgb(139, 69, 19);")        
+    
+            # on effectue le "vrai" deplacement dans self.__grid
+            self.__chessboard[chessmanFrame.x][chessmanFrame.y].deleteChessMan()
+            if promotion == None :
+                self.__grid.move((aim.x, aim.y), chessman)
+            else :
+                aim.clicked.disconnect()
+                deleteLayout(self.choices)
+                self.__grid.move((aim.x, aim.y), chessman, promotion)
+        
+        # on met a jour l'affichage
+        self.evolve_chessboard()
+        (i,j)=self.__grid.king_position(whiteIsPlaying)
+        if (self.chessMat(whiteIsPlaying)==True):
+            (x,y)=self.__grid.king_position(1-whiteIsPlaying)
+            if (self.__grid.isChessed(self.__grid[(self.__grid.\
+                    king_position(whiteIsPlaying))],x,y)):            
+                print ("Echec et mat !")
+                return (0)
+            else:
+                print("pat")
+                return (0)
+        fichier = open("data.docx", "w")
+        fichier.write(self.__grid.grid_to_ascii())
+        fichier.close()
+        print(self.__grid.grid_to_ascii())
+        # c'est à l'ordinateur de jouer
+        self.playComputer(whiteIsPlaying)
+    
+    def playComputer(self,whiteIsPlaying):
+        #on appelle l'alpha-beta
+        fichier = open("data.docx", "r")
+        contenu = fichier.read()
+        fichier.close()
+        (initx,inity,arrivx,arrivy,promotion)=(contenu[0],contenu[1], \
+                contenu[2],contenu[3],contenu[4],contenu[5])
+        self.__chessboard[initx][inity].deleteChessMan()
+        #s'il n'y a pas de promotion
+        if promotion == None :
+            self.__grid.move((arrivx,arrivy), self.__grid[(initx,inity)])
+        else :
+            self.__grid[(arrivx,arrivy)].clicked.disconnect()
+            self.__grid.move((arrivx, arrivy), self.__grid[(initx,inity)], \
+                                            promotion)
+        # on met a jour l'affichage
+        self.evolve_chessboard()
+        (i,j)=self.__grid.king_position(whiteIsPlaying)
+        if (self.chessMat(whiteIsPlaying)==True):
+            (x,y)=self.__grid.king_position(1-whiteIsPlaying)
+            if (self.__grid.isChessed(self.__grid[(self.__grid.\
+                    king_position(whiteIsPlaying))],x,y)):            
+                print ("Echec et mat !")
+                return (0)
+            else:
+                print("pat")
+                return (0)
+        print(self.__grid.grid_to_ascii())
+                                    
+                                            
+        #C'est à l'humain de jouer
+        self.choose_chessman(whiteIsPlaying)    
+        
     def chessMat(self,whiteIsPlaying):
         for i in range(8):
             for j in range(8):
@@ -290,4 +368,10 @@ def disp():
 ##    def __init__(self):
         
     #affichage + interactions
+        
+
 disp()
+import os
+#os.system('"C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess-build/Imp.exe"')
+
+os.startfile(r'C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess-build/Imp.exe')

@@ -3,6 +3,7 @@
 #include <set>
 #include <map>
 #include <limits.h>
+#include <fstream>
 #include "point.h"
 using namespace std;
 
@@ -175,4 +176,26 @@ int best_move(int depth, string fen){
         }
     }
     return move;
+}
+
+////////////////
+int f(int dep){
+    cout<<"feoifh"<<endl;
+    fstream file("C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess/Chess/Chess/data.docx",ios::in);
+    if(file)  // si l'ouverture a réussi
+    {    string fen;
+         getline(file,fen);
+
+         cout<<fen<<endl;
+         file.close();  // on ferme le fichier
+    }
+    else  // sinon
+        cerr << "Impossible d'ouvrir le fichier !" << endl;
+    fstream file2("C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess/Chess/Chess/data.docx",ios::in | ios::out | ios::trunc);
+    if (file2){    file2 << best_move(dep,fen) <<" "<<4<<endl;
+         file2.close();  // on ferme le fichier
+    }
+    else  // sinon
+        cerr << "Impossible d'ouvrir le fichier !" << endl;
+    return 0;
 }
