@@ -282,9 +282,9 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         }
 
         // cas du coup double du pion
-        if (abs((*chessman).getx()-point.getx()) > 1 && this->isVoid(point.getx(), point.gety())){
-            enPassant.setx(point.getx()+2*chessman->getIsWhite()-1); enPassant.sety(point.gety());
-            chessman->setdouble_done(true);
+        if (abs((*chessman).getx()-point.getx()) > 1){
+            if ((point.gety()+1 < 8 && (*this)(point.getx(), point.gety()+1)->getName() == "Pawn") || (point.gety()-1 >= 0 && (*this)(point.getx(), point.gety()-1)->getName() == "Pawn"))
+                enPassant.setx(point.getx()+2*chessman->getIsWhite()-1); enPassant.sety(point.gety());
         }
 
         //promotion

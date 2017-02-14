@@ -94,10 +94,6 @@ int best_move(int depth, string fen){
     // Vecteur des positions accessibles et map de stockage
     vector<Point> possibleMoves;
     map<string, Point> memory;
-    vector<Point> Start;
-    vector<Point> Final;
-    vector<int> Value;
-    int best[5] = {-1,-1,-1,-1,-1};
 
     // On enregistre la prise en passant
     Point Enpassant(0,0);
@@ -115,7 +111,7 @@ int best_move(int depth, string fen){
                 possibleMoves = G(i,j)->allowed_moves(G);
                 for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
                     if (move == -1)
-                        move = i*1000+j*100+(*it).getx()*10+(*it).gety();
+                        move = (i+1)*1000+(j+1)*100+((*it).getx()+1)*10+(*it).gety()+1;
                     Chessman* startingFrame = G(i,j)->clone();
                     Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
                     // On teste si un pion arrive sur la case de promotion
@@ -126,47 +122,17 @@ int best_move(int depth, string fen){
                         G.move(*it, G(i,j));
                     // On evalue la grille (la couleur d'evaluation est celle precedent le move
                     eval = alpha_beta(G, depth-1, depth, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
-                    Start.push_back(Point(i,j));
-                    Final.push_back(*it);
-                    Value.push_back(eval);
-                    bool done = false;
-                    for (int n = 0; n < 5; n++){
-                        if (!done && (best[i] == -1 || eval > Value[best[i]])){
-                            for (int j = 4; j > n; j--){
-                                best[j] = best[j-1];
-                            }
-                            best[n] = Value.size()-1;
-                            done =true;
-                        }
-                    }
+
                     // Si l'evaluation est meilleure
                     if (eval > M){
                         M = eval;
-                        move = i*1000+j*100+(*it).getx()*10+(*it).gety();
+                        move = (i+1)*1000+(j+1)*100+((*it).getx()+1)*10+(*it).gety()+1;
                     }
                     G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
                 }
             }
         }
     }
-    /*M = INT_MIN;
-    for (int n = 0; n < 5; n++){
-        if (best[n] != -1){
-            Chessman* startingFrame = G(Start[best[n]])->clone();
-            Chessman* arrivingFrame = G(Final[best[n]])->clone();
-            if (G(Start[best[n]])->getName() == "Pawn" && Start[best[n]].getx() == (!G(Start[best[n]])->getIsWhite())*7)
-                G.move(Final[best[n]], G(Start[best[n]]), "Queen");
-            else
-                G.move(Final[best[n]], G(Start[best[n]]));
-            // On evalue la grille
-            eval = alpha_beta(G, depth-1, depth, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
-            if (eval > M){
-                M = eval;
-                move = Start[best[n]].getx()*1000+Start[best[n]].gety()*100+Final[best[n]].getx()*10+Final[best[n]].gety();
-            }
-            G.unmove(startingFrame, arrivingFrame, Final[best[n]], Enpassant);
-        }
-    }*/
     return move;
 }
 
