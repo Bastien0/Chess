@@ -15,16 +15,27 @@ class Grid{
     int countHalfMove;
     bool whiteIsPlaying;
     int score;
+
+    // Positions des rois
+    Point kingPosWhite;
+    Point kingPosBlack;
+
+    // Prise en passant
+    Point enPassant;
+
 public:
     // get and set
     bool getWhiteIsPlaying(){ return whiteIsPlaying; }
     int getScore() { return score; }
+    Point en_passant(){ return enPassant; }
+    void en_passant(Point p){ enPassant = p; }
 
     // Constructeur et desctructeur
     Grid(string s);
     ~Grid();
 
     Chessman* operator()(int coord0, int coord1);
+    Chessman* operator()(Point p);
     void operator()(int coord0, int coord1, Chessman* chessman);
     void move(Point point, Chessman *chessman, string promotion = " ");
     void unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant);

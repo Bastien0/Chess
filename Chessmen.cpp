@@ -192,25 +192,15 @@ vector<Point> Pawn::moves(Grid& grid){
         m.push_back(point);
     }
     // prise en passant
-    Point P(this->getx(), this->gety()+1);
-    Point point;
+    Point P(this->getx()+direction, this->gety()+1);
     //d'un côté
-    if (this->gety()+ 1 < 8 && !grid.isVoid(P.getx(),P.gety())
-            && grid(P.getx(),P.gety())->getName() == "Pawn" && grid(P.getx(),P.gety())->getIsWhite() != this->getIsWhite()
-            && grid(P.getx(),P.gety())->isDouble_done() && grid.isVoid(P.getx()+direction,P.gety())){
-        point.setx(this->getx()+direction);
-        point.sety(this->gety()+1);
-        m.push_back(point);
+    if (grid.en_passant() == P){
+        m.push_back(P);
     }
     //de l'autre
-    P.setx(this->getx());
-    P.sety(this->gety()-1);
-    if (this->gety()- 1 >= 0 && !grid.isVoid(P.getx(),P.gety())
-            && grid(P.getx(),P.gety())->getName() == "Pawn" && grid(P.getx(),P.gety())->getIsWhite() != this->getIsWhite()
-            && grid(P.getx(),P.gety())->isDouble_done() && grid.isVoid(P.getx()+direction,P.gety())){
-        point.setx(this->getx()+direction);
-        point.sety(this->gety()-1);
-        m.push_back(point);
+    P.sety(grid.en_passant() == P);
+    if (grid.en_passant() == P){
+        m.push_back(P);
     }
     return testedTuples(grid, m);
 }

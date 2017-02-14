@@ -52,8 +52,8 @@ int main(){
     //while(true){
 
         //string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
-        string s = "r3k3/8/8/4pP2/8/8/8/4K3 b q - 0 0";
-        //string s = "r4rk1/pbp2ppp/7P/1p2q1n1/8/6Q1/P6K/2q4R b - - 11 73";
+        //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b q - 0 0";
+        string s = "6k1/pnpqr2p/5rp1/3PN3/2P5/1P5P/P4PP1/R4RK1 b - - 0 47";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
@@ -73,7 +73,7 @@ int main(){
         for (vector<Point>::iterator it = all.begin(); it != all.end(); ++it){
             cout << it->getx() << " " << it-> gety() << endl;
         }*/
-        cout << best_move(7, s) << endl;
+        cout << best_move(4, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();
         Chessman* c2 = G(2,4)->clone();

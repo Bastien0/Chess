@@ -51,6 +51,7 @@ Grid::Grid(string s){
         else if (s[caractere] == 'k'){
             King k(ligne, colonne, false);
             (*this)(ligne, colonne, k.clone());
+            kingPosBlack.setx(ligne); kingPosBlack.sety(colonne);
             score -= (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'p'){
@@ -83,6 +84,7 @@ Grid::Grid(string s){
         else if (s[caractere] == 'K'){
             King k(ligne, colonne, true);
             (*this)(ligne, colonne, k.clone());
+            kingPosWhite.setx(ligne); kingPosWhite.sety(colonne);
             score += (*this)(ligne, colonne)->getValue();
         }
         else if (s[caractere] == 'P'){
@@ -175,13 +177,20 @@ Grid::Grid(string s){
     //Prise en passant
     if (s[caractere] != '-'){
         if (s[caractere+1]=='6'){
+            enPassant.setx(4);
             (*this)(4,int(s[caractere]-'a'))->setdouble_done(true);
         }
         if (s[caractere+1]=='3'){
+            enPassant.setx(3);
             (*this)(3,int(s[caractere]-'a'))->setdouble_done(true);
         }
+        enPassant.sety(s[caractere]-'a');
         caractere +=1;
     }
+    else{
+        enPassant.setx(-1); enPassant.sety(-1);
+    }
+
     caractere += 2;
 
     //Compte des coups
@@ -222,6 +231,10 @@ Chessman* Grid::operator()(int coord0, int coord1){
     return grid[coord0+8*coord1];
 }
 
+Chessman* Grid::operator()(Point p){
+    return this->operator ()(p.getx(), p.gety());
+}
+
 void Grid::operator()(int coord0, int coord1, Chessman* chessman){
     chessman->setx(coord0);
     chessman->sety(coord1);
@@ -239,9 +252,21 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
     score += (2*chessman->getIsWhite()-1)*((*this)(point.getx(), point.gety())->getValue());
     countHalfMove += 1;
     countMove += 1;
+    enPassant.setx(-1); enPassant.sety(-1);
+
     // on regarde si la piece a un argument de mouvement
     if ((*chessman).getName() == "King" || (*chessman).getName() == "Rook")
         chessman->sethasMoved(true);
+
+    // On modifie la position du roi
+    if ((*chessman).getName() == "King"){
+        if (chessman->getIsWhite()){
+            kingPosWhite.setx(point.getx()); kingPosWhite.sety(point.gety());
+        }
+        else{
+            kingPosBlack.setx(point.getx()); kingPosBlack.sety(point.gety());
+        }
+    }
 
     if ((*chessman).getName() == "Pawn"){
         countHalfMove = 0;
@@ -257,8 +282,10 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         }
 
         // cas du coup double du pion
-        if (abs((*chessman).getx()-point.getx()) > 1 && this->isVoid(point.getx(), point.gety()))
+        if (abs((*chessman).getx()-point.getx()) > 1 && this->isVoid(point.getx(), point.gety())){
+            enPassant.setx(point.getx()+2*chessman->getIsWhite()-1); enPassant.sety(point.gety());
             chessman->setdouble_done(true);
+        }
 
         //promotion
         if (point.getx() == (!chessman->getIsWhite())*7){
@@ -305,12 +332,6 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         }
     }
 
-    // Reinitialisation des double_done
-    for (int i = 0; i < 8; i++){
-        if ((*this)(4-whiteIsPlaying, i)->getName() == "Pawn")
-            (*this)(4-whiteIsPlaying, i)->setdouble_done(false);
-    }
-
     if (!this->isVoid(point.getx(), point.gety())){
         delete (*this)(point.getx(), point.gety());
         countHalfMove = 0;
@@ -330,6 +351,16 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     countMove -= 1;
     if (departure->getName() == "Pawn" && final.getx() == (!departure->getIsWhite())*7)
         score = score - (2*departure->getIsWhite()-1)*(*this)(final.getx(), final.gety())->getValue() + (2*departure->getIsWhite()-1)*departure->getValue();
+
+    if (departure->getName() == "King"){
+        if (departure->getIsWhite()){
+            kingPosWhite.setx(departure->getx()); kingPosWhite.sety(departure->gety());
+        }
+        else{
+            kingPosBlack.setx(departure->getx()); kingPosBlack.sety(departure->gety());
+        }
+    }
+
     if (departure->getName() == "King" && abs(departure->gety() - final.gety()) >= 2){
         if (final.gety() == 2){
             Chessman* rook = (*this)(departure->getx(), 3);
@@ -376,8 +407,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     whiteIsPlaying = !whiteIsPlaying;
 
     // On reinitialise la prise en passant
-    if (Enpassant.getx() > 0)
-        (*this)(Enpassant.getx(), Enpassant.gety())->setdouble_done(true);
+    enPassant = Enpassant;
 
 }
 
@@ -392,15 +422,10 @@ void Grid::setNone(int x, int y){
 
 // Renvoie la position du roi de la couleur donnee
 Point Grid::king_position(bool isWhite){
-    for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 8; j++){
-            if ((*this)(i,j)->getName() == "King" && (*this)(i,j)->getIsWhite() == isWhite){
-                return Point(i,j);
-            }
-        }
-    }
-    cout << this->fen() << endl;
-    cout << "Test" << endl;
+    if (isWhite)
+        return kingPosWhite;
+    else
+        return kingPosBlack;
 }
 
 // Verifie si une case est vide
@@ -486,118 +511,138 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
 
     /*******************Lignes droites****************************************/
     // Ligne de gauche
-    while (Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx(), Kpos.gety()-incr))
-        incr += 1;
-    if (!chess && Kpos.gety()-incr >= 0){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "King"){
-            chess = true;
+    if (!chess){
+        while (Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx(), Kpos.gety()-incr))
+            incr += 1;
+        if (Kpos.gety()-incr >= 0){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx(), Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "Rook" || (*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx(), Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "Rook" || (*this)(Kpos.getx(), Kpos.gety()-incr)->getName() == "Queen"))
-            chess = true;
     }
 
     // Ligne de droite
     incr = 1;
 
-    while (Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx(), Kpos.gety()+incr))
-        incr += 1;
-    if (!chess && Kpos.gety()+incr < 8){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "King"){
-            chess = true;
+    if (!chess){
+        while (Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx(), Kpos.gety()+incr))
+            incr += 1;
+        if (Kpos.gety()+incr < 8){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx(), Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Rook" || (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx(), Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Rook" || (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Queen"))
-            chess = true;
     }
 
     // Ligne du bas
     incr = 1;
 
-    while (Kpos.getx()+incr < 8 && this->isVoid(Kpos.getx()+incr, Kpos.gety()))
-        incr += 1;
-    if (!chess && Kpos.getx()+incr < 8){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "King"){
-            chess = true;
+    if (!chess){
+        while (Kpos.getx()+incr < 8 && this->isVoid(Kpos.getx()+incr, Kpos.gety()))
+            incr += 1;
+        if (Kpos.getx()+incr < 8){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()+incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()+incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Queen"))
-            chess = true;
     }
 
     // Ligne du haut
     incr = 1;
 
-    while (Kpos.getx()-incr >=0 && this->isVoid(Kpos.getx()-incr, Kpos.gety()))
-        incr += 1;
-    if (!chess && Kpos.getx()-incr >= 0){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "King"){
-            chess = true;
+    if (!chess){
+        while (Kpos.getx()-incr >=0 && this->isVoid(Kpos.getx()-incr, Kpos.gety()))
+            incr += 1;
+        if (Kpos.getx()-incr >= 0){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()-incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()-incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Queen"))
-            chess = true;
     }
 
     /************************Diagonales*************************************/
     // Sud-Est
     incr = 1;
-    while (Kpos.getx()+incr < 8 && Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx()+incr, Kpos.gety()+incr))
-        incr += 1;
-    if (!chess && Kpos.getx()+incr < 8 && Kpos.gety()+incr < 8){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "King"){
-            chess = true;
+
+    if (!chess){
+        while (Kpos.getx()+incr < 8 && Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx()+incr, Kpos.gety()+incr))
+            incr += 1;
+        if (Kpos.getx()+incr < 8 && Kpos.gety()+incr < 8){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Queen"))
-            chess = true;
     }
 
     // Nord-Est
     incr = 1;
-    while (Kpos.getx()-incr >=0 && Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx()-incr, Kpos.gety()+incr))
-        incr += 1;
-    if (!chess && Kpos.getx()-incr >= 0 && Kpos.gety()+incr < 8){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "King"){
-            chess = true;
+
+    if (!chess){
+        while (Kpos.getx()-incr >=0 && Kpos.gety()+incr < 8 && this->isVoid(Kpos.getx()-incr, Kpos.gety()+incr))
+            incr += 1;
+        if (!chess && Kpos.getx()-incr >= 0 && Kpos.gety()+incr < 8){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Queen"))
-            chess = true;
     }
 
     // Nord-Ouest
     incr = 1;
-    while (Kpos.getx()-incr >=0 && Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx()-incr, Kpos.gety()-incr))
-        incr += 1;
-    if (!chess && Kpos.getx()-incr >= 0 && Kpos.gety()-incr >= 0){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "King"){
-            chess = true;
+
+    if (!chess){
+        while (Kpos.getx()-incr >=0 && Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx()-incr, Kpos.gety()-incr))
+            incr += 1;
+        if (Kpos.getx()-incr >= 0 && Kpos.gety()-incr >= 0){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Queen"))
-            chess = true;
     }
 
     // Sud-Ouest
     incr = 1;
-    while (Kpos.getx()+incr < 8 && Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx()+incr, Kpos.gety()-incr))
-        incr += 1;
-    if (!chess && Kpos.getx()+incr < 8 && Kpos.gety()-incr >= 0){
-        // Le roi adverse est a cote
-        if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "King"){
-            chess = true;
+
+    if (!chess){
+        while (Kpos.getx()+incr < 8 && Kpos.gety()-incr >= 0 && this->isVoid(Kpos.getx()+incr, Kpos.gety()-incr))
+            incr += 1;
+        if (Kpos.getx()+incr < 8 && Kpos.gety()-incr >= 0){
+            // Le roi adverse est a cote
+            if (incr ==1 && (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "King"){
+                chess = true;
+            }
+            else if ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Queen"))
+                chess = true;
         }
-        else if ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
-                 && ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Queen"))
-            chess = true;
     }
 
     /*******************************Fin des tests********************************************/
@@ -617,8 +662,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
 /***********************************************************************************************************/
 
 string Grid::fen(bool just_grid){ // code la grille en standard fen
-    vector<char> f;
     char letter;
+    string resultat;
     for (int ligne=0;ligne<=7;ligne++){
         int colonne=0;
         while (colonne <= 7){
@@ -630,7 +675,7 @@ string Grid::fen(bool just_grid){ // code la grille en standard fen
                     compt += 1;
                     colonne += 1;
                 }
-                f.push_back(char(compt + '0'));
+                resultat += char(compt + '0');
                 compt = 0;
             }
             else{
@@ -644,25 +689,25 @@ string Grid::fen(bool just_grid){ // code la grille en standard fen
                 if (! (*this)(ligne,colonne)->getIsWhite()){
                     letter = letter - 'A' + 'a';
                 }
-                f.push_back(letter);
+                resultat += letter;
                 colonne += 1;
             }
         }
         if (ligne < 7){
-            f.push_back('/');
+            resultat += '/';
         }
 
     }
-    f.push_back(' ');
+    resultat += ' ';
 
     //couleur du joueur
     if (whiteIsPlaying){
-        f.push_back('w');
+        resultat += 'w';
     }
     else{
-        f.push_back('b');
+        resultat += 'b';
     }
-    f.push_back(' ');
+    resultat += ' ';
 
     //roques possibles
     bool Rockpossible = false;
@@ -670,30 +715,30 @@ string Grid::fen(bool just_grid){ // code la grille en standard fen
     //pour les blancs
     if (((*this)(7,4)->getName() != "Empty_Chessman") && ((*this)(7,4)->getName() == "King") && (!(*this)(7,4)->getHasMoved())){
         if (((*this)(7,7)->getName() != "Empty_Chessman") && ((*this)(7,7)->getName() == "Rook") && (!(*this)(7,7)->getHasMoved())){
-            f.push_back('K');
+            resultat += 'K';
             Rockpossible=true;
         }
         if (((*this)(7,0)->getName() != "Empty_Chessman") && ((*this)(7,0)->getName() == "Rook") && (!(*this)(7,0)->getHasMoved())){
-            f.push_back('Q');
+            resultat += 'Q';
             Rockpossible=true;
         }
     }
     //pour les noirs
     if (((*this)(0,4)->getName() != "Empty_Chessman") && ((*this)(0,4)->getName() == "King") && (!(*this)(0,4)->getHasMoved())){
         if (((*this)(0,7)->getName() != "Empty_Chessman") && ((*this)(0,7)->getName() == "Rook") && (!(*this)(0,7)->getHasMoved())){
-            f.push_back('k');
+            resultat += 'k';
             Rockpossible=true;
         }
         if (((*this)(0,0)->getName() != "Empty_Chessman") && ((*this)(0,0)->getName() == "Rook") && (!(*this)(0,0)->getHasMoved())){
-            f.push_back('q');
+            resultat += 'q';
             Rockpossible=true;
         }
     }
 
     if (!Rockpossible){
-        f.push_back('-');
+        resultat += '-';
     }
-    f.push_back(' ');
+    resultat += ' ';
 
     //position de la prise en passant
 
@@ -704,62 +749,55 @@ string Grid::fen(bool just_grid){ // code la grille en standard fen
             if (((*this)(li,col)->getName() == "Pawn")){
                 if ((*this)(li,col)->isDouble_done()){
                     passing = true;
-                    f.push_back(char(col + 'a')); //caractere associé au code ASCII
+                    resultat += char(col + 'a'); //caractere associé au code ASCII
                     if (li==4){
-                        f.push_back(char(6+'0'));
+                        resultat += char(6+'0');
                     }
                     if (li==3){
-                        f.push_back(char(3+'0'));
+                        resultat += char(3+'0');
                     }
                 }
             }
         }
     }
     if(!passing){
-        f.push_back('-');
+        resultat += '-';
     }
 
     // Si on ne s'interesse pas au nombre de coups
-    string resultat;
     if (just_grid){
-        for (int i = 0; i<f.size(); i++)
-            resultat += f[i];
-
         return resultat;
     }
 
-    f.push_back(' ');
+    resultat += ' ';
 
     //Nombre de demi-coups
     int n = 0;
     int count = countHalfMove;
     if (count<10){
-        f.push_back(char(count+'0'));
+        resultat += char(count+'0');
     }
     else {
         n = count/10;
         count = count%10;
-        f.push_back(char(n+'0'));
-        f.push_back(char(count+'0'));
+        resultat += char(n+'0');
+        resultat += char(count+'0');
     }
 
-    f.push_back(' ');
+    resultat += ' ';
 
     // Nombre de coups
     n = 0;
     count = countMove;
     if (count<10){
-        f.push_back(char(count+'0'));
+        resultat += char(count+'0');
     }
     else {
         n = count/10;
         count = count%10;
-        f.push_back(char(n+'0'));
-        f.push_back(char(count+'0'));
+        resultat += char(n+'0');
+        resultat += char(count+'0');
     }
-
-    for (int i = 0; i<f.size(); i++)
-        resultat += f[i];
 
     return resultat;
 }
