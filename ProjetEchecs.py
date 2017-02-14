@@ -93,7 +93,7 @@ class Disp(QtGui.QWidget):
         self.evolve_chessboard() 
         
         # affichage des pieces
-        computerPlays=False
+        computerPlays = True
         self.choose_chessman(True,computerPlays)
         
         self.setWindowTitle('XXXX Chess Master Game XXXX')
@@ -127,21 +127,60 @@ class Disp(QtGui.QWidget):
                 b.setEnabled(False)
 
     def choose_chessman(self, whiteIsPlaying,computerPlays,tabAccess=None):
-        self.unallow_all_frame()
-        #On remet l'affichage des cases accessibles au début.
-        if tabAccess != None:        
-            for (i,j) in tabAccess:
-                if (i+j)%2 == 0:
-                    self.__chessboard[i][j].setStyleSheet("background-color:\
-                                                        rgb(225, 206, 154);")
+        self.unallow_all_frame()        
+        if computerPlays:
+            #C'est à l'ordinateur de jouer
+            with open ("data.txt", "w") as fichier:
+                fichier.write(self.__grid.grid_to_ascii())
+            os.system(r'C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master-build/Echecs.exe')
+            with open("data.txt", "r") as fichier2:
+                contenu = fichier2.read()
+            print("toto: ", contenu)
+            fichier.close()
+            promotion = False
+            (initx,inity,arrivx,arrivy)=(int(contenu[0])-1,int(contenu[1])-1, \
+                    int(contenu[2])-1,int(contenu[3])-1)
+            if (self.__grid[(initx,inity)].name == "Pawn"):
+                if (arrivx == 0):
+                    promotion = True
+                if (arrivx == 7):
+                    promotion = True
+            
+            #s'il n'y a pas de promotion
+            if promotion == None :
+                self.__grid.move((arrivx,arrivy), self.__grid[(initx,inity)])
+            else :
+                self.__grid.move((arrivx, arrivy), self.__grid[(initx,inity)], \
+                                                promotion)
+            # on met a jour l'affichage                                                
+            self.__chessboard[initx][inity].deleteChessMan()
+            self.evolve_chessboard()
+            (i,j)=self.__grid.king_position(whiteIsPlaying)
+            if (self.chessMat(whiteIsPlaying)==True):
+                (x,y)=self.__grid.king_position(1-whiteIsPlaying)
+                if (self.__grid.isChessed(self.__grid[(self.__grid.\
+                        king_position(whiteIsPlaying))],x,y)):            
+                    print ("Echec et mat !")
+                    return (0)
                 else:
-                    self.__chessboard[i][j].setStyleSheet("background-color:\
-                                                        rgb(139, 69, 19);")
-                                                                
-        for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
-            self.__chessboard[i][j].setEnabled(True)
-            self.__chessboard[i][j].clicked.connect(lambda : self.allow_moves(\
-                            whiteIsPlaying,computerPlays,tabAccess))
+                    print("pat")
+                    return (0)
+            self.choose_chessman(not whiteIsPlaying,not computerPlays)
+        else:
+            #On remet l'affichage des cases accessibles au début.
+            if tabAccess != None:        
+                for (i,j) in tabAccess:
+                    if (i+j)%2 == 0:
+                        self.__chessboard[i][j].setStyleSheet("background-color:\
+                                                            rgb(225, 206, 154);")
+                    else:
+                        self.__chessboard[i][j].setStyleSheet("background-color:\
+                                                            rgb(139, 69, 19);")
+                                                                    
+            for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
+                self.__chessboard[i][j].setEnabled(True)
+                self.__chessboard[i][j].clicked.connect(lambda : self.allow_moves(\
+                                whiteIsPlaying,computerPlays,tabAccess))
     
     def allow_moves(self, whiteIsPlaying,computerPlays,tabAccess=None):
         
@@ -259,51 +298,10 @@ class Disp(QtGui.QWidget):
         print(self.__grid.grid_to_ascii())
         # c'est au joueur suivant de jouer
         if not computerPlays:
-            self.choose_chessman(not whiteIsPlaying,computerPlays)
-        #C'est à l'ordinateur de jouer
-        else:
-            fichier = open("data.docx", "w")
-            fichier.write(self.__grid.grid_to_ascii())
-            fichier.close()
-            print(self.__grid.grid_to_ascii())
-            os.startfile(r'Echecs.exe')
-            fichier = open("data.docx", "r")
-            contenu = fichier.read()
-            fichier.close()
-            promotion = False
-            (initx,inity,arrivx,arrivy)=(contenu[0],contenu[1], \
-                    contenu[2],contenu[3],contenu[4])
-            if (self.__grid[(initx,inity)].name == "Pawn"):
-                if (arrivx == 0):
-                    promotion = True
-                if (arrivx == 7):
-                    promotion = True
+            self.choose_chessman(not whiteIsPlaying,not computerPlays)
             
-            self.__chessboard[initx][inity].deleteChessMan()
-            #s'il n'y a pas de promotion
-            if promotion == None :
-                self.__grid.move((arrivx,arrivy), self.__grid[(initx,inity)])
-            else :
-                self.__grid[(arrivx,arrivy)].clicked.disconnect()
-                self.__grid.move((arrivx, arrivy), self.__grid[(initx,inity)], \
-                                                promotion)
-            # on met a jour l'affichage
-            self.evolve_chessboard()
-            (i,j)=self.__grid.king_position(whiteIsPlaying)
-            if (self.chessMat(whiteIsPlaying)==True):
-                (x,y)=self.__grid.king_position(1-whiteIsPlaying)
-                if (self.__grid.isChessed(self.__grid[(self.__grid.\
-                        king_position(whiteIsPlaying))],x,y)):            
-                    print ("Echec et mat !")
-                    return (0)
-                else:
-                    print("pat")
-                    return (0)
-            print(self.__grid.grid_to_ascii())
-                                        
-                                                
-            #C'est à l'humain de jouer
-            self.choose_chessman(whiteIsPlaying,computerPlays)    
+        
+                                    
         
     def chessMat(self,whiteIsPlaying):
         for i in range(8):

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "Chess_Grid.h"
 using namespace std;
 
@@ -47,18 +48,38 @@ bool test_move_unmove(Grid& G){
     return G.fen() == fen_ini;
 }
 
+int f(int dep){
+    cout<<"feoifh"<<endl;
+    string fen;
+    std::fstream file("C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master/data.txt", std::fstream::in);
+    if(file)  // si l'ouverture a réussi
+    {
+         getline(file,fen);
+
+         cout<<fen<<endl;
+         file.close();  // on ferme le fichier
+    }
+    else  // sinon
+        cerr << "Impossible d'ouvrir le fichier !" << endl;
+    std::fstream file2("C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master/data.txt",std::fstream::in | std::fstream::out | std::fstream::trunc);
+    file2 << best_move(dep, fen) << endl;
+    file2.close();  // on ferme le fichier
+    return 0;
+}
+
 int main(){
     std::cout << "test de jeu"<< std::endl;
     //while(true){
 
-        //string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
+        string s = "r1bq2kr/pppp1ppp/2nb1n2/4p1B1/4P3/3P1N2/PPP1BPPP/RN1QK2R w KQ - 5 10";
         //string s = "r3k3/8/8/4pP2/8/8/8/4K3 b q - 0 0";
-        string s = "6k1/pnpqr2p/5rp1/3PN3/2P5/1P5P/P4PP1/R4RK1 b - - 0 47";
+        //string s = "6k1/pnpqr2p/5rp1/3PN3/2P5/1P5P/P4PP1/R4RK1 b - - 0 47";
         /*cout << "fen svp" << endl;
         getline(cin,s);*/
         cout << "creation de G" << endl;
         Grid G(s);
         cout << "G.fen : " << G.fen() << endl;
+        f(4);
         //while(test_move_unmove(G)){cout << G.getScore() << endl;}
         /*Point P(0,5);
         Chessman* d = G(0,4);
@@ -73,7 +94,7 @@ int main(){
         for (vector<Point>::iterator it = all.begin(); it != all.end(); ++it){
             cout << it->getx() << " " << it-> gety() << endl;
         }*/
-        cout << best_move(4, s) << endl;
+        //cout << best_move(5, s) << endl;
         /*Point p(2,4);
         Chessman* c1 = G(3,5)->clone();
         Chessman* c2 = G(2,4)->clone();
