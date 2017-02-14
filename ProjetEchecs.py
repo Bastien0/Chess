@@ -266,12 +266,19 @@ class Disp(QtGui.QWidget):
             fichier.write(self.__grid.grid_to_ascii())
             fichier.close()
             print(self.__grid.grid_to_ascii())
-            os.startfile(r'C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Proj/Chess/Chess.exe')
+            os.startfile(r'Echecs.exe')
             fichier = open("data.docx", "r")
             contenu = fichier.read()
             fichier.close()
-            (initx,inity,arrivx,arrivy,promotion)=(contenu[0],contenu[1], \
-                    contenu[2],contenu[3],contenu[4],contenu[5])
+            promotion = False
+            (initx,inity,arrivx,arrivy)=(contenu[0],contenu[1], \
+                    contenu[2],contenu[3],contenu[4])
+            if (self.__grid[(initx,inity)].name == "Pawn"):
+                if (arrivx == 0):
+                    promotion = True
+                if (arrivx == 7):
+                    promotion = True
+            
             self.__chessboard[initx][inity].deleteChessMan()
             #s'il n'y a pas de promotion
             if promotion == None :
