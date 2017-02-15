@@ -4,7 +4,6 @@
 
 Chessman* Empty = new Empty_Chessman();
 
-
 /***************************************************************************************************/
 /***********Constructeur d'une grille a partir d'une chînr de caractere (standard fen)**************/
 /***************************************************************************************************/
@@ -249,7 +248,8 @@ void Grid::operator()(int coord0, int coord1, Chessman* chessman){
 // Fonction de mouvement: la fonction deplace chessman ves le point donne
 void Grid::move(Point point, Chessman* chessman, string promotion){
     Point oldCoordChessman(chessman->getx(), chessman->gety());
-    score += (2*chessman->getIsWhite()-1)*((*this)(point.getx(), point.gety())->getValue());
+    score += (2*chessman->getIsWhite()-1)*((*this)(point)->getValue());
+    score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
     countHalfMove += 1;
     countMove += 1;
     enPassant.setx(-1); enPassant.sety(-1);
@@ -274,11 +274,12 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         if ((*chessman).gety() != point.gety() && this->isVoid(point.getx(), point.gety())){
             if ((*chessman).getIsWhite()){
                 this->setNone(point.getx()+1, point.gety());
+                score += (2*chessman->getIsWhite()-1)*((*this)(point.getx()+1, point.gety())->getValue());
             }
             else{
                 this->setNone(point.getx()-1, point.gety());
+                score += (2*chessman->getIsWhite()-1)*((*this)(point.getx()-1, point.gety())->getValue());
             }
-            score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
         }
 
         // cas du coup double du pion
@@ -339,18 +340,20 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 
     this->setNone(oldCoordChessman.getx(),oldCoordChessman.gety());
     (*this)(point.getx(), point.gety(), chessman);
+    score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
 
     whiteIsPlaying = !whiteIsPlaying;
 }
 
 // Annulation des coups
 void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant){
-    // Roque
+    // On retire le scpre de la piece prise et on retire le score de la piece deplacee
     score -= (2*departure->getIsWhite()-1)*(arrival->getValue());
+    score -= (2*departure->getIsWhite()-1)*((*this)(final)->getValue());
     countHalfMove -= 1;
     countMove -= 1;
     if (departure->getName() == "Pawn" && final.getx() == (!departure->getIsWhite())*7)
-        score = score - (2*departure->getIsWhite()-1)*(*this)(final.getx(), final.gety())->getValue() + (2*departure->getIsWhite()-1)*departure->getValue();
+        score = score - (2*departure->getIsWhite()-1)*((*this)(final)->getValue() - departure->getValue());
 
     if (departure->getName() == "King"){
         if (departure->getIsWhite()){
@@ -382,14 +385,15 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
             pawn->setIsWhite(false);
             pawn->setdouble_done(true);
             (*this)(3, final.gety(), pawn);
+            score -= (2*departure->getIsWhite()-1)*((*this)(3, final.gety())->getValue());
         }
         else{
             Chessman* pawn = departure->clone();
             pawn->setIsWhite(true);
             pawn->setdouble_done(true);
             (*this)(4, final.gety(), pawn);
+            score -= (2*departure->getIsWhite()-1)*((*this)(4, final.gety())->getValue());
         }
-        score -= (2*departure->getIsWhite()-1)*(departure->getValue());
     }
     //Promotion is the same that to cancel a normal move, so we don't consider it here. In a philosophycal approach
     // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"
@@ -404,6 +408,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     else
         (*this)(final.getx(), final.gety(), arrival);
 
+    score += (2*departure->getIsWhite()-1)*(departure->getValue());
     whiteIsPlaying = !whiteIsPlaying;
 
     // On reinitialise la prise en passant
@@ -479,7 +484,13 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     this->setNone(coordIniChess[0], coordIniChess[1]);
     (*this)(x,y,chessman);
 
-    Point Kpos = king_position(chessman->getIsWhite());
+    Point Kpos;
+    if (chessman->getName() == "King"){
+        Kpos.setx(chessman->getx()); Kpos.sety(chessman->gety());
+    }
+    else
+        Kpos = king_position(chessman->getIsWhite());
+
     bool chess = false;
 
     // On regarde si un cavalier met le roi en echec

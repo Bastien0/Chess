@@ -3,6 +3,7 @@
 #include "Chess_Grid.h"
 #include <iostream>
 #include "point.h"
+#include <math.h>
 using namespace std;
 
 
@@ -28,9 +29,9 @@ public:
     string getName(){ return name; }
     void setx(int i) { x = i; }
     void sety(int i) { y = i; }
-    void setIsWhite(bool value){ isWhite = value; }
+    void setIsWhite(bool white){ isWhite = white; }
     void setName(string n) { name = n; }
-    int getValue() { return value; }
+    virtual int getValue() { return value; }
     virtual void setdouble_done(bool value){}
     virtual bool getHasMoved(){}
     virtual bool isDouble_done(){}
@@ -53,6 +54,8 @@ public:
     Empty_Chessman() : Chessman(0, 0, "Empty", true){ value = 0; }
     Chessman* clone(){ return new Empty_Chessman(); }
     ~Empty_Chessman(){}
+
+    int getValue(){ return value; }
 };
 
 
@@ -70,6 +73,7 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value + (y >= 2 && y <= 5)*abs(2*y-7); }
 };
 
 class Bishop: public Chessman{
@@ -81,6 +85,7 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value+(value/100)*(7-max(abs(2*x-7), abs(2*y-7))); }
 };
 
 
@@ -93,6 +98,7 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value; }
 };
 
 class Knight:  public Chessman{
@@ -104,6 +110,7 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value+(value/100)*(x >= 2 && x <= 5 && y >= 2 && y <= 5); }
 };
 
 
@@ -122,6 +129,7 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value; }
 };
 
 
@@ -139,4 +147,5 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
+    int getValue(){ return value; }
 };

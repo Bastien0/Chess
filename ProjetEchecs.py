@@ -112,6 +112,7 @@ class Disp(QtGui.QWidget):
                                   self.__grid[(i,j)].isWhite)
                 else :
                     self.__chessboard[i][j].deleteChessMan()
+        self.repaint()
                     
                         
     
@@ -135,7 +136,6 @@ class Disp(QtGui.QWidget):
             os.system(r'C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master-build/Echecs.exe')
             with open("data.txt", "r") as fichier2:
                 contenu = fichier2.read()
-            print("toto: ", contenu)
             fichier.close()
             promotion = False
             (initx,inity,arrivx,arrivy)=(int(contenu[0])-1,int(contenu[1])-1, \
@@ -166,6 +166,7 @@ class Disp(QtGui.QWidget):
                     print("pat")
                     return (0)
             self.choose_chessman(not whiteIsPlaying,not computerPlays)
+        #Tour de l'humain
         else:
             #On remet l'affichage des cases accessibles au début.
             if tabAccess != None:        
@@ -295,7 +296,6 @@ class Disp(QtGui.QWidget):
             else:
                 print("pat")
                 return (0)
-        print(self.__grid.grid_to_ascii())
         # c'est au joueur suivant de jouer
         if not computerPlays:
             self.choose_chessman(not whiteIsPlaying,not computerPlays)

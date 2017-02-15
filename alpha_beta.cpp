@@ -135,4 +135,3 @@ int best_move(int depth, string fen){
     }
     return move;
 }
-

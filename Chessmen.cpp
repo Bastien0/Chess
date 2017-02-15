@@ -127,6 +127,7 @@ vector<Point> King::moves(Grid& grid){
         }
     }
     m = testedTuples(grid, m);
+
     //roque
     if ( !hasMoved ){
         for (int i = 0; i<8; i+=7){
