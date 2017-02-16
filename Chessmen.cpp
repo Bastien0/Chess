@@ -4,6 +4,10 @@
 using namespace std;
 #include<iostream>
 
+
+/***************************************************************************************************/
+/***********************Classe des pièces "Chessmam", avec les méthodes associées**************************/
+/***************************************************************************************************/
 Chessman::Chessman(int a, int b, string n, bool iW){
     x = a; y = b; name = n; isWhite = iW;
 }
@@ -205,31 +209,3 @@ vector<Point> Pawn::moves(Grid& grid){
     }
     return testedTuples(grid, m);
 }
-
-
-
-/*
-static PyObject* faux_min_max(PyObject* s){
-    PyObject* v;
-    v=s;
-    return v;
-}
-
-static PyMethodDef ChessmenMethod[] = {
-    {"faux_min_max",faux_min_max, METH_VARARGS,"faux min max"},
-    {NULL,NULL,0,NULL}
-};
-
-static struct PyModuleDef Chessmenmodule = {
-    PyModule_Def_HEAD_INIT,
-    "faux_min_max",
-    "faux min max",
-    -1,
-    ChessmenMethod
-};
-
-PyMODINIT_FUNC
-PyInit_Chessmen(void){
-    return PyModule_Create(&Chessmenmodule);
-}
-*/

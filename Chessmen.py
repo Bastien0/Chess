@@ -5,6 +5,7 @@ Created on Wed Nov 16 16:16:08 2016
 @author: bastien
 """
 
+#classe chessman
 class Chessman():
     def __init__(self, isWhite, x, y, name):
         self.__isWhite = isWhite
@@ -12,6 +13,7 @@ class Chessman():
         self.__y = y
         self.__name = name
     
+    #accesseurs
     @property
     def x(self):
         return self.__x
@@ -67,7 +69,9 @@ class Chessman():
                     tabAccess.append((x,y))
         return tabAccess
 
-        
+#classes de pièces
+
+#tour
 class Rook(Chessman):
     def __init__(self, isWhite, x,y):
         super(Rook, self).__init__(isWhite, x, y, "Rook")
@@ -96,7 +100,7 @@ class Rook(Chessman):
                 tabAccess.append(coord)
         return tabAccess    
 
-
+#fou
 class Bishop(Chessman):
     def __init__(self, isWhite, x,y):
         super(Bishop,self).__init__(isWhite, x, y, "Bishop")
@@ -114,6 +118,7 @@ class Bishop(Chessman):
                 tabAccess.append(coord)
         return tabAccess           
 
+#reine
 class Queen(Chessman):
     def __init__(self, isWhite, x, y):
         super(Queen, self).__init__(isWhite, x, y, "Queen")
@@ -136,6 +141,7 @@ class Queen(Chessman):
                 tabAccess.append(coord)
         return tabAccess          
 
+#cavalier
 class Knight(Chessman):
     def __init__(self, isWhite, x, y):
         super(Knight, self).__init__(isWhite, x, y, "Knight")
@@ -153,7 +159,7 @@ class Knight(Chessman):
                 tabAccess.append(coord)
         return tabAccess   
         
-
+#roi
 class King(Chessman):
     def __init__(self, isWhite, x,y):
         super(King, self).__init__(isWhite, x, y, "King")
@@ -167,6 +173,7 @@ class King(Chessman):
     def setMoved(self):
         self._hasMoved = True
     
+    #coups possibles
     def moves(self, grid, test = False):
         tab = [(self.x+i,self.y+j) for i in [-1, 0, 1] \
                for j in [-1, 0, 1] if (i,j) != 0 ]
@@ -212,7 +219,7 @@ class King(Chessman):
                 tabAccess.append(coord)
         return tabAccess
         
-
+#pion
 class Pawn(Chessman):
     def __init__(self, isWhite, x, y):
         super(Pawn, self).__init__(isWhite, x, y, "Pawn")
@@ -226,7 +233,7 @@ class Pawn(Chessman):
     def double_done(self, value):
         self.__double_done = value
         
-
+    #coups possibles
     def moves(self, grid, test = False):
         tabAccess = []
         # direction du deplacement : 1 pour les blanc, -1 pour les noirs
@@ -258,9 +265,6 @@ class Pawn(Chessman):
                         finaltab.append(coord)
         return finaltab
             
-
-
-
         # prise en passant (coup rare)
 
     def allowed_moves(self, grid):

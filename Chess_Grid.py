@@ -7,7 +7,9 @@ Created on Fri Nov 18 14:47:52 2016
 
 from Chessmen import Rook, Knight, Bishop, Queen, King, Pawn
 
+#Grille d'echecs
 class Grid:
+    #initialisation de la grilles
     def __init__(self):
         # pieces noires
         self.__grid = [[None for j in range(8)] for i in range(8)]
@@ -59,6 +61,7 @@ class Grid:
     
     # vrai deplacement
     def move(self, coord, Chessman, promotion = ""):
+        """effectue le vrai déplacement ; promotion attend la pièce choisie (dame, tour..)"""
         # on incremente les compteurs de 1 
         self.__countMoves += 1
         self.__countHalfMoves += 1
@@ -120,12 +123,12 @@ class Grid:
             self.__countHalfMoves = 0
         self[coord] = Chessman
            
-        
+    #vide une case
     def setNone(self,x,y):
         self.__grid[x][y] = None
       
       
-    #vérifier que les cooronées u roi sont moifiées lors du déplacement  
+    #position du roi
     def king_position(self,isWhite):
         for i in range(8):
             for j in range(8):
@@ -138,8 +141,7 @@ class Grid:
     def isVoid(self, x, y):
         return (self.__grid[x][y] == None)
     
-
-    
+    #ensemble des pièces de couleur
     def list_chessman_col(self, colorIsWhite):
         l = []
         for i in range(8):
@@ -151,6 +153,7 @@ class Grid:
         
     # s'il y a quelqu'un dans cette case, est-ce qu'il est de la même couleur?
     def sameColor(self, Chessman, x, y):
+        """S'il y a quelqu'un dans cette case, est-il de la même couleur ?"""
         assert(self[(x,y)] != None)
         return self[(x,y)].isWhite == Chessman.isWhite
     
@@ -161,6 +164,7 @@ class Grid:
     # il faut reparer les degats en remettant a leur place les elements qui ont
     # ete deplaces.
     def isChessed(self, Chessman, x, y):
+        """quand on déplace une pièce, se met-on en echecs ?"""
         # memorisation de la piece prise, si le deplacement en prend une
         someoneTaken = False
         takenChessman = None
@@ -202,7 +206,9 @@ class Grid:
         self[coordIniChess] = Chessman
         return False
         
+    
     def grid_to_ascii(self):
+        """renvoie la fen de la grille"""
         fen = ""
         
         # etat de l'echiquier

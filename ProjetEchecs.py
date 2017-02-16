@@ -13,7 +13,7 @@ from Chess_Grid import Grid
 
 import sip
 
-
+#dictionnaire des pièces
 
 dicWhitePict = {
     "Rook" : "white_rook.png",
@@ -33,8 +33,9 @@ dicBlackPict = {
     "Pawn" : "black_pawn.png"
 }                
 
+#classe des cases
 class Frame(QtGui.QPushButton):
-    #position, pièce ?
+    #initialisation
     def __init__(self, x, y):
         super(Frame,self).__init__()       
         self.__x = x
@@ -42,10 +43,11 @@ class Frame(QtGui.QPushButton):
         #si la somme est paire, la bouton est blanc
         if (x+y)%2 == 0:
             self.setStyleSheet("background-color: rgb(225, 206, 154);")
-        else:
+        else: #sinon, il est noir
             self.setStyleSheet("background-color: rgb(139, 69, 19);")
         self.setFixedSize(80,80)
         
+    #accesseurs
     @property
     def x(self):
         return self.__x
@@ -68,7 +70,7 @@ class Frame(QtGui.QPushButton):
         self.setIcon(icon)
         self.setIconSize(QtCore.QSize(100, 100))
         
-
+#classe affichage
 class Disp(QtGui.QWidget):
     def __init__(self):
         super(Disp,self).__init__()
@@ -93,7 +95,7 @@ class Disp(QtGui.QWidget):
         self.evolve_chessboard() 
         
         # affichage des pieces
-        computerPlays = True
+        computerPlays = False
         self.choose_chessman(True,computerPlays)
         
         self.setWindowTitle('XXXX Chess Master Game XXXX')
@@ -112,6 +114,7 @@ class Disp(QtGui.QWidget):
                                   self.__grid[(i,j)].isWhite)
                 else :
                     self.__chessboard[i][j].deleteChessMan()
+        #force PyQt à mettre à jour l'affichage même si on est dans un bouton
         self.repaint()
                     
                         
@@ -126,14 +129,15 @@ class Disp(QtGui.QWidget):
                 except:
                     pass
                 b.setEnabled(False)
-
+        
+    #quelle pièce va-t'on jouer ?
     def choose_chessman(self, whiteIsPlaying,computerPlays,tabAccess=None):
         self.unallow_all_frame()        
         if computerPlays:
             #C'est à l'ordinateur de jouer
             with open ("data.txt", "w") as fichier:
                 fichier.write(self.__grid.grid_to_ascii())
-            os.system(r'C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master-build/Echecs.exe')
+            os.system(r'"C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess/Chess-build/Echecs.exe"')
             with open("data.txt", "r") as fichier2:
                 contenu = fichier2.read()
             fichier.close()
@@ -165,6 +169,7 @@ class Disp(QtGui.QWidget):
                 else:
                     print("pat")
                     return (0)
+            #on passe le tour à l'humain
             self.choose_chessman(not whiteIsPlaying,not computerPlays)
         #Tour de l'humain
         else:
@@ -177,14 +182,15 @@ class Disp(QtGui.QWidget):
                     else:
                         self.__chessboard[i][j].setStyleSheet("background-color:\
                                                             rgb(139, 69, 19);")
-                                                                    
+            #on connecte les boutons
             for (i, j) in self.__grid.list_chessman_col(whiteIsPlaying):
                 self.__chessboard[i][j].setEnabled(True)
                 self.__chessboard[i][j].clicked.connect(lambda : self.allow_moves(\
                                 whiteIsPlaying,computerPlays,tabAccess))
     
+    #quelles cases sont accessibles ?
     def allow_moves(self, whiteIsPlaying,computerPlays,tabAccess=None):
-        
+        #on désalloue les boutons
         self.unallow_all_frame()
         fr = self.sender()
         chessman = self.__grid[(fr.x,fr.y)] 
@@ -222,6 +228,8 @@ class Disp(QtGui.QWidget):
                 self.__chessboard[i][j].clicked.connect(lambda : \
                     self.play(whiteIsPlaying,fr,computerPlays,tabAccess))                                                             
     
+    #Dans le cas d'une promotion, on crée une fenêtre qui permet de choisir 
+    #la pièce à ajouter.
     def promo(self, whiteIsPlaying, chessmanFrame, computerPlays, tabAccess):
         self.choices = QtGui.QVBoxLayout()
         
@@ -257,7 +265,8 @@ class Disp(QtGui.QWidget):
         
         self.mainLayout.addLayout(self.choices,1,2)
         # on doit supprimmer choices après le choix de la promotion.
-        
+    
+    #fonction de jeu
     def play(self, whiteIsPlaying, chessmanFrame,computerPlays,tabAccess,\
                                                 promotion = None):
         # le joueur vient de cliquer sur la case où il veut aller        
@@ -296,14 +305,14 @@ class Disp(QtGui.QWidget):
             else:
                 print("pat")
                 return (0)
-        # c'est au joueur suivant de jouer
+        # c'est au joueur suivant de jouer (couleur différente et autre joueur)
         if not computerPlays:
             self.choose_chessman(not whiteIsPlaying,not computerPlays)
             
         
-                                    
-        
+    #fonction qui gère l'echec et mat    
     def chessMat(self,whiteIsPlaying):
+        """renvoie false s'il n'y pas echec et mat, et true sinon"""
         for i in range(8):
             for j in range(8):
                 Chessman = self.__grid[(i,j)]
@@ -330,17 +339,15 @@ def deleteLayout(layout):
             else:
                 deleteLayout(item.layout())
         sip.delete(layout)
-    
+
+
+#Affichage
 def disp():
     app = QtGui.QApplication(sys.argv)
     ex = Disp()
     sys.exit(app.exec_())
-##class Display():
-##    def __init__(self):
         
-    #affichage + interactions
-        
-
+#fonction d'affichage à executer
 disp()
 
 #os.system('"C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess-build/Imp.exe"')

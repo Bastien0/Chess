@@ -378,7 +378,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
             (*this)(departure->getx(), 7, rook);
         }
     }
-    // what french people call "en passant"
+    //prise en passant
     else if (departure->getName() == "Pawn" && arrival->getName() == "Empty" && departure->gety()!= final.gety()){
         if (departure->getIsWhite()){
             Chessman* pawn = departure->clone();
@@ -395,13 +395,10 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
             score -= (2*departure->getIsWhite()-1)*((*this)(4, final.gety())->getValue());
         }
     }
-    //Promotion is the same that to cancel a normal move, so we don't consider it here. In a philosophycal approach
-    // that could be interesting, but that's not the point here. Well, you know what we say in America. "We all want to be great again"
-
-    // normal situation : it's so easy dude.
     if (!this->isVoid(final.getx(), final.gety()))
         delete (*this)(final.getx(), final.gety());
     (*this)(departure->getx(), departure->gety(), departure);
+    //on arrive sur une case vide
     if (arrival->getName() == "Empty"){
         (*this)(final.getx(), final.gety(), Empty);
     }
