@@ -129,7 +129,8 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
-    int getValue(){ return value; }
+    int getValue(){ return value+20*(x==0)*((y == 6) + (y==2))*(!isWhite)+
+                20*(x==7)*((y == 2) + (y == 6))*(isWhite); }
 };
 
 
@@ -147,6 +148,5 @@ public:
 
     //Fonction de jeu
     vector<Point> moves(Grid& grid);
-    int getValue(){ return value+20*(x==0)*((y == 7) + (y==2))*(!isWhite)+
-                                      50*(x==7)*((y == 2) + (y == 7))*(isWhite); }
+    int getValue(){ return value+ (value/100)*(7-max(abs(2*x-7), abs(2*y-7))); }
 };

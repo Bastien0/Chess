@@ -5,7 +5,7 @@
 Chessman* Empty = new Empty_Chessman();
 
 /***************************************************************************************************/
-/***********Constructeur d'une grille a partir d'une chînr de caractere (standard fen)**************/
+/***********Constructeur d'une grille a partir d'une chaine de caractere (standard fen)**************/
 /***************************************************************************************************/
 
 Grid::Grid(string s){
@@ -247,9 +247,14 @@ void Grid::operator()(int coord0, int coord1, Chessman* chessman){
 
 // Fonction de mouvement: la fonction deplace chessman ves le point donne
 void Grid::move(Point point, Chessman* chessman, string promotion){
+    int sign = 2*(chessman->getIsWhite())-1;
     Point oldCoordChessman(chessman->getx(), chessman->gety());
-    score += (2*chessman->getIsWhite()-1)*((*this)(point)->getValue());
-    score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
+
+    // On augmente le score de la valeur de la piece prise
+    score += sign*((*this)(point)->getValue());
+    // On le diminue de la valeur de la piece deplacee
+    score -= sign*(chessman->getValue());
+
     countHalfMove += 1;
     countMove += 1;
     enPassant.setx(-1); enPassant.sety(-1);
@@ -274,11 +279,11 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         if ((*chessman).gety() != point.gety() && this->isVoid(point.getx(), point.gety())){
             if ((*chessman).getIsWhite()){
                 this->setNone(point.getx()+1, point.gety());
-                score += (2*chessman->getIsWhite()-1)*((*this)(point.getx()+1, point.gety())->getValue());
+                score += sign*((*this)(point.getx()+1, point.gety())->getValue());
             }
             else{
                 this->setNone(point.getx()-1, point.gety());
-                score += (2*chessman->getIsWhite()-1)*((*this)(point.getx()-1, point.gety())->getValue());
+                score += sign*((*this)(point.getx()-1, point.gety())->getValue());
             }
         }
 
@@ -291,28 +296,28 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         //promotion
         if (point.getx() == (!chessman->getIsWhite())*7){
             if (promotion == "Queen"){
-                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score -= sign*(chessman->getValue());
                 delete chessman;
                 chessman = new Queen(point.getx(), point.gety(), point.getx() == 0);
-                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score += sign*(chessman->getValue());
             }
             else if (promotion == "Bishop"){
-                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score -= sign*(chessman->getValue());
                 delete chessman;
                 chessman = new Bishop(point.getx(), point.gety(), point.getx() == 0);
-                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score += sign*(chessman->getValue());
             }
             else if (promotion == "Knight"){
-                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score -= sign*(chessman->getValue());
                 delete chessman;
                 chessman = new Knight(point.getx(), point.gety(), point.getx() == 0);
-                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score += sign*(chessman->getValue());
             }
             else if (promotion == "Rook"){
-                score -= (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score -= sign*(chessman->getValue());
                 delete chessman;
                 chessman = new Rook(point.getx(), point.gety(), point.getx() == 0);
-                score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
+                score += sign*(chessman->getValue());
             }
         }
     }
@@ -323,12 +328,16 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         // si on va vers la gauche
         if (chessman->gety() > point.gety()){
             // On deplace la tour
+            score -= sign*(*this)((*chessman).getx(), 0)->getValue();
             (*this)((*chessman).getx(), 3, (*this)((*chessman).getx(), 0));
+            score += sign*(*this)((*chessman).getx(), 3)->getValue();
             this->setNone((*chessman).getx(), 0);
         }
         // vers la droite
         else{
+            score -= sign*(*this)((*chessman).getx(), 7)->getValue();
             (*this)((*chessman).getx(), 5, (*this)((*chessman).getx(), 7));
+            score += sign*(*this)((*chessman).getx(), 5)->getValue();
             this->setNone((*chessman).getx(), 7);
         }
     }
@@ -340,20 +349,19 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 
     this->setNone(oldCoordChessman.getx(),oldCoordChessman.gety());
     (*this)(point.getx(), point.gety(), chessman);
-    score += (2*chessman->getIsWhite()-1)*(chessman->getValue());
+    score += sign*(chessman->getValue());
 
     whiteIsPlaying = !whiteIsPlaying;
 }
 
 // Annulation des coups
 void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant){
-    // On retire le scpre de la piece prise et on retire le score de la piece deplacee
-    score -= (2*departure->getIsWhite()-1)*(arrival->getValue());
-    score -= (2*departure->getIsWhite()-1)*((*this)(final)->getValue());
+    // On retire le score de la piece prise et on retire le score de la piece deplacee
+    int sign = 2*(departure->getIsWhite())-1;
+    score -= sign*(arrival->getValue());
+    score -= sign*((*this)(final)->getValue());
     countHalfMove -= 1;
     countMove -= 1;
-    if (departure->getName() == "Pawn" && final.getx() == (!departure->getIsWhite())*7)
-        score = score - (2*departure->getIsWhite()-1)*((*this)(final)->getValue() - departure->getValue());
 
     if (departure->getName() == "King"){
         if (departure->getIsWhite()){
@@ -366,16 +374,20 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
 
     if (departure->getName() == "King" && abs(departure->gety() - final.gety()) >= 2){
         if (final.gety() == 2){
+            score -= sign*(*this)(departure->getx(), 3)->getValue();
             Chessman* rook = (*this)(departure->getx(), 3);
             rook->sethasMoved(false);
             (*this).setNone(departure->getx(), 3);
             (*this)(departure->getx(), 0, rook);
+            score += sign*(*this)(departure->getx(), 0)->getValue();
         }
         else{
+            score -= sign*(*this)(departure->getx(), 5)->getValue();
             Chessman* rook = this->operator ()(departure->getx(), 5);
             rook->sethasMoved(false);
             (*this).setNone(departure->getx(), 5);
             (*this)(departure->getx(), 7, rook);
+            score += sign*(*this)(departure->getx(), 7)->getValue();
         }
     }
     //prise en passant
@@ -385,14 +397,14 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
             pawn->setIsWhite(false);
             pawn->setdouble_done(true);
             (*this)(3, final.gety(), pawn);
-            score -= (2*departure->getIsWhite()-1)*((*this)(3, final.gety())->getValue());
+            score -= sign*((*this)(3, final.gety())->getValue());
         }
         else{
             Chessman* pawn = departure->clone();
             pawn->setIsWhite(true);
             pawn->setdouble_done(true);
             (*this)(4, final.gety(), pawn);
-            score -= (2*departure->getIsWhite()-1)*((*this)(4, final.gety())->getValue());
+            score -= sign*((*this)(4, final.gety())->getValue());
         }
     }
     if (!this->isVoid(final.getx(), final.gety()))
@@ -405,7 +417,7 @@ void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enp
     else
         (*this)(final.getx(), final.gety(), arrival);
 
-    score += (2*departure->getIsWhite()-1)*(departure->getValue());
+    score += sign*(departure->getValue());
     whiteIsPlaying = !whiteIsPlaying;
 
     // On reinitialise la prise en passant

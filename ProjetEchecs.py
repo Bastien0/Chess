@@ -137,7 +137,7 @@ class Disp(QtGui.QWidget):
             #C'est à l'ordinateur de jouer
             with open ("data.txt", "w") as fichier:
                 fichier.write(self.__grid.grid_to_ascii())
-            os.system(r'"C:/Users/anatole parre/Desktop/ENPC/2A/TD Log/Chess/Chess-build/Echecs.exe"')
+            os.system(r'"C:/Users/bri/Documents/ENPC/IMI/TDlog/Chess-master-build/Echecs.exe"')
             with open("data.txt", "r") as fichier2:
                 contenu = fichier2.read()
             fichier.close()
@@ -160,7 +160,7 @@ class Disp(QtGui.QWidget):
             self.__chessboard[initx][inity].deleteChessMan()
             self.evolve_chessboard()
             (i,j)=self.__grid.king_position(whiteIsPlaying)
-            if (self.chessMat(whiteIsPlaying)==True):
+            if (self.chessMat(whiteIsPlaying)):
                 (x,y)=self.__grid.king_position(1-whiteIsPlaying)
                 if (self.__grid.isChessed(self.__grid[(self.__grid.\
                         king_position(whiteIsPlaying))],x,y)):            
