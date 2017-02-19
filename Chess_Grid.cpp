@@ -278,12 +278,12 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
         //cas de la prise en passant
         if ((*chessman).gety() != point.gety() && this->isVoid(point.getx(), point.gety())){
             if ((*chessman).getIsWhite()){
-                this->setNone(point.getx()+1, point.gety());
                 score += sign*((*this)(point.getx()+1, point.gety())->getValue());
+                this->setNone(point.getx()+1, point.gety());
             }
             else{
-                this->setNone(point.getx()-1, point.gety());
                 score += sign*((*this)(point.getx()-1, point.gety())->getValue());
+                this->setNone(point.getx()-1, point.gety());
             }
         }
 
@@ -355,7 +355,7 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 }
 
 // Annulation des coups
-void Grid::unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant){
+void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant){
     // On retire le score de la piece prise et on retire le score de la piece deplacee
     int sign = 2*(departure->getIsWhite())-1;
     score -= sign*(arrival->getValue());

@@ -172,11 +172,11 @@ class Grid:
             someoneTaken = True
             takenChessman = self[(x, y)]
         #memoristaion de l'ancienne position 
-        coordIniChess =(Chessman.x, Chessman.y) 
-        self[(x,y)] = Chessman
+        coordIniChess =(Chessman.x, Chessman.y)
         Chessman.x = x
         Chessman.y = y
         self.setNone(coordIniChess[0], coordIniChess[1])
+        self[(x,y)] = Chessman
         for i in range(8):
             for j in range(8):
                 # si on tombe sur une piece de couleur differente,

@@ -97,18 +97,12 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alp
 int best_move(int depth, string fen){
     // Creation de la grille
     Grid G(fen);
-
     // Vecteur des positions accessibles et map de stockage
     vector<Point> possibleMoves;
     map<string, Point> memory;
 
     // On enregistre la prise en passant
-    Point Enpassant(0,0);
-    for (int i = 0; i < 8; i++)
-        if (G(4-G.getWhiteIsPlaying(), i)->getName() == "Pawn" && G(4-G.getWhiteIsPlaying(), i)->isDouble_done()){
-            Enpassant.setx(4-G.getWhiteIsPlaying());
-            Enpassant.sety(i);
-        }
+    Point Enpassant  = G.en_passant();
     int M = INT_MIN;
     int eval;
     int move = -1;

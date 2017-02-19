@@ -162,8 +162,8 @@ class Disp(QtGui.QWidget):
             (i,j)=self.__grid.king_position(whiteIsPlaying)
             if (self.chessMat(whiteIsPlaying)):
                 (x,y)=self.__grid.king_position(1-whiteIsPlaying)
-                if (self.__grid.isChessed(self.__grid[(self.__grid.\
-                        king_position(whiteIsPlaying))],x,y)):            
+                if (self.__grid.isChessed(self.__grid[self.__grid.\
+                    king_position(1-whiteIsPlaying)],x,y)):            
                     print ("Echec et mat !")
                     return (0)
                 else:
@@ -299,7 +299,7 @@ class Disp(QtGui.QWidget):
         if (self.chessMat(whiteIsPlaying)==True):
             (x,y)=self.__grid.king_position(1-whiteIsPlaying)
             if (self.__grid.isChessed(self.__grid[(self.__grid.\
-                    king_position(whiteIsPlaying))],x,y)):            
+                    king_position(1-whiteIsPlaying))],x,y)):            
                 print ("Echec et mat !")
                 return (0)
             else:
