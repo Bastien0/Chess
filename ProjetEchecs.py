@@ -5,7 +5,7 @@ Created on Mon Nov  7 15:55:31 2016
 
 @author: anatole parre
 """
-
+from PIL import Image
 import sys
 from PyQt4 import QtGui, QtCore
 import os
@@ -141,14 +141,14 @@ class Disp(QtGui.QWidget):
             with open("data.txt", "r") as fichier2:
                 contenu = fichier2.read()
             fichier.close()
-            promotion = False
+            promotion = None
             (initx,inity,arrivx,arrivy)=(int(contenu[0])-1,int(contenu[1])-1, \
                     int(contenu[2])-1,int(contenu[3])-1)
             if (self.__grid[(initx,inity)].name == "Pawn"):
                 if (arrivx == 0):
-                    promotion = True
+                    promotion = "Queen"
                 if (arrivx == 7):
-                    promotion = True
+                    promotion = "Queen"
             
             #s'il n'y a pas de promotion
             if promotion == None :
