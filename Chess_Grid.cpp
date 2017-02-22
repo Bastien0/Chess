@@ -124,7 +124,7 @@ Grid::Grid(string s){
         (*this)(Break.getx(), Break.gety())->sethasMoved(true);
         caractere += 1;
     }
-        //Sinon
+        //Sinon on effectue un roque
 
     else{
         bool PresenceK=false;
@@ -355,12 +355,12 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 }
 
 // Annulation des coups
-void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant){
+void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant, int halfmove){
     // On retire le score de la piece prise et on retire le score de la piece deplacee
     int sign = 2*(departure->getIsWhite())-1;
     score -= sign*(arrival->getValue());
     score -= sign*((*this)(final)->getValue());
-    countHalfMove -= 1;
+    countHalfMove = halfmove;
     countMove -= 1;
 
     if (departure->getName() == "King"){
@@ -391,7 +391,8 @@ void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enp
         }
     }
     //prise en passant
-    else if (departure->getName() == "Pawn" && arrival->getName() == "Empty" && departure->gety()!= final.gety()){
+    else if (departure->getName() == "Pawn" && arrival->getName() == "Empty" \
+             && departure->gety()!= final.gety()){
         if (departure->getIsWhite()){
             Chessman* pawn = departure->clone();
             pawn->setIsWhite(false);
@@ -452,7 +453,8 @@ vector<Chessman*> Grid::list_chessman_col(bool colorIsWhite){
     vector<Chessman*> l;
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            if (!((*this)(i, j)->getName() == "Empty") && (*this)(i, j)->getIsWhite() == colorIsWhite)
+            if (!((*this)(i, j)->getName() == "Empty") \
+                    && (*this)(i, j)->getIsWhite() == colorIsWhite)
                     l.push_back((*this)(i, j));
         }
     }
@@ -506,7 +508,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
     int t[4] = {-1, 1, -2, 2};
     for (int i = 0; i < 4; i++){
         for (int j = 0; j <4; j++){
-            if (abs(t[i]) != abs(t[j]) && 0 <= t[i]+Kpos.getx() && t[i]+Kpos.getx() < 8 && 0 <= t[j]+Kpos.gety() &&  t[j]+Kpos.gety() <8){
+            if (abs(t[i]) != abs(t[j]) && 0 <= t[i]+Kpos.getx() && \
+                    t[i]+Kpos.getx() < 8 && 0 <= t[j]+Kpos.gety() &&  t[j]+Kpos.gety() <8){
                 if ((*this)(t[i]+Kpos.getx(), t[j]+Kpos.gety())->getName() == "Knight"
                         && (*this)(t[i]+Kpos.getx(), t[j]+Kpos.gety())->getIsWhite() != chessman->getIsWhite())
                     chess = true;
@@ -557,7 +560,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx(), Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Rook" || (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Queen"))
+                     && ((*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Rook" || \
+                         (*this)(Kpos.getx(), Kpos.gety()+incr)->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -574,7 +578,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()+incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Rook" || \
+                         (*this)(Kpos.getx()+incr, Kpos.gety())->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -591,7 +596,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()-incr, Kpos.gety())->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Rook" || (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Rook" || \
+                         (*this)(Kpos.getx()-incr, Kpos.gety())->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -609,7 +615,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Bishop" || \
+                         (*this)(Kpos.getx()+incr, Kpos.gety()+incr)->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -626,7 +633,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Bishop" || \
+                         (*this)(Kpos.getx()-incr, Kpos.gety()+incr)->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -643,7 +651,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Bishop" || \
+                         (*this)(Kpos.getx()-incr, Kpos.gety()-incr)->getName() == "Queen"))
                 chess = true;
         }
     }
@@ -660,7 +669,8 @@ bool Grid::isChessed(Chessman* chessman, int x, int y){
                 chess = true;
             }
             else if ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getIsWhite() != chessman->getIsWhite()
-                     && ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Bishop" || (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Queen"))
+                     && ((*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Bishop" || \
+                         (*this)(Kpos.getx()+incr, Kpos.gety()-incr)->getName() == "Queen"))
                 chess = true;
         }
     }

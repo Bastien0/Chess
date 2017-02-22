@@ -29,6 +29,7 @@ public:
     int getScore() { return score; }
     Point en_passant(){ return enPassant; }
     void en_passant(Point p){ enPassant = p; }
+    int halfMove(){ return countHalfMove; }
 
     // Constructeur et desctructeur
     Grid(string s);
@@ -38,7 +39,7 @@ public:
     Chessman* operator()(Point p);
     void operator()(int coord0, int coord1, Chessman* chessman);
     void move(Point point, Chessman* chessman, string promotion = " ");
-    void unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant);
+    void unmove(Chessman* departure, Chessman* arrival, Point final, Point Enpassant, int halfmove);
     void setNone(int x, int y);
     Point king_position(bool isWhite);
     bool isVoid(int x, int y);

@@ -9,7 +9,7 @@ from Chessmen import Rook, Knight, Bishop, Queen, King, Pawn
 
 #Grille d'echecs
 class Grid:
-    #initialisation de la grilles
+    #initialisation de la grille
     def __init__(self):
         # pieces noires
         self.__grid = [[None for j in range(8)] for i in range(8)]
@@ -48,6 +48,8 @@ class Grid:
         self.__whiteIsPlaying = True
 
     
+    def halfMove(self):
+        return self.__countHalfMoves
     # accesseur d'une piece de coordonnees (i,j)
     def __getitem__(self, coord):
         return self.__grid[coord[0]][coord[1]]

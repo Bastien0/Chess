@@ -8,7 +8,12 @@ using namespace std;
 
 
 //Fonction alpha-beta
-int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alpha, int beta, map<string,Point>& memory){
+int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, \
+               int alpha, int beta, map<string,Point>& memory){
+    int halfmove = G.halfMove();
+    //50 coups
+    if (halfmove == 50)
+        return 0;
     //Condition d'arrêt
     if (depth <= 0)
         return (2*color-1)*G.getScore();
@@ -32,7 +37,8 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alp
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
                     possibleMoves = G(i,j)->allowed_moves(G);
                     //On parcourt tous les coups possibles
-                    for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
+                    for (vector<Point>::iterator it = possibleMoves.begin();
+                                                 it != possibleMoves.end(); ++it){
                         Chessman* startingFrame = G(i,j)->clone();
                         Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
                         // On teste si un pion arrive sur la case de promotion
@@ -48,7 +54,7 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alp
                             M = eval;
                         if (alpha < M)
                             alpha = M;
-                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                         if (beta < alpha)
                             return M;
                     }
@@ -65,7 +71,8 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alp
             for (int j = 0; j < 8; j++){
                 if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
                     possibleMoves = G(i,j)->allowed_moves(G);
-                    for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
+                    for (vector<Point>::iterator it = possibleMoves.begin(); \
+                                                 it != possibleMoves.end(); ++it){
                         Chessman* startingFrame = G(i,j)->clone();
                         Chessman* arrivingFrame = G(it->getx(),it->gety())->clone();
                         // On teste si un pion arrive sur la case de promotion
@@ -81,7 +88,7 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, int alp
                             M = eval;
                         if (beta > M)
                             beta = M;
-                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                         if (beta < alpha)
                             return M;
                     }
@@ -103,6 +110,8 @@ int best_move(int depth, string fen){
 
     // On enregistre la prise en passant
     Point Enpassant  = G.en_passant();
+    int halfmove = G.halfMove();
+
     int M = INT_MIN;
     int eval;
     int move = -1;
@@ -110,7 +119,8 @@ int best_move(int depth, string fen){
         for (int j = 0; j < 8; j++){
             if (!G.isVoid(i,j) && G(i,j)->getIsWhite() == G.getWhiteIsPlaying()){
                 possibleMoves = G(i,j)->allowed_moves(G);
-                for (vector<Point>::iterator it = possibleMoves.begin(); it != possibleMoves.end(); ++it){
+                for (vector<Point>::iterator it = possibleMoves.begin(); \
+                                             it != possibleMoves.end(); ++it){
                     if (move == -1)
                         move = (i+1)*1000+(j+1)*100+((*it).getx()+1)*10+(*it).gety()+1;
                     Chessman* startingFrame = G(i,j)->clone();
@@ -122,14 +132,15 @@ int best_move(int depth, string fen){
                     else
                         G.move(*it, G(i,j));
                     // On evalue la grille (la couleur d'evaluation est celle precedent le move
-                    eval = alpha_beta(G, depth-1, depth, false, !G.getWhiteIsPlaying(), INT_MIN, INT_MAX, memory);
+                    eval = alpha_beta(G, depth-1, depth, false, !G.getWhiteIsPlaying(), \
+                                      INT_MIN, INT_MAX, memory);
 
                     // Si l'evaluation est meilleure, on retient le coup à jouer
                     if (eval > M){
                         M = eval;
                         move = (i+1)*1000+(j+1)*100+((*it).getx()+1)*10+(*it).gety()+1;
                     }
-                    G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                    G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                 }
             }
         }
