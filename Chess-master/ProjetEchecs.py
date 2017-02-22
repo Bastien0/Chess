@@ -160,6 +160,10 @@ class Disp(QtGui.QWidget):
             self.__chessboard[initx][inity].deleteChessMan()
             self.evolve_chessboard()
             (i,j)=self.__grid.king_position(whiteIsPlaying)
+            #50 coups
+            if self.__grid.halfMove() == 50:
+                print("pat")
+                return (0)
             if (self.chessMat(whiteIsPlaying)):
                 (x,y)=self.__grid.king_position(1-whiteIsPlaying)
                 if (self.__grid.isChessed(self.__grid[self.__grid.\
@@ -296,6 +300,10 @@ class Disp(QtGui.QWidget):
         # on met a jour l'affichage
         self.evolve_chessboard()
         (i,j)=self.__grid.king_position(whiteIsPlaying)
+        #50 coups
+        if self.__grid.halfMove() == 50:
+                print("pat")
+                return (0)
         if (self.chessMat(whiteIsPlaying)==True):
             (x,y)=self.__grid.king_position(1-whiteIsPlaying)
             if (self.__grid.isChessed(self.__grid[(self.__grid.\

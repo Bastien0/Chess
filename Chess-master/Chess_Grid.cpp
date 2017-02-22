@@ -355,12 +355,12 @@ void Grid::move(Point point, Chessman* chessman, string promotion){
 }
 
 // Annulation des coups
-void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant){
+void Grid::unmove(Chessman *departure, Chessman *arrival, Point final, Point Enpassant, int halfmove){
     // On retire le score de la piece prise et on retire le score de la piece deplacee
     int sign = 2*(departure->getIsWhite())-1;
     score -= sign*(arrival->getValue());
     score -= sign*((*this)(final)->getValue());
-    countHalfMove -= 1;
+    countHalfMove = halfmove;
     countMove -= 1;
 
     if (departure->getName() == "King"){

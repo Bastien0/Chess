@@ -48,6 +48,8 @@ class Grid:
         self.__whiteIsPlaying = True
 
     
+    def halfMove(self):
+        return self.__countHalfMoves
     # accesseur d'une piece de coordonnees (i,j)
     def __getitem__(self, coord):
         return self.__grid[coord[0]][coord[1]]

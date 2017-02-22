@@ -10,6 +10,10 @@ using namespace std;
 //Fonction alpha-beta
 int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, \
                int alpha, int beta, map<string,Point>& memory){
+    int halfmove = G.halfMove();
+    //50 coups
+    if (halfmove == 50)
+        return 0;
     //Condition d'arrêt
     if (depth <= 0)
         return (2*color-1)*G.getScore();
@@ -50,7 +54,7 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, \
                             M = eval;
                         if (alpha < M)
                             alpha = M;
-                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                         if (beta < alpha)
                             return M;
                     }
@@ -84,7 +88,7 @@ int alpha_beta(Grid& G, int depth, int depthmax, bool isMax, bool color, \
                             M = eval;
                         if (beta > M)
                             beta = M;
-                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                        G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                         if (beta < alpha)
                             return M;
                     }
@@ -106,6 +110,8 @@ int best_move(int depth, string fen){
 
     // On enregistre la prise en passant
     Point Enpassant  = G.en_passant();
+    int halfmove = G.halfMove();
+
     int M = INT_MIN;
     int eval;
     int move = -1;
@@ -134,7 +140,7 @@ int best_move(int depth, string fen){
                         M = eval;
                         move = (i+1)*1000+(j+1)*100+((*it).getx()+1)*10+(*it).gety()+1;
                     }
-                    G.unmove(startingFrame, arrivingFrame, *it, Enpassant);
+                    G.unmove(startingFrame, arrivingFrame, *it, Enpassant, halfmove);
                 }
             }
         }
